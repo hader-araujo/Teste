@@ -57,6 +57,7 @@ Elimina o papel e os gritos no salão. Roda em tablet ou monitor na cozinha e no
 
 Interface impecável, rápida, acessada via navegador (QR Code). Sem download de app.
 
+- **Identificação via WhatsApp:** Ao abrir a sessão pela primeira vez, o cliente informa o número de WhatsApp e recebe um código OTP para confirmar. O número verificado fica associado à sessão da mesa. Isso garante que o estabelecimento tenha o contato do cliente registrado — útil para eventuais pendências. Nenhuma ação automática é disparada usando esse número.
 - **Cardápio Vendedor:** Fotos em alta qualidade, descrição de ingredientes, filtros (vegano, sem glúten, etc).
 - **Upselling Automatizado:** Sugestões inteligentes (ex: "Que tal adicionar bacon por R$ 4,00?" / "Combina com um Chopp Artesanal").
 - **Gestão da Conta:** O cliente acompanha a conta em tempo real.

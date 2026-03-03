@@ -50,6 +50,7 @@ Acesso: Cozinha e Bar via tablet ou monitor.
 ### 3.3. Módulo Cliente (Cardápio Digital) — Rota: `/cardapio/:slug/mesa/:mesaId`
 Acesso: Cliente via QR Code no navegador.
 
+- **Identificação via WhatsApp (obrigatória):** Ao abrir a sessão pela primeira vez, o cliente informa o número de WhatsApp. O sistema envia um OTP de 6 dígitos via WhatsApp. Após confirmar, o número fica salvo na sessão (`phone` + `phoneVerified = true`). Objetivo: ter o contato do cliente registrado para eventuais pendências. Nenhuma funcionalidade ativa usa esse número além do armazenamento.
 - Cardápio com fotos, descrições, filtros (vegano, sem glúten, etc).
 - Upselling: sugestões automáticas de adicionais e acompanhamentos.
 - Carrinho e envio de pedido.
@@ -354,13 +355,15 @@ model TableSession {
   tableId      String
   table        Table     @relation(fields: [tableId], references: [id])
   
-  token        String    @unique @default(cuid()) // Token na URL para o cliente reconectar
-  customerName String?                             // Opcional
-  peopleCount  Int       @default(1)
-  openedAt     DateTime  @default(now())
-  closedAt     DateTime?
-  isActive     Boolean   @default(true)
-  
+  token         String    @unique @default(cuid()) // Token na URL para o cliente reconectar
+  customerName  String?                             // Opcional
+  peopleCount   Int       @default(1)
+  phone         String?                             // WhatsApp do cliente (DDD + número, ex: "11999990000")
+  phoneVerified Boolean   @default(false)           // True após confirmar o OTP via WhatsApp
+  openedAt      DateTime  @default(now())
+  closedAt      DateTime?
+  isActive      Boolean   @default(true)
+
   orders       Order[]
   payments     Payment[]
   callRequests CallRequest[]
@@ -683,6 +686,8 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/session/:token` | Dados da sessão (pedidos, conta) |
 | POST | `/session/:token/join` | Cliente entrar na sessão |
+| POST | `/session/:token/phone` | Enviar OTP via WhatsApp para o número informado |
+| POST | `/session/:token/phone/verify` | Confirmar OTP e salvar número verificado na sessão |
 
 ### Menu
 | Método | Rota | Descrição |
@@ -871,6 +876,7 @@ Ao final desta sprint, o repositório deve ter toda a árvore de pastas criada (
 - [ ] Frontend: tela do cardápio digital (Next.js).
 - [ ] Carrinho e criação de pedido.
 - [ ] Sessão de mesa (token na URL + cookie).
+- [ ] Coleta e verificação de WhatsApp via OTP (tela obrigatória ao abrir a sessão).
 
 ### Sprint 5-6 — KDS e Tempo Real
 - [ ] WebSocket gateway (Socket.IO).
