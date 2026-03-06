@@ -36,7 +36,7 @@ Acesso: Cliente via QR Code no navegador.
 - **Identificacao via WhatsApp (obrigatoria):** OTP de 6 digitos via WhatsApp. Salva `phone` + `phoneVerified = true`.
 - Cardapio com galeria de fotos, descricoes, filtros (vegano, sem gluten, etc).
 - Upselling: sugestoes automaticas de adicionais e acompanhamentos.
-- **Pessoas na mesa:** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao — botao acessivel em todas as telas do cliente (header ou menu) para adicionar/remover pessoas a qualquer momento.
+- **Pessoas na mesa (REGRA CRITICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao. **OBRIGATORIO:** um botao visivel no header de TODAS as telas do cliente (cardapio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Nao basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
 - **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados.
 - **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Pedidos mistos (comida + bebida pronta + bebida preparada) geram **sub-pedidos** automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`). Cada sub-pedido segue seu fluxo independente.
 - **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuicao de pessoas.
