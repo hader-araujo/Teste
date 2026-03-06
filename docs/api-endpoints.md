@@ -49,8 +49,13 @@ Base URL: `/api/v1`
 | GET | `/menu/categories` | Listar categorias (admin) |
 | POST | `/menu/categories` | Criar categoria |
 | PUT | `/menu/categories/:id` | Atualizar categoria |
+| DELETE | `/menu/categories/:id` | Remover categoria |
+| GET | `/menu/tags` | Listar tags de produto (ex: vegano, sem gluten, picante) |
+| POST | `/menu/tags` | Criar tag |
+| PUT | `/menu/tags/:id` | Atualizar tag |
+| DELETE | `/menu/tags/:id` | Remover tag |
 | GET | `/menu/products` | Listar produtos (admin) |
-| POST | `/menu/products` | Criar produto (bebidas incluem `readyMade: bool` — pronta ou preparada) |
+| POST | `/menu/products` | Criar produto (inclui `destination: 'kitchen' \| 'bar' \| 'waiter'` e `tagIds[]`) |
 | PUT | `/menu/products/:id` | Atualizar produto |
 | PATCH | `/menu/products/:id/availability` | Toggle disponibilidade |
 
@@ -63,7 +68,7 @@ Base URL: `/api/v1`
 ## Orders
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos geram sub-pedidos automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) |
+| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos (produtos com destinos diferentes) geram sub-pedidos automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) baseado no campo `destination` do produto |
 | GET | `/orders` | Listar pedidos (admin, filtros) |
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |
@@ -86,7 +91,7 @@ Base URL: `/api/v1`
 | PATCH | `/calls/:id/acknowledge` | Garcom viu |
 | PATCH | `/calls/:id/resolve` | Garcom resolveu |
 
-## Stock
+## Stock (Fase 2 — NAO IMPLEMENTAR)
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/stock/ingredients` | Listar ingredientes |
@@ -97,19 +102,34 @@ Base URL: `/api/v1`
 ## Dashboard
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/dashboard/overview` | Metricas gerais em tempo real |
-| GET | `/dashboard/revenue` | Faturamento por periodo |
+| GET | `/dashboard/overview` | Metricas gerais em tempo real (tempo medio por categoria: bar/cozinha/garcom, ticket medio, mesas ativas) |
 | GET | `/dashboard/popular-items` | Itens mais vendidos |
+
+## Faturamento
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/billing/daily` | Faturamento do dia (receita, pedidos, ticket medio, comparativo) |
+| GET | `/billing/monthly` | Faturamento mensal (receita acumulada, grafico por dia, comparativo) |
+| GET | `/billing/cashier` | Fechamento de caixa (valores por forma de pagamento) |
+| GET | `/billing/waiter-fees` | Taxas de garcom por periodo (query: `from`, `to`) — valor devido a cada garcom |
 
 ## Staff
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/staff` | Listar funcionarios |
-| POST | `/staff` | Criar funcionario (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `delivers?: bool` para BAR) |
+| POST | `/staff` | Criar funcionario (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `delivers?: bool` para BAR, `pin: string` senha numerica para garcom) |
 | POST | `/staff/invite` | Enviar convite (log no console em dev) |
 | POST | `/staff/accept` | Aceitar convite e criar conta (publico) |
 | PUT | `/staff/:id` | Atualizar funcionario |
 | DELETE | `/staff/:id` | Desativar funcionario |
+
+## Turno do Garcom (Clock-in/out)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| POST | `/shifts/clock-in` | Garcom inicia turno (body: `{ staffId, pin }`) — salva hora de inicio |
+| POST | `/shifts/clock-out` | Garcom encerra turno (body: `{ staffId, pin }`) — salva hora de fim |
+| GET | `/shifts` | Listar turnos por periodo (query: `from`, `to`, `staffId?`) |
+| GET | `/shifts/active` | Garcons com turno ativo no momento |
 
 ## Escala (Programacao de Equipe)
 | Metodo | Rota | Descricao |
@@ -124,3 +144,28 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/restaurants/:id/settings` | Inclui `tableDistributionMode`: `all` ou `auto` |
 | PUT | `/restaurants/:id/settings` | Atualizar modo de distribuicao |
+
+## Super Admin — Estabelecimentos (role: SUPER_ADMIN)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/superadmin/establishments` | Listar todos os estabelecimentos (com filtros: status, inadimplente) |
+| POST | `/superadmin/establishments` | Cadastrar novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) |
+| GET | `/superadmin/establishments/:id` | Detalhes do estabelecimento |
+| PUT | `/superadmin/establishments/:id` | Atualizar dados do estabelecimento |
+| PATCH | `/superadmin/establishments/:id/status` | Alterar status (ativo, suspenso) |
+
+## Super Admin — Cobranca (role: SUPER_ADMIN)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/superadmin/establishments/:id/billing` | Historico de cobrancas/pagamentos do estabelecimento |
+| PUT | `/superadmin/establishments/:id/billing/plan` | Definir valor do plano base (body: `{ amount }`) |
+| POST | `/superadmin/establishments/:id/billing/payments` | Registrar pagamento mensal (body: `{ month, year, status, amount }`) |
+| PATCH | `/superadmin/establishments/:id/billing/payments/:paymentId` | Atualizar status de pagamento (pago, pendente, atrasado) |
+
+## Super Admin — Modulos (role: SUPER_ADMIN)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/superadmin/modules` | Listar todos os modulos disponiveis com valor padrao |
+| PUT | `/superadmin/modules/:moduleId` | Atualizar modulo (nome, descricao, valor padrao) |
+| GET | `/superadmin/establishments/:id/modules` | Listar modulos do estabelecimento (habilitados/desabilitados) |
+| PUT | `/superadmin/establishments/:id/modules/:moduleId` | Habilitar/desabilitar modulo + definir valor override (body: `{ enabled, customAmount? }`) |

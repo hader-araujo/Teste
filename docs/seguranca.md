@@ -18,6 +18,13 @@
 - JWT com access token (15min) + refresh token (7 dias).
 - Refresh token em httpOnly cookie.
 
+## Super Admin (equipe OChefia)
+- Role `SUPER_ADMIN` com acesso ao painel `/superadmin`.
+- Nao vinculado a nenhum restaurante — acesso cross-tenant.
+- Gerencia estabelecimentos, cobranca, modulos e monitoramento.
+- Autenticacao via JWT igual ao staff, mas com role especial.
+- Criado apenas via seed ou comando interno (nao ha registro publico).
+
 ## Protecoes
 - **Rate Limiting:** Por IP via `express-rate-limit`.
 - **Validacao:** `class-validator` + `ValidationPipe` global.

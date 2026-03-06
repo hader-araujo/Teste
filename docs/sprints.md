@@ -25,16 +25,17 @@ prototypes/
 │   ├── login.html              <- Tela de login
 │   ├── dashboard.html          <- Metricas, fila de pedidos, chamados
 │   ├── mesas.html              <- Mapa de mesas com status
-│   ├── cardapio-admin.html     <- CRUD categorias e produtos (com upload de fotos, flag bebida pronta/preparada)
-│   ├── estoque.html            <- Ingredientes e alertas
+│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, destino: cozinha/bar/garcom)
+│   ├── faturamento.html        <- Faturamento diario, mensal e taxas de garcom
 │   ├── staff.html              <- Gestao de equipe + convites + flag temporario + flag entrega (BAR)
 │   ├── escala.html             <- Programacao de escala (calendario por dia, proximos dias)
 │   ├── equipe-do-dia.html      <- Equipe trabalhando hoje + distribuicao de mesas por garcom
-│   └── settings.html           <- Configuracoes (taxa de servico, dados do restaurante, tema/cores com preview, modo de distribuicao de mesas)
+│   └── settings.html           <- Configuracoes (nome/logo do estabelecimento, taxa de servico, tema/cores com preview, modo de distribuicao de mesas)
 ├── kds/
 │   ├── cozinha.html            <- Fila de producao (dark mode, temporizadores, cores)
 │   └── bar.html                <- Fila de producao do bar
 └── garcom/
+    ├── clock-in.html           <- Ativacao de turno (senha do garcom)
     ├── mesas.html              <- Lista de mesas atribuidas
     ├── chamados.html           <- Chamados abertos + notificacoes
     ├── mesa-detalhe.html       <- Pedidos da mesa com divisao por pessoa
@@ -44,9 +45,9 @@ prototypes/
 **Checklist:**
 - [ ] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
 - [ ] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
-- [ ] Telas do **admin** — login -> dashboard -> mesas -> cardapio CRUD (com flag bebida pronta) -> estoque -> staff (com temporario + flag entrega BAR) -> escala -> equipe do dia (com distribuicao de mesas) -> settings (com modo de distribuicao).
+- [ ] Telas do **admin** — login -> dashboard -> mesas -> cardapio CRUD (com tags e destino: cozinha/bar/garcom) -> faturamento (diario, mensal, taxas garcom) -> staff (com temporario + flag entrega BAR + senha garcom) -> escala -> equipe do dia (com distribuicao de mesas) -> settings (com nome/logo do estabelecimento e modo de distribuicao).
 - [ ] Telas do **KDS** — cozinha e bar com fila, cores de status, temporizadores.
-- [ ] Telas do **garcom** — mesas -> chamados -> detalhe da mesa -> comanda.
+- [ ] Telas do **garcom** — ativacao de turno (clock-in com senha) -> mesas -> chamados -> detalhe da mesa -> comanda.
 - [ ] Navegacao funcional entre todas as telas (links).
 - [ ] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS.
 - [ ] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).
@@ -68,7 +69,7 @@ prototypes/
 - [ ] Seed com dados de teste.
 
 ## Sprint 3-4 — Cardapio e Pedidos
-- [ ] CRUD de categorias, produtos, adicionais.
+- [ ] CRUD de categorias, tags de produto, produtos (com campo destino: cozinha/bar/garcom), adicionais.
 - [ ] Cache do cardapio no Redis.
 - [ ] Endpoint publico do cardapio por slug.
 - [ ] Frontend: tela do cardapio digital (Next.js).
@@ -78,22 +79,23 @@ prototypes/
 
 ## Sprint 5-6 — KDS e Tempo Real
 - [ ] WebSocket gateway (Socket.IO).
-- [ ] Roteamento de pedidos: comida -> cozinha, bebida preparada -> bar, bebida pronta -> garcom direto.
-- [ ] Sub-pedidos automaticos para pedidos mistos (sufixo `_cozinha`, `_bar`, `_garcom`).
+- [ ] Roteamento de pedidos baseado no campo **destino** do produto: cozinha -> KDS cozinha, bar -> KDS bar, garcom -> direto.
+- [ ] Sub-pedidos automaticos para pedidos mistos baseado no destino (sufixo `_cozinha`, `_bar`, `_garcom`).
 - [ ] Frontend: tela KDS com fila, cores e temporizadores.
 - [ ] Fluxo BAR com flag "tambem entrega": barman com entrega mantem status Pronto -> Entregue no KDS. Sem entrega, notifica garcom.
 - [ ] Fluxo completo: cliente pede -> roteamento -> KDS/garcom recebe -> prepara -> marca pronto -> entrega.
 
-## Sprint 7-8 — Garcom, Chamados, Staff, Escala e Estoque
+## Sprint 7-8 — Garcom, Chamados, Staff, Escala e Faturamento
 - [ ] Modulo garcom (comanda mobile).
+- [ ] **Ativacao de turno (clock-in/out):** garcom informa inicio e fim do trabalho, com senha propria. Registro de tempo de servico.
 - [ ] Botao "O Chefia" (chamados com tipo).
 - [ ] Notificacoes para o garcom (pedido pronto, chamado de mesa, bebida pronta para retirada).
 - [ ] Frontend: tela do garcom (PWA).
-- [ ] CRUD de ingredientes e alertas de estoque.
-- [ ] Gestao de equipe com convites + flag temporario + dias fixos + flag entrega (BAR).
+- [ ] Gestao de equipe com convites + flag temporario + dias fixos + flag entrega (BAR) + **senha do garcom**.
 - [ ] Tela de Escala: programacao de equipe por dia, auto-preenchimento, ajustes manuais.
 - [ ] Tela Equipe do Dia: equipe ativa + distribuicao de mesas por garcom.
 - [ ] Configuracao de modo de distribuicao de mesas (todos vs. automatico) em Settings.
+- [ ] **Modulo Faturamento:** tela separada do dashboard com faturamento diario, mensal, fechamento de caixa e taxas de garcom.
 - [ ] Testes e2e (Supertest + Playwright).
 
 ## Sprint 9 — UI/UX e Componentes Base
@@ -110,20 +112,30 @@ prototypes/
 
 ## Sprint 11 — QR Code Pix, Relatorios, Notificacoes Push
 - [ ] QR Code Pix com baixa automatica.
-- [ ] Relatorios de faturamento e itens populares.
+- [ ] Relatorios de itens populares.
 - [ ] Notificacoes push para o garcom.
 - [ ] Racha de conta no frontend.
 
 ## Sprint 12+ — Dashboard Avancado e Otimizacoes
 - [ ] Dashboard gerencial avancado (mapa de mesas visual, graficos).
-- [ ] Controle de estoque com baixa automatica por pedido.
-- [ ] Alertas de estoque minimo em tempo real.
 
-## Sprint 13+ — Fase 2 (Plataforma) — NAO IMPLEMENTAR ATE AVISO EXPLICITO
-**Apenas referencia arquitetural. Nao iniciar ate o usuario pedir.**
-- [ ] App nativo com Capacitor (iOS/Android).
-- [ ] Cadastro/login do consumidor final.
-- [ ] Tela "Explorar" com estabelecimentos.
-- [ ] Lotacao em tempo real, reserva de mesa, pre-pedido.
-- [ ] Programa de fidelidade.
-- [ ] Emissao de NFC-e/SAT (integracao com Focus NFe ou similar).
+## Sprint 13 — Super Admin OChefia
+- [ ] Role `SUPER_ADMIN` no sistema de auth.
+- [ ] CRUD de estabelecimentos (cadastro, edicao, suspensao).
+- [ ] Sistema de cobranca: valor do plano, registro de pagamentos, status (pago/pendente/atrasado).
+- [ ] Sistema de modulos: modulo padrao + modulos extras. Habilitar/desabilitar por estabelecimento. Valor global e override.
+- [ ] Painel `/superadmin` com listagem, filtros, indicadores visuais de inadimplencia.
+- [ ] Metricas de uso por estabelecimento.
+- [ ] Seed com usuario SUPER_ADMIN.
+
+## Sprint 14+ — Fase 2 (Plataforma + Estoque) — NAO IMPLEMENTAR ATE AVISO EXPLICITO
+**Apenas referencia arquitetural. Nao iniciar ate o usuario pedir. Cada item e um modulo extra pago.**
+- [ ] **Modulo Estoque:** Controle de estoque com baixa automatica por pedido.
+- [ ] **Modulo Estoque:** Alertas de estoque minimo em tempo real.
+- [ ] **Modulo Estoque:** CRUD de ingredientes e vinculos com produtos.
+- [ ] **Modulo Explorar:** App nativo com Capacitor (iOS/Android).
+- [ ] **Modulo Explorar:** Cadastro/login do consumidor final.
+- [ ] **Modulo Explorar:** Tela "Explorar" com estabelecimentos.
+- [ ] **Modulo Explorar:** Lotacao em tempo real, reserva de mesa, pre-pedido.
+- [ ] **Modulo Explorar:** Programa de fidelidade.
+- [ ] **Modulo NFC-e/SAT:** Emissao fiscal (integracao com Focus NFe ou similar).

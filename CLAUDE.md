@@ -59,7 +59,7 @@ ochefia/
 | Cache | Redis |
 | Monorepo | Turborepo + pnpm |
 | Testes | Jest + Supertest + Playwright — **TDD obrigatorio** |
-| Logs | Winston JSON estruturado + Correlation ID |
+| Logs | Winston JSON estruturado + Correlation ID + CloudWatch (AWS) |
 | Autenticacao | JWT (access 15min + refresh 7d httpOnly cookie) |
 
 ---
@@ -93,7 +93,8 @@ ochefia/
 - Alteracoes via `prisma migrate dev`. Schema em `apps/api/prisma/schema.prisma`.
 
 ### Storage de Imagens
-- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local e S3.
+- **S3 + CloudFront** em producao. Filesystem local apenas em desenvolvimento.
+- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local (dev) e S3 (prod).
 - `STORAGE_DRIVER=local|s3`. Resize com `sharp` (thumb 200px, media 600px, original). Max 5MB, JPEG/PNG/WebP.
 
 ### Testes
@@ -116,11 +117,12 @@ pnpm test                                # Tudo via Turborepo
 ## Roles e Permissoes
 
 ```
-OWNER    -> Acesso total
-MANAGER  -> Admin sem config financeiras sensiveis
-WAITER   -> Modulo garcom + chamados
-KITCHEN  -> KDS (cozinha)
-BAR      -> KDS (bar) + flag opcional "tambem entrega" (entrega sem passar por garcom)
+SUPER_ADMIN -> Painel OChefia (gestao de estabelecimentos, cobranca, modulos) — cross-tenant
+OWNER       -> Acesso total ao seu estabelecimento
+MANAGER     -> Admin sem config financeiras sensiveis
+WAITER      -> Modulo garcom + chamados
+KITCHEN     -> KDS (cozinha)
+BAR         -> KDS (bar) + flag opcional "tambem entrega" (entrega sem passar por garcom)
 ```
 
 ---
@@ -161,6 +163,6 @@ Proximo: Sprint 0 (Scaffolding) -> Sprint 1-2 (Fundacao).
 | `docs/websocket-events.md` | Eventos Socket.IO + rooms |
 | `docs/design-system.md` | Cores, tipografia, componentes, theming |
 | `docs/modulos.md` | Descricao funcional de todos os modulos |
-| `docs/deploy.md` | Modelos de deploy (local, cloud, hibrido) |
+| `docs/deploy.md` | Deploy AWS, infra cloud, Super Admin |
 | `docs/seguranca.md` | Seguranca, multi-tenancy, LGPD |
 | `docs/observabilidade.md` | Logs, Winston, Correlation ID |
