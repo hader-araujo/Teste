@@ -83,6 +83,7 @@ ochefia/
 - Tailwind CSS exclusivo. Componentes >150 linhas devem ser quebrados.
 - Props tipadas com `interface`. Named exports.
 - Organizacao: `components/ui/`, `components/admin/`, `components/kds/`, `components/garcom/`, `components/cliente/`.
+- **Toda a interface (labels, botoes, mensagens, placeholders) deve ser 100% em pt-BR.** Codigo (variaveis, funcoes, classes) permanece em ingles.
 
 ### Shared (`packages/shared`)
 - TypeScript puro. Zero dependencias de framework. Tudo exportado pelo `index.ts`.
@@ -119,7 +120,7 @@ OWNER    -> Acesso total
 MANAGER  -> Admin sem config financeiras sensiveis
 WAITER   -> Modulo garcom + chamados
 KITCHEN  -> KDS (cozinha)
-BAR      -> KDS (bar)
+BAR      -> KDS (bar) + flag opcional "tambem entrega" (entrega sem passar por garcom)
 ```
 
 ---

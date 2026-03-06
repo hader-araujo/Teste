@@ -50,7 +50,7 @@ Base URL: `/api/v1`
 | POST | `/menu/categories` | Criar categoria |
 | PUT | `/menu/categories/:id` | Atualizar categoria |
 | GET | `/menu/products` | Listar produtos (admin) |
-| POST | `/menu/products` | Criar produto |
+| POST | `/menu/products` | Criar produto (bebidas incluem `readyMade: bool` — pronta ou preparada) |
 | PUT | `/menu/products/:id` | Atualizar produto |
 | PATCH | `/menu/products/:id/availability` | Toggle disponibilidade |
 
@@ -63,7 +63,7 @@ Base URL: `/api/v1`
 ## Orders
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1) |
+| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos geram sub-pedidos automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) |
 | GET | `/orders` | Listar pedidos (admin, filtros) |
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |
@@ -105,8 +105,22 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/staff` | Listar funcionarios |
-| POST | `/staff` | Criar funcionario |
+| POST | `/staff` | Criar funcionario (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `delivers?: bool` para BAR) |
 | POST | `/staff/invite` | Enviar convite (log no console em dev) |
 | POST | `/staff/accept` | Aceitar convite e criar conta (publico) |
 | PUT | `/staff/:id` | Atualizar funcionario |
 | DELETE | `/staff/:id` | Desativar funcionario |
+
+## Escala (Programacao de Equipe)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/schedule` | Listar escala por periodo (query: `from`, `to`) |
+| GET | `/schedule/day/:date` | Equipe do dia (auto-preenchido + ajustes manuais) |
+| PUT | `/schedule/day/:date` | Definir equipe do dia (body: `{ staffIds[] }`) |
+| PATCH | `/schedule/day/:date/tables` | Distribuir mesas entre garcons do dia (body: `{ assignments: [{ staffId, tableIds[] }] }`) |
+
+## Configuracoes de Distribuicao
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/restaurants/:id/settings` | Inclui `tableDistributionMode`: `all` ou `auto` |
+| PUT | `/restaurants/:id/settings` | Atualizar modo de distribuicao |
