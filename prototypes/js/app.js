@@ -474,6 +474,24 @@ function getActiveTheme() {
   return MOCK.restaurant.theme || 'classico';
 }
 
+// Toggle between Clássico and Escuro themes (client pages)
+var currentTheme = getActiveTheme();
+function toggleTheme() {
+  if (currentTheme === 'classico') {
+    currentTheme = 'escuro';
+    setTheme('escuro');
+    showToast('Tema: Escuro', 'info');
+  } else {
+    currentTheme = 'classico';
+    setTheme('classico');
+    showToast('Tema: Clássico', 'info');
+  }
+  // Update all toggle buttons on the page
+  document.querySelectorAll('#theme-toggle-btn').forEach(function(btn) {
+    btn.textContent = currentTheme === 'escuro' ? '\u2600' : '\u263E';
+  });
+}
+
 // ============================================
 // 9. Sidebar Toggle (Admin mobile)
 // ============================================

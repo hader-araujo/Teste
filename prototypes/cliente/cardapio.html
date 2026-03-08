@@ -85,7 +85,7 @@
 
     var activeCategory = null;
     var activeTags = [];
-    var currentTheme = 'classico';
+
 
     function renderCategories() {
       var bar = document.getElementById('category-bar');
@@ -239,20 +239,6 @@
         div.appendChild(btn);
         container.appendChild(div);
       });
-    }
-
-    function toggleTheme() {
-      if (currentTheme === 'classico') {
-        currentTheme = 'escuro';
-        setTheme('escuro');
-        document.getElementById('theme-toggle-btn').textContent = '\u2600';
-        showToast('Tema: Escuro', 'info');
-      } else {
-        currentTheme = 'classico';
-        setTheme('classico');
-        document.getElementById('theme-toggle-btn').textContent = '\u263E';
-        showToast('Tema: Clássico', 'info');
-      }
     }
 
     // Init
