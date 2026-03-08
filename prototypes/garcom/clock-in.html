@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Turno — OChefia Garçom</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body style="background-color:var(--color-gray-50); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem;">
+
+  <!-- Header -->
+  <header class="waiter-header" style="position:fixed; top:0; left:0; right:0; z-index:10;">
+    <h1>OChefia — Garçom</h1>
+  </header>
+
+  <!-- Login Section -->
+  <div class="login-card" id="clock-in-form" style="text-align:center; margin-top:4rem;">
+    <div style="margin-bottom:2rem;">
+      <div style="display:inline-flex; align-items:center; gap:0.75rem; justify-content:center;">
+        <div style="width:48px; height:48px; background-color:var(--color-primary); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1.125rem;">OC</div>
+        <span style="font-size:1.5rem; font-weight:700; color:var(--color-gray-900);">OChefia</span>
+      </div>
+    </div>
+
+    <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-gray-900); margin-bottom:1.5rem;">Iniciar Turno</h2>
+
+    <form onsubmit="event.preventDefault(); startShift();" style="text-align:left;">
+      <div class="input-group mb-4">
+        <label for="garcom">Garçom</label>
+        <select class="input" id="garcom" required>
+          <option value="">Escolher garçom...</option>
+          <option value="carlos">Carlos Silva</option>
+          <option value="fernanda">Fernanda Lima</option>
+          <option value="lucas">Lucas Temp</option>
+        </select>
+      </div>
+
+      <div class="input-group mb-4">
+        <label for="senha">Senha</label>
+        <input class="input" id="senha" type="password" placeholder="Senha" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">
+        Iniciar Turno
+      </button>
+    </form>
+  </div>
+
+  <!-- Active Shift Section (initially hidden) -->
+  <div class="login-card" id="shift-active" style="text-align:center; margin-top:4rem; display:none;">
+    <div style="margin-bottom:1.5rem;">
+      <div style="width:64px; height:64px; background-color:var(--color-success-light); border-radius:var(--radius-full); display:inline-flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+        <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="var(--color-success)" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg>
+      </div>
+      <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-gray-900);">Turno Ativo</h2>
+      <p style="color:var(--color-text-secondary); margin-top:0.5rem;" id="shift-info">Turno ativo desde 18:00</p>
+      <p style="color:var(--color-text-secondary); font-size:0.875rem; margin-top:0.25rem;" id="shift-waiter-name"></p>
+    </div>
+
+    <a href="mesas.html" class="btn btn-primary btn-full" style="margin-bottom:0.75rem;">
+      Ir para Mesas
+    </a>
+
+    <button class="btn btn-danger btn-full" onclick="endShift()">
+      Encerrar Turno
+    </button>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function startShift() {
+      var garcom = document.getElementById('garcom');
+      var selected = garcom.options[garcom.selectedIndex];
+      if (!selected.value) return;
+
+      var now = new Date();
+      var hours = String(now.getHours()).padStart(2, '0');
+      var minutes = String(now.getMinutes()).padStart(2, '0');
+
+      document.getElementById('clock-in-form').style.display = 'none';
+      document.getElementById('shift-active').style.display = 'block';
+      document.getElementById('shift-info').textContent = 'Turno ativo desde ' + hours + ':' + minutes;
+      document.getElementById('shift-waiter-name').textContent = selected.text;
+
+      showToast('Turno iniciado com sucesso!', 'success');
+    }
+
+    function endShift() {
+      document.getElementById('shift-active').style.display = 'none';
+      document.getElementById('clock-in-form').style.display = 'block';
+      document.getElementById('garcom').value = '';
+      document.getElementById('senha').value = '';
+      showToast('Turno encerrado.', 'warning');
+    }
+  </script>
+</body>
+</html>

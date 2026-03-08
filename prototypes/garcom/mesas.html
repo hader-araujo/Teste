@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minhas Mesas — OChefia Garçom</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="waiter-layout">
+
+    <!-- Header -->
+    <header class="waiter-header">
+      <h1>Minhas Mesas</h1>
+      <div class="waiter-badge" aria-label="3 notificações">3</div>
+    </header>
+
+    <!-- Mesa Grid -->
+    <main style="padding:1rem;">
+      <div class="grid grid-2 gap-3">
+
+        <!-- Mesa 1 — ocupada -->
+        <a href="mesa-detalhe.html" class="mesa-card ocupada" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">1</span>
+            <span class="badge badge-info">Ocupada</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>45min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 156,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">3 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 3 — ocupada -->
+        <a href="mesa-detalhe.html" class="mesa-card ocupada" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">3</span>
+            <span class="badge badge-info">Ocupada</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>1h12min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 284,50</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">5 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 4 — conta (yellow) + badge "Pedindo conta" -->
+        <a href="mesa-detalhe.html" class="mesa-card conta" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">4</span>
+            <span class="badge badge-warning">Pedindo conta</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>1h45min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 198,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">2 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 5 — ocupada + badge "Chamado" (red) -->
+        <a href="mesa-detalhe.html" class="mesa-card ocupada" style="text-decoration:none; position:relative;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">5</span>
+            <span class="badge badge-error">Chamado</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>23min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 78,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">2 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 7 — ocupada -->
+        <a href="mesa-detalhe.html" class="mesa-card ocupada" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">7</span>
+            <span class="badge badge-info">Ocupada</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>35min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 124,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">4 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 8 — atrasada (red) -->
+        <a href="mesa-detalhe.html" class="mesa-card atrasada" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">8</span>
+            <span class="badge badge-error">Atrasada</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>2h15min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 342,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">6 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 10 — ocupada -->
+        <a href="mesa-detalhe.html" class="mesa-card ocupada" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">10</span>
+            <span class="badge badge-info">Ocupada</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>58min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 210,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">3 pessoas</div>
+          </div>
+        </a>
+
+        <!-- Mesa 12 — ocupada -->
+        <a href="mesa-detalhe.html" class="mesa-card ocupada" style="text-decoration:none;">
+          <div class="flex justify-between items-center mb-2">
+            <span class="mesa-number">12</span>
+            <span class="badge badge-info">Ocupada</span>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">
+            <div class="flex justify-between">
+              <span>15min</span>
+              <span style="font-weight:600; color:var(--color-text-primary);">R$ 44,00</span>
+            </div>
+            <div style="margin-top:0.25rem; color:var(--color-text-muted);">2 pessoas</div>
+          </div>
+        </a>
+
+      </div>
+    </main>
+
+    <!-- FAB -->
+    <button class="fab" aria-label="Abrir nova mesa" onclick="showToast('Funcionalidade de abrir mesa em breve', 'info')">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+
+    <!-- Bottom Tabs -->
+    <nav class="waiter-tabs" aria-label="Navegação">
+      <a href="mesas.html" class="active">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Mesas
+      </a>
+      <a href="chamados.html">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Chamados
+      </a>
+      <a href="mesa-detalhe.html">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        Detalhes
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Perfil
+      </a>
+    </nav>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mesa 5 — OChefia Garçom</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="waiter-layout">
+
+    <!-- Header -->
+    <header class="waiter-header">
+      <a href="mesas.html" class="back-btn" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+      </a>
+      <h1>Mesa 5</h1>
+      <span style="font-size:0.875rem; color:var(--color-gray-400);">23min</span>
+    </header>
+
+    <main style="padding:1rem;">
+
+      <!-- Mesa Info -->
+      <section style="margin-bottom:1rem;">
+        <div class="flex justify-between items-center" style="padding:0.75rem; background-color:var(--color-gray-50); border-radius:var(--radius-lg);">
+          <div>
+            <span style="font-size:0.8125rem; color:var(--color-text-secondary);">Pessoas</span>
+            <div style="font-weight:600; color:var(--color-text-primary);">2 — João, Pedro</div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:0.8125rem; color:var(--color-text-secondary);">Valor parcial</span>
+            <div style="font-weight:700; color:var(--color-primary); font-size:1.125rem;">R$ 78,00</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabs -->
+      <section data-tabs="mesa-tabs">
+        <div class="tabs">
+          <button class="tab active" data-tab="tab-pessoa">Por Pessoa</button>
+          <button class="tab" data-tab="tab-todos">Todos os Itens</button>
+        </div>
+
+        <!-- Tab: Por Pessoa -->
+        <div class="tab-content active" id="tab-pessoa">
+
+          <!-- João -->
+          <div style="margin-bottom:1.25rem;">
+            <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
+              <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">João</span>
+              <span style="font-weight:700; color:var(--color-primary);">R$ 61,97</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <!-- Picanha (dividida por 3) -->
+              <div class="flex justify-between items-center" style="padding:0.5rem 0.75rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-md);">
+                <div class="flex items-center gap-2">
+                  <label class="flex items-center gap-2" style="cursor:pointer;">
+                    <input type="checkbox" style="width:18px; height:18px; accent-color:var(--color-success);">
+                    <span style="font-size:0.875rem;">1x Picanha na Brasa <span style="font-size:0.75rem; color:var(--color-text-muted);">(÷3)</span></span>
+                  </label>
+                </div>
+                <span class="badge badge-warning">Preparando</span>
+              </div>
+              <!-- 2x Chopp -->
+              <div class="flex justify-between items-center" style="padding:0.5rem 0.75rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-md);">
+                <div class="flex items-center gap-2">
+                  <label class="flex items-center gap-2" style="cursor:pointer;">
+                    <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--color-success);">
+                    <span style="font-size:0.875rem;">2x Chopp Pilsen</span>
+                  </label>
+                </div>
+                <span class="badge badge-success">Pronto</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pedro -->
+          <div style="margin-bottom:1.25rem;">
+            <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
+              <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">Pedro</span>
+              <span style="font-weight:700; color:var(--color-primary);">R$ 61,97</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <!-- Picanha (dividida por 3) -->
+              <div class="flex justify-between items-center" style="padding:0.5rem 0.75rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-md);">
+                <div class="flex items-center gap-2">
+                  <label class="flex items-center gap-2" style="cursor:pointer;">
+                    <input type="checkbox" style="width:18px; height:18px; accent-color:var(--color-success);">
+                    <span style="font-size:0.875rem;">1x Picanha na Brasa <span style="font-size:0.75rem; color:var(--color-text-muted);">(÷3)</span></span>
+                  </label>
+                </div>
+                <span class="badge badge-warning">Preparando</span>
+              </div>
+              <!-- 2x Chopp -->
+              <div class="flex justify-between items-center" style="padding:0.5rem 0.75rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-md);">
+                <div class="flex items-center gap-2">
+                  <label class="flex items-center gap-2" style="cursor:pointer;">
+                    <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--color-success);">
+                    <span style="font-size:0.875rem;">2x Chopp Pilsen</span>
+                  </label>
+                </div>
+                <span class="badge badge-success">Pronto</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tab: Todos os Itens -->
+        <div class="tab-content" id="tab-todos">
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+
+            <div class="flex justify-between items-center" style="padding:0.75rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-md);">
+              <div>
+                <div style="font-size:0.9375rem; font-weight:600; color:var(--color-text-primary);">1x Picanha na Brasa (400g)</div>
+                <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.125rem;">João, Pedro — R$ 89,90</div>
+                <div style="font-size:0.75rem; color:var(--color-warning); font-weight:500; margin-top:0.125rem;">Obs: Ponto mal passado</div>
+              </div>
+              <span class="badge badge-warning">Preparando</span>
+            </div>
+
+            <div class="flex justify-between items-center" style="padding:0.75rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-md);">
+              <div>
+                <div style="font-size:0.9375rem; font-weight:600; color:var(--color-text-primary);">2x Chopp Pilsen 500ml</div>
+                <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.125rem;">João, Pedro — R$ 32,00</div>
+              </div>
+              <span class="badge badge-success">Pronto</span>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Actions -->
+      <section style="display:flex; gap:0.75rem; margin-top:1.5rem; padding-bottom:1rem;">
+        <button class="btn btn-secondary btn-full" onclick="showToast('Conta solicitada para Mesa 5', 'info')">Pedir Conta</button>
+        <a href="comanda.html" class="btn btn-primary btn-full" style="text-decoration:none;">Novo Pedido</a>
+      </section>
+
+    </main>
+
+    <!-- Bottom Tabs -->
+    <nav class="waiter-tabs" aria-label="Navegação">
+      <a href="mesas.html">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Mesas
+      </a>
+      <a href="chamados.html">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Chamados
+      </a>
+      <a href="mesa-detalhe.html" class="active">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+        Detalhes
+      </a>
+      <a href="#">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Perfil
+      </a>
+    </nav>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

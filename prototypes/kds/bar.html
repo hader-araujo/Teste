@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KDS Bar — OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="kds-layout">
+
+    <!-- Header -->
+    <header class="kds-header">
+      <h1>KDS — Bar</h1>
+      <div style="display:flex; align-items:center; gap:1.5rem;">
+        <!-- Filter tabs -->
+        <nav style="display:flex; gap:0.5rem;" aria-label="Filtro por estação">
+          <button class="btn btn-sm" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full);">Todos</button>
+          <button class="btn btn-sm" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full);">Bar</button>
+        </nav>
+        <!-- Connection indicator -->
+        <div class="kds-connection">
+          <span class="dot"></span>
+          <span>Conectado</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Orders Grid -->
+    <main class="kds-grid" aria-live="polite">
+
+      <!-- Pedido #42-B — Mesa 5 — 3min (green, normal) -->
+      <article class="kds-card" data-order-id="42-B" data-start-minutes="3">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #42-B</span>
+            <span class="kds-table">Mesa 5</span>
+          </div>
+          <span class="kds-timer">3min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">2x</span>
+            <span class="kds-item-name">Chopp Pilsen</span>
+          </div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('42-B')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #43-B — Mesa 1 — 8min (green, normal) -->
+      <article class="kds-card" data-order-id="43-B" data-start-minutes="8">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #43-B</span>
+            <span class="kds-table">Mesa 1</span>
+          </div>
+          <span class="kds-timer">8min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Caipirinha de Limão</span>
+          </div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('43-B')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #49-B — Mesa 12 — 2min (green, normal) — has "entrega" flag -->
+      <article class="kds-card" data-order-id="49-B" data-start-minutes="2">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #49-B</span>
+            <span class="kds-table">Mesa 12</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span class="badge badge-info" style="font-size:0.6875rem;">Entrega</span>
+            <span class="kds-timer">2min</span>
+          </div>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Suco Natural de Laranja</span>
+          </div>
+          <div class="kds-item">
+            <span class="kds-item-qty">2x</span>
+            <span class="kds-item-name">Chopp Pilsen</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:0;">
+          <button class="kds-bump-btn" style="flex:1;" onclick="kdsBump('49-B')">PRONTO</button>
+          <button class="kds-bump-btn" style="flex:1; background-color:var(--color-info);" onclick="kdsBump('49-B'); showToast('Pedido marcado como entregue!', 'success');">ENTREGUE</button>
+        </div>
+      </article>
+
+      <!-- Pedido #50-B — Mesa 8 — 14min (warning) -->
+      <article class="kds-card status-warning" data-order-id="50-B" data-start-minutes="14">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #50-B</span>
+            <span class="kds-table">Mesa 8</span>
+          </div>
+          <span class="kds-timer warning">14min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">3x</span>
+            <span class="kds-item-name">Caipirinha de Limão</span>
+          </div>
+          <div class="kds-item-obs">1 sem açúcar</div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('50-B')">PRONTO</button>
+      </article>
+
+    </main>
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>
