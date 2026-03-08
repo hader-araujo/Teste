@@ -92,10 +92,8 @@
             <span class="kds-item-name">Chopp Pilsen</span>
           </div>
         </div>
-        <div style="display:flex; gap:0;">
-          <button class="kds-bump-btn" style="flex:1;" onclick="kdsBump('49-B')">PRONTO</button>
-          <button class="kds-bump-btn" style="flex:1; background-color:var(--color-info);" onclick="kdsBump('49-B'); showToast('Pedido marcado como entregue!', 'success');">ENTREGUE</button>
-        </div>
+        <button class="kds-bump-btn" id="btn-pronto-49B" onclick="this.style.display='none'; document.getElementById('btn-entregue-49B').style.display='block'; showToast('Pedido #49-B pronto! Aguardando entrega.', 'success');">PRONTO</button>
+        <button class="kds-bump-btn" id="btn-entregue-49B" style="display:none; background-color:var(--color-info);" onclick="kdsBump('49-B'); showToast('Pedido #49-B entregue!', 'success');">ENTREGUE</button>
       </article>
 
       <!-- Pedido #50-B — Mesa 8 — 14min (warning) -->
