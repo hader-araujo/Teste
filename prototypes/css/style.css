@@ -626,6 +626,7 @@ table tbody tr:hover {
   border-bottom: 2px solid var(--color-border-light);
   gap: 0;
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .tab {
