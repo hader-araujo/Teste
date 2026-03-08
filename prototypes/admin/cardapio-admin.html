@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardápio — OChefia Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">OC</div>
+        <span class="logo-text">OChefia</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Principal</div>
+          <a href="dashboard.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Dashboard
+          </a>
+          <a href="mesas.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Mesas
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Cardápio</div>
+          <a href="cardapio-admin.html" class="sidebar-item active">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>
+            Cardápio
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Equipe</div>
+          <a href="staff.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            Equipe
+          </a>
+          <a href="escala.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Escala
+          </a>
+          <a href="equipe-do-dia.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            Equipe do Dia
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Financeiro</div>
+          <a href="faturamento.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Faturamento
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Sistema</div>
+          <a href="settings.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Configurações
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">D</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Dono</div>
+          <div class="sidebar-user-role">Proprietário</div>
+        </div>
+        <a href="login.html" style="color:var(--color-gray-400)" aria-label="Sair">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div class="breadcrumb">Admin</div>
+          <h1>Cardápio</h1>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modal-novo-produto')">+ Novo Produto</button>
+      </div>
+
+      <!-- Page Body -->
+      <div class="admin-page-body">
+
+        <!-- Tabs -->
+        <div data-tabs="cardapio-tabs">
+          <div class="tabs">
+            <div class="tab active" data-tab="tab-categorias">Categorias</div>
+            <div class="tab" data-tab="tab-tags">Tags</div>
+            <div class="tab" data-tab="tab-produtos">Produtos</div>
+          </div>
+
+          <!-- Tab: Categorias -->
+          <div class="tab-content active" id="tab-categorias">
+            <div class="card">
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Produtos</th>
+                      <th>Ordem</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:500;">Entradas</td>
+                      <td>3 produtos</td>
+                      <td>1</td>
+                      <td>
+                        <div style="display:flex; gap:0.5rem;">
+                          <button class="btn btn-ghost btn-sm" aria-label="Editar" onclick="showToast('Editar categoria Entradas', 'info')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" aria-label="Excluir" onclick="showToast('Categoria excluída', 'warning')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Pratos Principais</td>
+                      <td>4 produtos</td>
+                      <td>2</td>
+                      <td>
+                        <div style="display:flex; gap:0.5rem;">
+                          <button class="btn btn-ghost btn-sm" aria-label="Editar" onclick="showToast('Editar categoria', 'info')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" aria-label="Excluir" onclick="showToast('Categoria excluída', 'warning')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Hambúrgueres</td>
+                      <td>2 produtos</td>
+                      <td>3</td>
+                      <td>
+                        <div style="display:flex; gap:0.5rem;">
+                          <button class="btn btn-ghost btn-sm" aria-label="Editar" onclick="showToast('Editar categoria', 'info')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" aria-label="Excluir" onclick="showToast('Categoria excluída', 'warning')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Bebidas</td>
+                      <td>4 produtos</td>
+                      <td>4</td>
+                      <td>
+                        <div style="display:flex; gap:0.5rem;">
+                          <button class="btn btn-ghost btn-sm" aria-label="Editar" onclick="showToast('Editar categoria', 'info')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" aria-label="Excluir" onclick="showToast('Categoria excluída', 'warning')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Sobremesas</td>
+                      <td>2 produtos</td>
+                      <td>5</td>
+                      <td>
+                        <div style="display:flex; gap:0.5rem;">
+                          <button class="btn btn-ghost btn-sm" aria-label="Editar" onclick="showToast('Editar categoria', 'info')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button class="btn btn-ghost btn-sm" aria-label="Excluir" onclick="showToast('Categoria excluída', 'warning')">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Tags -->
+          <div class="tab-content" id="tab-tags">
+            <div style="display:flex; flex-wrap:wrap; gap:0.75rem;" id="tags-grid">
+              <!-- Tag chips -->
+              <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-full); box-shadow:var(--shadow-sm);">
+                <span style="width:10px; height:10px; border-radius:50%; background:#16A34A;"></span>
+                <span style="font-size:0.875rem; font-weight:500;">Vegano</span>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Editar tag Vegano" onclick="showToast('Editar tag Vegano', 'info')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Excluir tag Vegano" onclick="showToast('Tag excluída', 'warning')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+
+              <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-full); box-shadow:var(--shadow-sm);">
+                <span style="width:10px; height:10px; border-radius:50%; background:#2563EB;"></span>
+                <span style="font-size:0.875rem; font-weight:500;">Sem Glúten</span>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Editar tag Sem Glúten" onclick="showToast('Editar tag Sem Glúten', 'info')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Excluir tag Sem Glúten" onclick="showToast('Tag excluída', 'warning')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+
+              <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-full); box-shadow:var(--shadow-sm);">
+                <span style="width:10px; height:10px; border-radius:50%; background:#DC2626;"></span>
+                <span style="font-size:0.875rem; font-weight:500;">Picante</span>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Editar tag Picante" onclick="showToast('Editar tag Picante', 'info')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Excluir tag Picante" onclick="showToast('Tag excluída', 'warning')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+
+              <div style="display:inline-flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; background:white; border:1px solid var(--color-border-light); border-radius:var(--radius-full); box-shadow:var(--shadow-sm);">
+                <span style="width:10px; height:10px; border-radius:50%; background:#CA8A04;"></span>
+                <span style="font-size:0.875rem; font-weight:500;">Sugestão do Chef</span>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Editar tag Sugestão do Chef" onclick="showToast('Editar tag Sugestão do Chef', 'info')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-sm" style="padding:0.125rem; min-height:auto;" aria-label="Excluir tag Sugestão do Chef" onclick="showToast('Tag excluída', 'warning')">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Produtos -->
+          <div class="tab-content" id="tab-produtos">
+            <div class="card">
+              <div class="table-container" style="overflow-x:auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Foto</th>
+                      <th>Nome</th>
+                      <th>Categoria</th>
+                      <th style="text-align:right;">Preço</th>
+                      <th>Destino</th>
+                      <th>Tags</th>
+                      <th>Disponível</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="produtos-tbody">
+                    <!-- JS vai popular -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Modal Novo Produto -->
+  <div class="modal-overlay" id="modal-novo-produto">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <h3>Novo Produto</h3>
+        <button class="btn-ghost" onclick="closeModal('modal-novo-produto')" aria-label="Fechar" style="padding:0.25rem;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:1rem;">
+
+        <div class="input-group">
+          <label for="prod-name">Nome</label>
+          <input class="input" id="prod-name" type="text" placeholder="Ex.: Picanha na Brasa">
+        </div>
+
+        <div class="input-group">
+          <label for="prod-desc">Descrição</label>
+          <textarea class="input" id="prod-desc" rows="3" placeholder="Descreva o produto..." style="resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div class="input-group">
+            <label for="prod-category">Categoria</label>
+            <select class="select" id="prod-category">
+              <option value="">Selecione...</option>
+              <option value="1">Entradas</option>
+              <option value="2">Pratos Principais</option>
+              <option value="3">Hambúrgueres</option>
+              <option value="4">Bebidas</option>
+              <option value="5">Sobremesas</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="prod-price">Preço (R$)</label>
+            <input class="input" id="prod-price" type="number" step="0.01" min="0" placeholder="0,00">
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Destino de preparo</label>
+          <div style="display:flex; gap:1.5rem; margin-top:0.25rem;">
+            <label class="checkbox-group">
+              <input type="radio" name="prod-dest" value="cozinha" checked> Cozinha
+            </label>
+            <label class="checkbox-group">
+              <input type="radio" name="prod-dest" value="bar"> Bar
+            </label>
+            <label class="checkbox-group">
+              <input type="radio" name="prod-dest" value="garcom"> Garçom
+            </label>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Tags</label>
+          <div style="display:flex; flex-wrap:wrap; gap:1rem; margin-top:0.25rem;">
+            <label class="checkbox-group">
+              <input type="checkbox" name="prod-tags" value="1"> Vegano
+            </label>
+            <label class="checkbox-group">
+              <input type="checkbox" name="prod-tags" value="2"> Sem Glúten
+            </label>
+            <label class="checkbox-group">
+              <input type="checkbox" name="prod-tags" value="3"> Picante
+            </label>
+            <label class="checkbox-group">
+              <input type="checkbox" name="prod-tags" value="4"> Sugestão do Chef
+            </label>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Foto do produto</label>
+          <div style="width:100%; height:120px; border:2px dashed var(--color-gray-300); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; color:var(--color-text-muted); font-size:0.875rem; cursor:pointer;" onclick="showToast('Upload de foto (protótipo)', 'info')">
+            Clique para enviar uma foto
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('modal-novo-produto')">Cancelar</button>
+        <button class="btn btn-primary" onclick="closeModal('modal-novo-produto'); showToast('Produto salvo com sucesso!', 'success');">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function getCategoryName(categoryId) {
+      var cat = MOCK.categories.find(function(c) { return c.id === categoryId; });
+      return cat ? cat.name : '';
+    }
+
+    function getTagNames(tagIds) {
+      return tagIds.map(function(id) {
+        var tag = MOCK.tags.find(function(t) { return t.id === id; });
+        return tag ? tag.name : '';
+      }).filter(Boolean);
+    }
+
+    function renderProdutos() {
+      var tbody = document.getElementById('produtos-tbody');
+      if (!tbody) return;
+      tbody.textContent = '';
+
+      MOCK.products.forEach(function(product) {
+        var tr = document.createElement('tr');
+
+        // Foto placeholder
+        var tdFoto = document.createElement('td');
+        var fotoPlaceholder = document.createElement('div');
+        fotoPlaceholder.style.cssText = 'width:40px; height:40px; background:var(--color-gray-100); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--color-text-muted); font-size:0.625rem;';
+        fotoPlaceholder.textContent = 'Foto';
+        tdFoto.appendChild(fotoPlaceholder);
+        tr.appendChild(tdFoto);
+
+        // Nome
+        var tdName = document.createElement('td');
+        tdName.style.fontWeight = '500';
+        tdName.textContent = product.name;
+        tr.appendChild(tdName);
+
+        // Categoria
+        var tdCat = document.createElement('td');
+        tdCat.textContent = getCategoryName(product.categoryId);
+        tr.appendChild(tdCat);
+
+        // Preço
+        var tdPrice = document.createElement('td');
+        tdPrice.style.textAlign = 'right';
+        tdPrice.style.fontWeight = '600';
+        tdPrice.textContent = formatCurrency(product.price);
+        tr.appendChild(tdPrice);
+
+        // Destino
+        var tdDest = document.createElement('td');
+        var destBadge = document.createElement('span');
+        destBadge.className = 'badge ' + getDestinationBadgeClass(product.destination);
+        destBadge.textContent = getDestinationLabel(product.destination);
+        tdDest.appendChild(destBadge);
+        tr.appendChild(tdDest);
+
+        // Tags
+        var tdTags = document.createElement('td');
+        var tagNames = getTagNames(product.tags);
+        if (tagNames.length > 0) {
+          var tagContainer = document.createElement('div');
+          tagContainer.style.cssText = 'display:flex; flex-wrap:wrap; gap:0.25rem;';
+          tagNames.forEach(function(tagName) {
+            var tagBadge = document.createElement('span');
+            tagBadge.className = 'badge badge-primary';
+            tagBadge.style.fontSize = '0.6875rem';
+            tagBadge.textContent = tagName;
+            tagContainer.appendChild(tagBadge);
+          });
+          tdTags.appendChild(tagContainer);
+        } else {
+          tdTags.style.color = 'var(--color-text-muted)';
+          tdTags.textContent = '—';
+        }
+        tr.appendChild(tdTags);
+
+        // Disponível (toggle)
+        var tdAvail = document.createElement('td');
+        var toggleDiv = document.createElement('div');
+        toggleDiv.className = 'toggle' + (product.available ? ' active' : '');
+        toggleDiv.setAttribute('role', 'switch');
+        toggleDiv.setAttribute('aria-checked', product.available ? 'true' : 'false');
+        toggleDiv.setAttribute('aria-label', 'Disponível');
+        tdAvail.appendChild(toggleDiv);
+        tr.appendChild(tdAvail);
+
+        // Ações
+        var tdActions = document.createElement('td');
+        var actionsDiv = document.createElement('div');
+        actionsDiv.style.cssText = 'display:flex; gap:0.5rem;';
+
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-ghost btn-sm';
+        editBtn.setAttribute('aria-label', 'Editar produto');
+        editBtn.onclick = function() { showToast('Editar ' + product.name, 'info'); };
+        var editSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        editSvg.setAttribute('viewBox', '0 0 24 24');
+        editSvg.setAttribute('width', '16');
+        editSvg.setAttribute('height', '16');
+        editSvg.setAttribute('fill', 'none');
+        editSvg.setAttribute('stroke', 'currentColor');
+        editSvg.setAttribute('stroke-width', '2');
+        var editPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        editPath1.setAttribute('d', 'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7');
+        var editPath2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        editPath2.setAttribute('d', 'M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z');
+        editSvg.appendChild(editPath1);
+        editSvg.appendChild(editPath2);
+        editBtn.appendChild(editSvg);
+        actionsDiv.appendChild(editBtn);
+
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-ghost btn-sm';
+        delBtn.setAttribute('aria-label', 'Excluir produto');
+        delBtn.onclick = function() { showToast('Produto excluído', 'warning'); };
+        var delSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        delSvg.setAttribute('viewBox', '0 0 24 24');
+        delSvg.setAttribute('width', '16');
+        delSvg.setAttribute('height', '16');
+        delSvg.setAttribute('fill', 'none');
+        delSvg.setAttribute('stroke', 'currentColor');
+        delSvg.setAttribute('stroke-width', '2');
+        var delPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        delPoly.setAttribute('points', '3,6 5,6 21,6');
+        var delPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        delPath.setAttribute('d', 'M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2');
+        delSvg.appendChild(delPoly);
+        delSvg.appendChild(delPath);
+        delBtn.appendChild(delSvg);
+        actionsDiv.appendChild(delBtn);
+
+        tdActions.appendChild(actionsDiv);
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', renderProdutos);
+  </script>
+</body>
+</html>
