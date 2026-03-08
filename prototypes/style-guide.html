@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OChefia — Style Guide</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .sg-page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .sg-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+    .sg-header h1 { font-size: 2rem; font-weight: 700; color: var(--color-primary); }
+    .sg-section { margin-bottom: 3rem; }
+    .sg-section > h2 { font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--color-border-light); }
+    .sg-subsection { margin-bottom: 1.5rem; }
+    .sg-subsection h3 { font-size: 1.125rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 0.75rem; }
+    .sg-grid { display: grid; gap: 1rem; }
+    .sg-grid-2 { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .sg-grid-3 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .sg-grid-5 { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .sg-flex { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+    .sg-swatch-label { font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.25rem; }
+    .sg-type-row { margin-bottom: 0.75rem; }
+    .sg-type-label { font-size: 0.75rem; color: var(--color-text-muted); margin-bottom: 0.125rem; }
+    .sg-demo-box { padding: 1.5rem; border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); background: var(--color-white); }
+    .sg-compare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .sg-compare-card { border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--color-border-light); }
+    .sg-compare-header { padding: 0.75rem 1rem; font-weight: 600; font-size: 0.875rem; }
+    .sg-compare-body { padding: 1rem; font-size: 0.8rem; }
+    .theme-switcher { display: flex; gap: 0.5rem; }
+    .theme-btn { padding: 0.5rem 1rem; border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 500; border: 1px solid var(--color-border); cursor: pointer; background: var(--color-white); color: var(--color-text-primary); transition: all 0.15s ease; }
+    .theme-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .sg-placeholder-img { width: 100%; height: 120px; background: var(--color-gray-200); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <main class="sg-page">
+
+    <!-- Header com theme switcher -->
+    <header class="sg-header">
+      <h1>OChefia — Design System</h1>
+      <div class="theme-switcher">
+        <button class="theme-btn active" onclick="switchTheme('classico', this)">Clássico</button>
+        <button class="theme-btn" onclick="switchTheme('escuro', this)">Escuro</button>
+      </div>
+    </header>
+
+    <!-- ============================================
+         PALETA DE CORES
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Paleta de Cores</h2>
+      <div class="sg-grid sg-grid-5">
+        <div>
+          <div class="color-swatch" style="background-color: #EA580C;"><span>#EA580C</span></div>
+          <p class="sg-swatch-label">Primary</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #C2410C;"><span>#C2410C</span></div>
+          <p class="sg-swatch-label">Primary hover</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #FFF7ED; border: 1px solid #E5E7EB;"><span>#FFF7ED</span></div>
+          <p class="sg-swatch-label">Primary light</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #111827;"><span>#111827</span></div>
+          <p class="sg-swatch-label">Gray-900</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #6B7280;"><span>#6B7280</span></div>
+          <p class="sg-swatch-label">Gray-500</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #F9FAFB; border: 1px solid #E5E7EB;"><span>#F9FAFB</span></div>
+          <p class="sg-swatch-label">Gray-50</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #16A34A;"><span>#16A34A</span></div>
+          <p class="sg-swatch-label">Success</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #CA8A04;"><span>#CA8A04</span></div>
+          <p class="sg-swatch-label">Warning</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #DC2626;"><span>#DC2626</span></div>
+          <p class="sg-swatch-label">Error</p>
+        </div>
+        <div>
+          <div class="color-swatch" style="background-color: #2563EB;"><span>#2563EB</span></div>
+          <p class="sg-swatch-label">Info</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TIPOGRAFIA
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Tipografia</h2>
+      <div class="sg-demo-box">
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-4xl / font-bold</p>
+          <p class="text-4xl font-bold">Cardápio Digital — 2.25rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-3xl / font-bold</p>
+          <p class="text-3xl font-bold">Dashboard Gerencial — 1.875rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-2xl / font-bold</p>
+          <p class="text-2xl font-bold">Título da Página — 1.5rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-xl / font-semibold</p>
+          <p class="text-xl font-semibold">Nome do Restaurante — 1.25rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-lg / font-semibold</p>
+          <p class="text-lg font-semibold">Subtítulo de Seção — 1.125rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-base / font-medium</p>
+          <p class="text-base font-medium">Texto padrão com peso médio — 1rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-sm / font-normal</p>
+          <p class="text-sm font-normal">Texto secundário e descrições — 0.875rem</p>
+        </div>
+        <div class="sg-type-row">
+          <p class="sg-type-label">text-xs / font-semibold / text-uppercase</p>
+          <p class="text-xs font-semibold text-uppercase">Rótulo de tabela — 0.75rem</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         BOTOES
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Botões</h2>
+
+      <div class="sg-subsection">
+        <h3>Variantes</h3>
+        <div class="sg-flex">
+          <button class="btn btn-primary">Primário</button>
+          <button class="btn btn-secondary">Secundário</button>
+          <button class="btn btn-danger">Perigo</button>
+          <button class="btn btn-success">Sucesso</button>
+          <button class="btn btn-ghost">Ghost</button>
+        </div>
+      </div>
+
+      <div class="sg-subsection">
+        <h3>Tamanhos</h3>
+        <div class="sg-flex">
+          <button class="btn btn-primary btn-sm">Pequeno (btn-sm)</button>
+          <button class="btn btn-primary">Padrão</button>
+          <button class="btn btn-primary btn-lg">Grande (btn-lg)</button>
+        </div>
+      </div>
+
+      <div class="sg-subsection">
+        <h3>Largura total</h3>
+        <div style="max-width: 400px;">
+          <button class="btn btn-primary btn-full">Botão Largura Total (btn-full)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         BADGES
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Badges</h2>
+      <div class="sg-flex">
+        <span class="badge badge-success">Sucesso</span>
+        <span class="badge badge-warning">Atenção</span>
+        <span class="badge badge-error">Erro</span>
+        <span class="badge badge-info">Informação</span>
+        <span class="badge badge-gray">Neutro</span>
+        <span class="badge badge-primary">Primário</span>
+      </div>
+    </section>
+
+    <!-- ============================================
+         CARDS
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Cards</h2>
+
+      <div class="sg-subsection">
+        <h3>card e card-elevated</h3>
+        <div class="sg-grid sg-grid-2">
+          <div class="card">
+            <div class="card-body">
+              <p class="font-semibold">Card padrão</p>
+              <p class="text-sm" style="color: var(--color-text-secondary);">Com borda sutil e fundo branco.</p>
+            </div>
+          </div>
+          <div class="card-elevated">
+            <div class="card-body">
+              <p class="font-semibold">Card elevado</p>
+              <p class="text-sm" style="color: var(--color-text-secondary);">Com sombra média, sem borda.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg-subsection">
+        <h3>product-card</h3>
+        <div class="sg-grid sg-grid-3">
+          <div class="product-card">
+            <div class="product-image">
+              <div class="sg-placeholder-img">Foto 16:9</div>
+            </div>
+            <div class="product-info">
+              <p class="product-name">Picanha na Brasa (400g)</p>
+              <p class="product-desc line-clamp-2">Picanha premium grelhada no ponto, acompanha arroz, farofa, vinagrete e mandioca frita.</p>
+              <div class="product-footer">
+                <span class="product-price">R$ 89,90</span>
+                <button class="add-btn" aria-label="Adicionar ao carrinho">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image">
+              <div class="sg-placeholder-img">Foto 16:9</div>
+            </div>
+            <div class="product-info">
+              <p class="product-name">Smash Burger Duplo</p>
+              <p class="product-desc line-clamp-2">Dois smash patties de 90g, queijo cheddar, cebola caramelizada, picles e molho especial.</p>
+              <div class="product-footer">
+                <span class="product-price">R$ 42,00</span>
+                <button class="add-btn" aria-label="Adicionar ao carrinho">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg-subsection">
+        <h3>kpi-card</h3>
+        <div class="sg-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+          <div class="kpi-card">
+            <p class="text-sm font-medium" style="color: var(--color-text-secondary);">Faturamento Hoje</p>
+            <p class="text-3xl font-bold">R$ 4.280</p>
+            <p class="text-sm font-semibold" style="color: var(--color-success);">+8,4%</p>
+          </div>
+          <div class="kpi-card kpi-success">
+            <p class="text-sm font-medium" style="color: var(--color-text-secondary);">Pedidos Hoje</p>
+            <p class="text-3xl font-bold">47</p>
+            <p class="text-sm font-semibold" style="color: var(--color-success);">+12%</p>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <p class="text-sm font-medium" style="color: var(--color-text-secondary);">Ticket Médio</p>
+            <p class="text-3xl font-bold">R$ 91,06</p>
+            <p class="text-sm font-semibold" style="color: var(--color-warning);">-2,1%</p>
+          </div>
+          <div class="kpi-card kpi-error">
+            <p class="text-sm font-medium" style="color: var(--color-text-secondary);">Cancelamentos</p>
+            <p class="text-3xl font-bold">3</p>
+            <p class="text-sm font-semibold" style="color: var(--color-error);">+50%</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg-subsection">
+        <h3>kds-card</h3>
+        <div style="background: #111827; padding: 1rem; border-radius: var(--radius-xl);">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem;">
+            <div class="kds-card" data-order-id="demo1" data-start-minutes="5">
+              <div class="kds-card-header" style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid #374151;">
+                <span class="text-lg font-bold" style="color:#F9FAFB;">#42</span>
+                <span class="kds-timer" style="color:#9CA3AF; font-family:monospace; font-weight:700;">5min</span>
+              </div>
+              <div style="padding:0.75rem 1rem;">
+                <p class="text-base font-medium" style="color:#E5E7EB;">1x Picanha na Brasa</p>
+                <p class="text-sm font-semibold" style="color:#FBBF24;">Obs: Mal passado</p>
+              </div>
+              <div style="padding:0 1rem 0.75rem;">
+                <button class="btn btn-success btn-full kds-bump-btn" onclick="kdsBump('demo1')">Pronto</button>
+              </div>
+            </div>
+            <div class="kds-card status-warning" data-order-id="demo2" data-start-minutes="12">
+              <div class="kds-card-header" style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid #374151;">
+                <span class="text-lg font-bold" style="color:#F9FAFB;">#43</span>
+                <span class="kds-timer warning" style="font-family:monospace; font-weight:700;">12min</span>
+              </div>
+              <div style="padding:0.75rem 1rem;">
+                <p class="text-base font-medium" style="color:#E5E7EB;">2x Smash Burger</p>
+                <p class="text-sm font-semibold" style="color:#FBBF24;">Obs: Sem cebola</p>
+              </div>
+              <div style="padding:0 1rem 0.75rem;">
+                <button class="btn btn-success btn-full kds-bump-btn" onclick="kdsBump('demo2')">Pronto</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sg-subsection">
+        <h3>mesa-card</h3>
+        <div class="sg-grid" style="grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));">
+          <div class="mesa-card livre">
+            <div class="card-body">
+              <p class="text-2xl font-bold">01</p>
+              <span class="badge badge-success">Livre</span>
+            </div>
+          </div>
+          <div class="mesa-card ocupada">
+            <div class="card-body">
+              <p class="text-2xl font-bold">05</p>
+              <span class="badge badge-info">Ocupada</span>
+              <p class="text-sm" style="color: var(--color-text-secondary); margin-top: 0.25rem;">23min — R$ 78,00</p>
+            </div>
+          </div>
+          <div class="mesa-card conta">
+            <div class="card-body">
+              <p class="text-2xl font-bold">04</p>
+              <span class="badge badge-warning">Pedindo conta</span>
+              <p class="text-sm" style="color: var(--color-text-secondary); margin-top: 0.25rem;">1h45min — R$ 198,00</p>
+            </div>
+          </div>
+          <div class="mesa-card atrasada">
+            <div class="card-body">
+              <p class="text-2xl font-bold">08</p>
+              <span class="badge badge-error">Atrasada</span>
+              <p class="text-sm" style="color: var(--color-text-secondary); margin-top: 0.25rem;">2h15min — R$ 342,00</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         INPUTS
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Inputs</h2>
+      <div class="sg-grid sg-grid-2">
+        <div class="input-group">
+          <label for="demo-name">Nome do produto</label>
+          <input type="text" id="demo-name" class="input" placeholder="Ex: Picanha na Brasa">
+        </div>
+        <div class="input-group">
+          <label for="demo-email">E-mail (com erro)</label>
+          <input type="email" id="demo-email" class="input input-error" value="email-invalido">
+          <span class="error-message">Formato de e-mail inválido.</span>
+        </div>
+        <div class="input-group">
+          <label for="demo-select">Categoria</label>
+          <select id="demo-select" class="select">
+            <option value="">Selecione uma categoria</option>
+            <option value="1">Entradas</option>
+            <option value="2">Pratos Principais</option>
+            <option value="3">Hambúrgueres</option>
+            <option value="4">Bebidas</option>
+            <option value="5">Sobremesas</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="demo-price">Preço (R$)</label>
+          <input type="number" id="demo-price" class="input" placeholder="0,00" step="0.01">
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TOGGLE
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Toggle</h2>
+      <div class="sg-flex" style="gap: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="toggle" role="switch" aria-checked="false" aria-label="Toggle inativo"></div>
+          <span class="text-sm">Inativo</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <div class="toggle active" role="switch" aria-checked="true" aria-label="Toggle ativo"></div>
+          <span class="text-sm">Ativo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         CHIPS
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Chips</h2>
+      <div class="sg-flex">
+        <span class="chip">Todas</span>
+        <span class="chip chip-active">Entradas</span>
+        <span class="chip">Pratos Principais</span>
+        <span class="chip">Hambúrgueres</span>
+        <span class="chip">Bebidas</span>
+        <span class="chip">Sobremesas</span>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TABELA
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Tabela</h2>
+      <div class="sg-demo-box" style="padding: 0; overflow: hidden;">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Categoria</th>
+                <th>Preço</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Picanha na Brasa (400g)</td>
+                <td>Pratos Principais</td>
+                <td>R$ 89,90</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>
+              <tr>
+                <td>Smash Burger Duplo</td>
+                <td>Hambúrgueres</td>
+                <td>R$ 42,00</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>
+              <tr>
+                <td>Caipirinha de Limão</td>
+                <td>Bebidas</td>
+                <td>R$ 22,00</td>
+                <td><span class="badge badge-warning">Poucas unidades</span></td>
+              </tr>
+              <tr>
+                <td>Petit Gâteau</td>
+                <td>Sobremesas</td>
+                <td>R$ 34,00</td>
+                <td><span class="badge badge-error">Indisponível</span></td>
+              </tr>
+              <tr>
+                <td>Chopp Pilsen 500ml</td>
+                <td>Bebidas</td>
+                <td>R$ 16,00</td>
+                <td><span class="badge badge-success">Disponível</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TABS
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Tabs</h2>
+      <div class="sg-demo-box" data-tabs="demo-tabs">
+        <div class="tabs">
+          <div class="tab active" data-tab="tab-todos">Todos</div>
+          <div class="tab" data-tab="tab-cozinha">Cozinha</div>
+          <div class="tab" data-tab="tab-bar">Bar</div>
+          <div class="tab" data-tab="tab-sobremesa">Sobremesa</div>
+        </div>
+        <div id="tab-todos" class="tab-content active">
+          <p class="text-sm" style="color: var(--color-text-secondary);">Exibindo todos os itens de todas as estações.</p>
+        </div>
+        <div id="tab-cozinha" class="tab-content">
+          <p class="text-sm" style="color: var(--color-text-secondary);">Apenas itens da cozinha.</p>
+        </div>
+        <div id="tab-bar" class="tab-content">
+          <p class="text-sm" style="color: var(--color-text-secondary);">Apenas itens do bar.</p>
+        </div>
+        <div id="tab-sobremesa" class="tab-content">
+          <p class="text-sm" style="color: var(--color-text-secondary);">Apenas sobremesas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         MODAIS
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Modais</h2>
+      <button class="btn btn-primary" onclick="openModal('demo-modal')">Abrir Modal</button>
+
+      <div class="modal-overlay" id="demo-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Título do Modal</h3>
+            <button class="btn btn-ghost btn-sm" onclick="closeModal('demo-modal')" aria-label="Fechar modal">&#x2715;</button>
+          </div>
+          <div class="modal-body">
+            <p class="text-sm" style="color: var(--color-text-secondary);">
+              Este é um exemplo de modal. Pode conter formulários, confirmações, detalhes de produtos e mais.
+              Clique fora ou pressione Escape para fechar.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('demo-modal')">Cancelar</button>
+            <button class="btn btn-primary" onclick="closeModal('demo-modal')">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TOASTS
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Toasts</h2>
+      <div class="sg-flex">
+        <button class="btn btn-success btn-sm" onclick="showToast('Operação realizada com sucesso!', 'success')">Toast Sucesso</button>
+        <button class="btn btn-secondary btn-sm" style="border-color: #CA8A04; color: #CA8A04;" onclick="showToast('Atenção: estoque baixo.', 'warning')">Toast Atenção</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('Erro ao salvar o produto.', 'error')">Toast Erro</button>
+        <button class="btn btn-secondary btn-sm" style="border-color: #2563EB; color: #2563EB;" onclick="showToast('Novo pedido recebido na mesa 5.', 'info')">Toast Informação</button>
+      </div>
+    </section>
+
+    <!-- ============================================
+         COMPARATIVO DAS 3 INTERFACES
+         ============================================ -->
+    <section class="sg-section">
+      <h2>Comparativo das 3 Interfaces</h2>
+      <div class="sg-compare-grid">
+
+        <!-- Cliente -->
+        <div class="sg-compare-card">
+          <div class="sg-compare-header" style="background: #FFFFFF; color: #111827; border-bottom: 3px solid #EA580C;">
+            Cliente (Cardápio Digital)
+          </div>
+          <div class="sg-compare-body" style="background: #FFFFFF; color: #111827;">
+            <p style="margin-bottom: 0.5rem;"><strong>Tema:</strong> Light</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Fundo:</strong> Branco puro</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Densidade:</strong> Baixa</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Cantos:</strong> Muito arredondados (2xl)</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Foco:</strong> Fotos grandes, preços claros</p>
+            <div style="margin-top: 0.75rem;">
+              <button class="btn btn-primary btn-sm" style="border-radius: var(--radius-full);">Adicionar R$ 42,00</button>
+              <span class="chip chip-active" style="margin-left: 0.5rem; font-size: 0.7rem;">Entradas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KDS / Garçom -->
+        <div class="sg-compare-card">
+          <div class="sg-compare-header" style="background: #111827; color: #F9FAFB; border-bottom: 3px solid #16A34A;">
+            KDS / Garçom (Staff)
+          </div>
+          <div class="sg-compare-body" style="background: #1F2937; color: #E5E7EB;">
+            <p style="margin-bottom: 0.5rem;"><strong style="color:#F9FAFB;">Tema:</strong> Dark (KDS) / Light (Garçom)</p>
+            <p style="margin-bottom: 0.5rem;"><strong style="color:#F9FAFB;">Fundo:</strong> gray-900 (KDS)</p>
+            <p style="margin-bottom: 0.5rem;"><strong style="color:#F9FAFB;">Densidade:</strong> Alta</p>
+            <p style="margin-bottom: 0.5rem;"><strong style="color:#F9FAFB;">Cantos:</strong> Moderados (lg)</p>
+            <p style="margin-bottom: 0.5rem;"><strong style="color:#F9FAFB;">Foco:</strong> Status em tempo real, cores semânticas</p>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+              <button class="btn btn-success btn-sm">Pronto</button>
+              <span class="badge badge-warning">12min</span>
+              <span class="badge badge-error">Atrasado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin -->
+        <div class="sg-compare-card">
+          <div class="sg-compare-header" style="background: #111827; color: #F9FAFB; border-bottom: 3px solid #EA580C;">
+            Admin (Dashboard)
+          </div>
+          <div class="sg-compare-body" style="background: #F9FAFB; color: #111827;">
+            <p style="margin-bottom: 0.5rem;"><strong>Tema:</strong> Light + sidebar dark</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Fundo:</strong> gray-50</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Densidade:</strong> Média-alta</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Cantos:</strong> Arredondados (xl)</p>
+            <p style="margin-bottom: 0.5rem;"><strong>Foco:</strong> Métricas, tabelas, gestão</p>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; align-items: center;">
+              <button class="btn btn-primary btn-sm">+ Novo Produto</button>
+              <button class="btn btn-secondary btn-sm">Exportar</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/app.js"></script>
+  <script>
+    function switchTheme(themeId, btnEl) {
+      setTheme(themeId);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Pedidos — Zé do Bar</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="client-page">
+
+    <!-- Header -->
+    <header class="client-header">
+      <span class="logo">Zé do Bar</span>
+      <div class="header-actions">
+        <button class="header-icon-btn" onclick="openModal('modal-pessoas')" aria-label="Pessoas na mesa">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Title -->
+    <section style="padding:1rem 1rem 0.5rem;">
+      <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-text-primary);">Meus Pedidos</h2>
+    </section>
+
+    <!-- Orders List -->
+    <section style="padding:0 1rem; display:flex; flex-direction:column; gap:1rem;">
+
+      <!-- Pedido #42 -->
+      <div class="card-elevated" style="padding:1.25rem;">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 style="font-size:1rem; font-weight:700; color:var(--color-text-primary);">Pedido #42</h3>
+            <span style="font-size:0.8rem; color:var(--color-text-secondary);">19:32 — Mesa 5</span>
+          </div>
+          <span class="badge badge-warning">Preparando</span>
+        </div>
+
+        <!-- Status Timeline -->
+        <div class="status-timeline mb-4">
+          <div class="status-step">
+            <div>
+              <div class="status-dot completed"></div>
+              <div class="status-line completed"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-secondary);">Pedido recebido</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot current"></div>
+              <div class="status-line"></div>
+            </div>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--color-text-primary);">Preparando</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot"></div>
+              <div class="status-line"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-muted);">Pronto</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-muted);">Entregue</span>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div style="display:flex; flex-direction:column; gap:0.75rem; border-top:1px solid var(--color-border-light); padding-top:0.75rem;">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:0.9rem;">1x Picanha na Brasa</span>
+                <span class="badge badge-warning" style="font-size:0.65rem;">Preparando</span>
+              </div>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="person-chip">João</span>
+                <span class="person-chip">Maria</span>
+                <span class="person-chip">Pedro</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:0.9rem;">2x Chopp Pilsen</span>
+                <span class="badge badge-success" style="font-size:0.65rem;">Pronto</span>
+              </div>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="person-chip">João</span>
+                <span class="person-chip">Pedro</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-pedidos -->
+        <div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--color-border-light); font-size:0.8rem; color:var(--color-text-secondary);">
+          Sub-pedidos: <span class="badge badge-gray" style="font-size:0.65rem;">Cozinha #42-C</span> <span class="badge badge-gray" style="font-size:0.65rem;">Bar #42-B</span>
+        </div>
+      </div>
+
+      <!-- Pedido #43 -->
+      <div class="card-elevated" style="padding:1.25rem;">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 style="font-size:1rem; font-weight:700; color:var(--color-text-primary);">Pedido #43</h3>
+            <span style="font-size:0.8rem; color:var(--color-text-secondary);">19:45 — Mesa 1</span>
+          </div>
+          <span class="badge badge-info">Na fila</span>
+        </div>
+
+        <!-- Status Timeline -->
+        <div class="status-timeline mb-4">
+          <div class="status-step">
+            <div>
+              <div class="status-dot current"></div>
+              <div class="status-line"></div>
+            </div>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--color-text-primary);">Na fila</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot"></div>
+              <div class="status-line"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-muted);">Preparando</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot"></div>
+              <div class="status-line"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-muted);">Pronto</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-muted);">Entregue</span>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div style="display:flex; flex-direction:column; gap:0.75rem; border-top:1px solid var(--color-border-light); padding-top:0.75rem;">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:0.9rem;">2x Smash Burger</span>
+                <span class="badge badge-info" style="font-size:0.65rem;">Na fila</span>
+              </div>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="person-chip">João</span>
+                <span class="person-chip">Maria</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:0.9rem;">1x Caipirinha</span>
+                <span class="badge badge-info" style="font-size:0.65rem;">Na fila</span>
+              </div>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="person-chip">Maria</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedido #44 -->
+      <div class="card-elevated" style="padding:1.25rem;">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 style="font-size:1rem; font-weight:700; color:var(--color-text-primary);">Pedido #44</h3>
+            <span style="font-size:0.8rem; color:var(--color-text-secondary);">19:50 — Mesa 3</span>
+          </div>
+          <span class="badge badge-success">Pronto</span>
+        </div>
+
+        <!-- Status Timeline -->
+        <div class="status-timeline mb-4">
+          <div class="status-step">
+            <div>
+              <div class="status-dot completed"></div>
+              <div class="status-line completed"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-secondary);">Pedido recebido</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot completed"></div>
+              <div class="status-line completed"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-secondary);">Preparando</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot current"></div>
+              <div class="status-line"></div>
+            </div>
+            <span style="font-size:0.85rem; font-weight:600; color:var(--color-text-primary);">Pronto</span>
+          </div>
+          <div class="status-step">
+            <div>
+              <div class="status-dot"></div>
+            </div>
+            <span style="font-size:0.85rem; color:var(--color-text-muted);">Entregue</span>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div style="display:flex; flex-direction:column; gap:0.75rem; border-top:1px solid var(--color-border-light); padding-top:0.75rem;">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:0.9rem;">1x Filé à Parmegiana</span>
+                <span class="badge badge-success" style="font-size:0.65rem;">Pronto</span>
+              </div>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="person-chip">Pedro</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:0.9rem;">1x Suco Natural</span>
+                <span class="badge badge-gray" style="font-size:0.65rem;">Entregue</span>
+              </div>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <span class="person-chip">Pedro</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <div style="height:1.5rem;"></div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <a href="cardapio.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+        Cardápio
+      </a>
+      <a href="pedidos.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Pedidos
+      </a>
+      <a href="conta.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Conta
+      </a>
+      <a href="#" onclick="openModal('modal-chefia'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        O Chefia
+      </a>
+    </nav>
+
+    <!-- Modal Pessoas -->
+    <div class="modal-overlay" id="modal-pessoas">
+      <div class="modal">
+        <div class="modal-header"><h3>Pessoas na mesa</h3><button onclick="closeModal('modal-pessoas')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>João</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Maria</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Pedro</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+          </div>
+          <div class="flex gap-2 mt-4"><input class="input" placeholder="Nome da pessoa"><button class="btn btn-primary">Adicionar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal O Chefia -->
+    <div class="modal-overlay" id="modal-chefia">
+      <div class="modal">
+        <div class="modal-header"><h3>Chamar O Chefia</h3><button onclick="closeModal('modal-chefia')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div class="input-group mb-4"><label>Motivo</label><select class="select"><option>Chamar garçom</option><option>Pedir conta</option><option>Outro</option></select></div>
+          <div class="input-group mb-4"><label>Mensagem (opcional)</label><textarea class="input" rows="3" placeholder="Descreva o que precisa..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="showToast('Chamado enviado!', 'success')">Enviar chamado</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

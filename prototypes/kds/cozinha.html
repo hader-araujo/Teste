@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KDS Cozinha — OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="kds-layout">
+
+    <!-- Header -->
+    <header class="kds-header">
+      <h1>KDS — Cozinha</h1>
+      <div style="display:flex; align-items:center; gap:1.5rem;">
+        <!-- Filter tabs -->
+        <nav style="display:flex; gap:0.5rem;" aria-label="Filtro por estação">
+          <button class="btn btn-sm" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full);">Todos</button>
+          <button class="btn btn-sm" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full);">Cozinha</button>
+        </nav>
+        <!-- KDS Navigation -->
+        <nav style="display:flex; gap:0.5rem;" aria-label="Navegação KDS">
+          <a href="cozinha.html" class="btn btn-sm" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full); text-decoration:none;">Cozinha</a>
+          <a href="bar.html" class="btn btn-sm" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full); text-decoration:none;">Bar</a>
+        </nav>
+        <!-- Connection indicator -->
+        <div class="kds-connection">
+          <span class="dot"></span>
+          <span>Conectado</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Orders Grid -->
+    <main class="kds-grid" aria-live="polite">
+
+      <!-- Pedido #42 — Mesa 5 — 3min (green, normal) -->
+      <article class="kds-card" data-order-id="42" data-start-minutes="3">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #42</span>
+            <span class="kds-table">Mesa 5</span>
+          </div>
+          <span class="kds-timer">3min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Picanha na Brasa</span>
+          </div>
+          <div class="kds-item-obs">Ponto mal passado</div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('42')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #43 — Mesa 1 — 8min (green, normal) -->
+      <article class="kds-card" data-order-id="43" data-start-minutes="8">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #43</span>
+            <span class="kds-table">Mesa 1</span>
+          </div>
+          <span class="kds-timer">8min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">2x</span>
+            <span class="kds-item-name">Smash Burger</span>
+          </div>
+          <div class="kds-item-obs">Sem cebola</div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('43')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #46 — Mesa 10 — 12min (yellow, warning) -->
+      <article class="kds-card status-warning" data-order-id="46" data-start-minutes="12">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #46</span>
+            <span class="kds-table">Mesa 10</span>
+          </div>
+          <span class="kds-timer warning">12min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Filé à Parmegiana</span>
+          </div>
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Risoto de Cogumelos</span>
+          </div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('46')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #47 — Mesa 3 — 18min (red, danger) -->
+      <article class="kds-card status-danger" data-order-id="47" data-start-minutes="18">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #47</span>
+            <span class="kds-table">Mesa 3</span>
+          </div>
+          <span class="kds-timer danger">18min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Bolinho de Bacalhau</span>
+          </div>
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name">Salmão Grelhado</span>
+          </div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('47')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #48 — Mesa 7 — 5min (green, normal) -->
+      <article class="kds-card" data-order-id="48" data-start-minutes="5">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #48</span>
+            <span class="kds-table">Mesa 7</span>
+          </div>
+          <span class="kds-timer">5min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">2x</span>
+            <span class="kds-item-name">Burger Vegano</span>
+          </div>
+        </div>
+        <button class="kds-bump-btn" onclick="kdsBump('48')">PRONTO</button>
+      </article>
+
+    </main>
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

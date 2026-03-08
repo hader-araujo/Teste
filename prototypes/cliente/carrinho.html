@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Carrinho — Zé do Bar</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="client-page">
+
+    <!-- Header -->
+    <header class="client-header">
+      <span class="logo">Zé do Bar</span>
+      <div class="header-actions">
+        <button class="header-icon-btn" onclick="openModal('modal-pessoas')" aria-label="Pessoas na mesa">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Title -->
+    <section style="padding:1rem 1rem 0.5rem;">
+      <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-text-primary);">Meu Carrinho</h2>
+    </section>
+
+    <!-- Cart Items -->
+    <section style="padding:0 1rem; display:flex; flex-direction:column; gap:1rem;">
+
+      <!-- Item 1: Picanha -->
+      <div class="card-elevated" style="padding:1rem;">
+        <div class="flex gap-3">
+          <div class="img-placeholder-sq flex-shrink-0" style="width:60px; height:60px; aspect-ratio:1; font-size:1.25rem;">🥩</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+              <h3 style="font-size:0.95rem; font-weight:600; color:var(--color-text-primary);">Picanha na Brasa (400g)</h3>
+              <span style="font-weight:700; color:var(--color-primary); white-space:nowrap; margin-left:0.5rem;">R$ 89,90</span>
+            </div>
+            <div class="flex items-center gap-3 mt-2">
+              <div class="qty-control">
+                <button aria-label="Diminuir quantidade">−</button>
+                <span class="qty-value">1</span>
+                <button aria-label="Aumentar quantidade">+</button>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <span class="person-chip">João</span>
+              <span class="person-chip">Maria</span>
+              <span class="person-chip">Pedro</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 2: Chopp -->
+      <div class="card-elevated" style="padding:1rem;">
+        <div class="flex gap-3">
+          <div class="img-placeholder-sq flex-shrink-0" style="width:60px; height:60px; aspect-ratio:1; font-size:1.25rem;">🍺</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+              <h3 style="font-size:0.95rem; font-weight:600; color:var(--color-text-primary);">Chopp Pilsen 500ml</h3>
+              <span style="font-weight:700; color:var(--color-primary); white-space:nowrap; margin-left:0.5rem;">R$ 16,00</span>
+            </div>
+            <div class="flex items-center gap-3 mt-2">
+              <div class="qty-control">
+                <button aria-label="Diminuir quantidade">−</button>
+                <span class="qty-value">2</span>
+                <button aria-label="Aumentar quantidade">+</button>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <span class="person-chip">João</span>
+              <span class="person-chip">Pedro</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 3: Smash Burger -->
+      <div class="card-elevated" style="padding:1rem;">
+        <div class="flex gap-3">
+          <div class="img-placeholder-sq flex-shrink-0" style="width:60px; height:60px; aspect-ratio:1; font-size:1.25rem;">🍔</div>
+          <div class="flex-1">
+            <div class="flex justify-between items-start">
+              <h3 style="font-size:0.95rem; font-weight:600; color:var(--color-text-primary);">Smash Burger Duplo</h3>
+              <span style="font-weight:700; color:var(--color-primary); white-space:nowrap; margin-left:0.5rem;">R$ 42,00</span>
+            </div>
+            <div class="flex items-center gap-3 mt-2">
+              <div class="qty-control">
+                <button aria-label="Diminuir quantidade">−</button>
+                <span class="qty-value">1</span>
+                <button aria-label="Aumentar quantidade">+</button>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1 mt-2">
+              <span class="person-chip">João</span>
+              <span class="person-chip">Maria</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Totals -->
+    <section style="padding:1.5rem 1rem;">
+      <div class="card-elevated" style="padding:1.25rem;">
+        <div class="flex justify-between mb-2">
+          <span style="color:var(--color-text-secondary);">Subtotal</span>
+          <span style="font-weight:600;">R$ 163,90</span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+          <span style="font-weight:600;">R$ 16,39</span>
+        </div>
+        <div style="border-top:1px solid var(--color-border-light); padding-top:0.75rem; margin-top:0.5rem;" class="flex justify-between">
+          <span style="font-size:1.125rem; font-weight:700;">Total</span>
+          <span style="font-size:1.125rem; font-weight:700; color:var(--color-primary);">R$ 180,29</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <section style="padding:0 1rem 1rem;">
+      <button class="btn btn-primary btn-full btn-lg" onclick="submitOrder()">Enviar Pedido</button>
+      <div class="text-center mt-4">
+        <a href="cardapio.html" style="color:var(--color-primary); font-weight:500; font-size:0.95rem;">Continuar comprando</a>
+      </div>
+    </section>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <a href="cardapio.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+        Cardápio
+      </a>
+      <a href="pedidos.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Pedidos
+      </a>
+      <a href="conta.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Conta
+      </a>
+      <a href="#" onclick="openModal('modal-chefia'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        O Chefia
+      </a>
+    </nav>
+
+    <!-- Modal Pessoas -->
+    <div class="modal-overlay" id="modal-pessoas">
+      <div class="modal">
+        <div class="modal-header"><h3>Pessoas na mesa</h3><button onclick="closeModal('modal-pessoas')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>João</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Maria</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Pedro</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+          </div>
+          <div class="flex gap-2 mt-4"><input class="input" placeholder="Nome da pessoa"><button class="btn btn-primary">Adicionar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal O Chefia -->
+    <div class="modal-overlay" id="modal-chefia">
+      <div class="modal">
+        <div class="modal-header"><h3>Chamar O Chefia</h3><button onclick="closeModal('modal-chefia')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div class="input-group mb-4"><label>Motivo</label><select class="select"><option>Chamar garçom</option><option>Pedir conta</option><option>Outro</option></select></div>
+          <div class="input-group mb-4"><label>Mensagem (opcional)</label><textarea class="input" rows="3" placeholder="Descreva o que precisa..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="showToast('Chamado enviado!', 'success')">Enviar chamado</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function submitOrder() {
+      if (cart.length === 0) {
+        showToast('Carrinho vazio', 'warning');
+        return;
+      }
+      cart = [];
+      saveCart();
+      showToast('Pedido enviado com sucesso!', 'success');
+      setTimeout(function() {
+        window.location.href = 'pedidos.html';
+      }, 800);
+    }
+  </script>
+</body>
+</html>

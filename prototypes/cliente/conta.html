@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conta — Zé do Bar</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="client-page">
+
+    <!-- Header -->
+    <header class="client-header">
+      <span class="logo">Zé do Bar</span>
+      <div class="header-actions">
+        <button class="header-icon-btn" onclick="openModal('modal-pessoas')" aria-label="Pessoas na mesa">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Title -->
+    <section style="padding:1rem 1rem 0;">
+      <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-text-primary);">Conta</h2>
+    </section>
+
+    <!-- Tabs -->
+    <div data-tabs="conta-tabs" style="padding:0 1rem;">
+      <div class="tabs mt-4">
+        <div class="tab active" data-tab="tab-visao-geral">Visão Geral</div>
+        <div class="tab" data-tab="tab-por-pessoa">Por Pessoa</div>
+      </div>
+
+      <!-- Tab: Visão Geral -->
+      <div class="tab-content active" id="tab-visao-geral">
+        <div id="bill-items-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        <div class="card-elevated mt-6" style="padding:1.25rem;" id="bill-totals"></div>
+      </div>
+
+      <!-- Tab: Por Pessoa -->
+      <div class="tab-content" id="tab-por-pessoa">
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+          <!-- João -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">J</div>
+              <h3 style="font-size:1rem; font-weight:700;">João</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
+                <span style="font-weight:500;">R$ 29,97</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Chopp Pilsen x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 16,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Smash Burger x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 42,00</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--color-border-light); margin-top:0.75rem; padding-top:0.75rem;">
+              <div class="flex justify-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal</span>
+                <span style="font-weight:500;">R$ 87,97</span>
+              </div>
+              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+                <span style="font-weight:500;">R$ 8,80</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 96,77</span>
+              </div>
+            </div>
+            <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+          <!-- Maria -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">M</div>
+              <h3 style="font-size:1rem; font-weight:700;">Maria</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
+                <span style="font-weight:500;">R$ 29,97</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Smash Burger x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 42,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Caipirinha</span>
+                <span style="font-weight:500;">R$ 22,00</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--color-border-light); margin-top:0.75rem; padding-top:0.75rem;">
+              <div class="flex justify-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal</span>
+                <span style="font-weight:500;">R$ 93,97</span>
+              </div>
+              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+                <span style="font-weight:500;">R$ 9,40</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 103,37</span>
+              </div>
+            </div>
+            <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+          <!-- Pedro -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">P</div>
+              <h3 style="font-size:1rem; font-weight:700;">Pedro</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
+                <span style="font-weight:500;">R$ 29,97</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Chopp Pilsen x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 16,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Filé à Parmegiana</span>
+                <span style="font-weight:500;">R$ 62,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Suco Natural</span>
+                <span style="font-weight:500;">R$ 12,00</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--color-border-light); margin-top:0.75rem; padding-top:0.75rem;">
+              <div class="flex justify-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal</span>
+                <span style="font-weight:500;">R$ 119,97</span>
+              </div>
+              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+                <span style="font-weight:500;">R$ 12,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 131,97</span>
+              </div>
+            </div>
+            <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <a href="cardapio.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+        Cardápio
+      </a>
+      <a href="pedidos.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Pedidos
+      </a>
+      <a href="conta.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Conta
+      </a>
+      <a href="#" onclick="openModal('modal-chefia'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        O Chefia
+      </a>
+    </nav>
+
+    <!-- Modal Pessoas -->
+    <div class="modal-overlay" id="modal-pessoas">
+      <div class="modal">
+        <div class="modal-header"><h3>Pessoas na mesa</h3><button onclick="closeModal('modal-pessoas')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>João</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Maria</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Pedro</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+          </div>
+          <div class="flex gap-2 mt-4"><input class="input" placeholder="Nome da pessoa"><button class="btn btn-primary">Adicionar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Pessoas do Item -->
+    <div class="modal-overlay" id="modal-edit-people">
+      <div class="modal">
+        <div class="modal-header"><h3 id="edit-people-title">Editar divisão</h3><button onclick="closeModal('modal-edit-people')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-bottom:1rem;">Selecione quem divide este item:</p>
+          <div id="edit-people-checkboxes" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <button class="btn btn-primary btn-full mt-4" onclick="saveEditPeople()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal O Chefia -->
+    <div class="modal-overlay" id="modal-chefia">
+      <div class="modal">
+        <div class="modal-header"><h3>Chamar O Chefia</h3><button onclick="closeModal('modal-chefia')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div class="input-group mb-4"><label>Motivo</label><select class="select"><option>Chamar garçom</option><option>Pedir conta</option><option>Outro</option></select></div>
+          <div class="input-group mb-4"><label>Mensagem (opcional)</label><textarea class="input" rows="3" placeholder="Descreva o que precisa..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="showToast('Chamado enviado!', 'success')">Enviar chamado</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Mock bill items (pedidos já feitos — dados estáticos do protótipo)
+    var billItems = [
+      { id: 1, name: 'Picanha na Brasa (400g)', qty: 1, price: 89.90, personIds: [1, 2, 3] },
+      { id: 2, name: 'Chopp Pilsen 500ml', qty: 2, price: 16.00, personIds: [1, 3] },
+      { id: 3, name: 'Smash Burger Duplo', qty: 2, price: 42.00, personIds: [1, 2] },
+      { id: 4, name: 'Caipirinha de Limão', qty: 1, price: 22.00, personIds: [2] },
+      { id: 5, name: 'Filé à Parmegiana', qty: 1, price: 62.00, personIds: [3] },
+      { id: 6, name: 'Suco Natural de Laranja', qty: 1, price: 12.00, personIds: [3] }
+    ];
+
+    var editingItemId = null;
+
+    function renderBillItems() {
+      var container = document.getElementById('bill-items-list');
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      billItems.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'flex justify-between items-center';
+        row.style.cssText = 'padding:0.5rem 0; border-bottom:1px solid var(--color-border-light); cursor:pointer; transition:background 0.15s; border-radius:6px;';
+        row.addEventListener('mouseenter', function() { this.style.background = 'var(--color-primary-light, #FFF7ED)'; });
+        row.addEventListener('mouseleave', function() { this.style.background = ''; });
+        row.dataset.itemId = item.id;
+        row.addEventListener('click', function() { openEditPeople(parseInt(this.dataset.itemId)); });
+
+        var infoDiv = document.createElement('div');
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'font-weight:600; font-size:0.9rem;';
+        nameSpan.textContent = item.qty + 'x ' + item.name;
+        var peopleSpan = document.createElement('span');
+        peopleSpan.style.cssText = 'font-size:0.8rem; color:var(--color-text-secondary); display:flex; align-items:center; gap:4px;';
+        peopleSpan.textContent = '(' + item.personIds.length + (item.personIds.length === 1 ? ' pessoa' : ' pessoas') + ')';
+        var editIcon = document.createElement('span');
+        editIcon.style.cssText = 'font-size:0.7rem; color:var(--color-primary); opacity:0.7;';
+        editIcon.textContent = '✎';
+        peopleSpan.appendChild(editIcon);
+        infoDiv.appendChild(nameSpan);
+        infoDiv.appendChild(peopleSpan);
+
+        var priceSpan = document.createElement('span');
+        priceSpan.style.cssText = 'font-weight:600; white-space:nowrap;';
+        priceSpan.textContent = formatCurrency(item.price * item.qty);
+
+        row.appendChild(infoDiv);
+        row.appendChild(priceSpan);
+        container.appendChild(row);
+      });
+
+      renderBillTotals();
+    }
+
+    function renderBillTotals() {
+      var totalsDiv = document.getElementById('bill-totals');
+      var subtotal = billItems.reduce(function(sum, item) { return sum + item.price * item.qty; }, 0);
+      var serviceCharge = subtotal * (MOCK.restaurant.serviceChargePercent / 100);
+      var total = subtotal + serviceCharge;
+
+      while (totalsDiv.firstChild) totalsDiv.removeChild(totalsDiv.firstChild);
+
+      function addRow(label, value, isBold) {
+        var row = document.createElement('div');
+        row.className = 'flex justify-between' + (isBold ? '' : ' mb-2');
+        if (isBold) row.style.cssText = 'border-top:1px solid var(--color-border-light); padding-top:0.75rem; margin-top:0.5rem;';
+        var labelSpan = document.createElement('span');
+        labelSpan.style.cssText = isBold ? 'font-size:1.125rem; font-weight:700;' : 'color:var(--color-text-secondary);';
+        labelSpan.textContent = label;
+        var valueSpan = document.createElement('span');
+        valueSpan.style.cssText = isBold ? 'font-size:1.125rem; font-weight:700; color:var(--color-primary);' : 'font-weight:600;';
+        valueSpan.textContent = formatCurrency(value);
+        row.appendChild(labelSpan);
+        row.appendChild(valueSpan);
+        totalsDiv.appendChild(row);
+      }
+
+      addRow('Subtotal', subtotal, false);
+      addRow('Taxa de serviço (' + MOCK.restaurant.serviceChargePercent + '%)', serviceCharge, false);
+      addRow('Total', total, true);
+    }
+
+    function openEditPeople(itemId) {
+      editingItemId = itemId;
+      var item = billItems.find(function(i) { return i.id === itemId; });
+      if (!item) return;
+
+      document.getElementById('edit-people-title').textContent = item.name;
+
+      var container = document.getElementById('edit-people-checkboxes');
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      MOCK.people.forEach(function(person) {
+        var isChecked = item.personIds.indexOf(person.id) !== -1;
+        var label = document.createElement('label');
+        label.style.cssText = 'display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; border:1.5px solid ' + (isChecked ? 'var(--color-primary)' : 'var(--color-border, #e5e7eb)') + '; cursor:pointer; transition:all 0.15s;';
+
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = isChecked;
+        checkbox.value = person.id;
+        checkbox.style.cssText = 'width:20px; height:20px; accent-color:var(--color-primary);';
+        checkbox.addEventListener('change', function() {
+          this.parentElement.style.borderColor = this.checked ? 'var(--color-primary)' : 'var(--color-border, #e5e7eb)';
+        });
+
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'font-weight:500; color:var(--color-text-primary);';
+        nameSpan.textContent = person.name;
+
+        label.appendChild(checkbox);
+        label.appendChild(nameSpan);
+        container.appendChild(label);
+      });
+
+      openModal('modal-edit-people');
+    }
+
+    function saveEditPeople() {
+      if (editingItemId === null) return;
+      var item = billItems.find(function(i) { return i.id === editingItemId; });
+      if (!item) return;
+
+      var checkboxes = document.querySelectorAll('#edit-people-checkboxes input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showToast('Selecione pelo menos uma pessoa', 'error');
+        return;
+      }
+
+      var newIds = [];
+      checkboxes.forEach(function(cb) { newIds.push(parseInt(cb.value)); });
+      item.personIds = newIds;
+
+      closeModal('modal-edit-people');
+      renderBillItems();
+      showToast('Divisão atualizada', 'success');
+    }
+
+    // Init
+    renderBillItems();
+  </script>
+</body>
+</html>

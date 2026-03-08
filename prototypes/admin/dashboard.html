@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — OChefia Admin</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">OC</div>
+        <span class="logo-text">OChefia</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Principal</div>
+          <a href="dashboard.html" class="sidebar-item active">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Dashboard
+          </a>
+          <a href="mesas.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Mesas
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Cardápio</div>
+          <a href="cardapio-admin.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>
+            Cardápio
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Equipe</div>
+          <a href="staff.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            Equipe
+          </a>
+          <a href="escala.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Escala
+          </a>
+          <a href="equipe-do-dia.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            Equipe do Dia
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Financeiro</div>
+          <a href="faturamento.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Faturamento
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Sistema</div>
+          <a href="settings.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Configurações
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">D</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Dono</div>
+          <div class="sidebar-user-role">Proprietário</div>
+        </div>
+        <a href="login.html" style="color:var(--color-gray-400)" aria-label="Sair">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div class="breadcrumb">Admin</div>
+          <h1>Dashboard</h1>
+        </div>
+      </div>
+
+      <!-- Page Body -->
+      <div class="admin-page-body">
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid mb-6">
+          <div class="kpi-card">
+            <div class="kpi-label">Tempo Médio — Cozinha</div>
+            <div class="kpi-value">18min</div>
+            <div class="kpi-change positive">-2min vs ontem</div>
+          </div>
+          <div class="kpi-card kpi-info">
+            <div class="kpi-label">Tempo Médio — Bar</div>
+            <div class="kpi-value">7min</div>
+            <div class="kpi-change positive">-1min vs ontem</div>
+          </div>
+          <div class="kpi-card kpi-success">
+            <div class="kpi-label">Tempo Médio — Garçom</div>
+            <div class="kpi-value">4min</div>
+            <div class="kpi-change positive">-30s vs ontem</div>
+          </div>
+          <div class="kpi-card kpi-warning">
+            <div class="kpi-label">Mesas Ativas</div>
+            <div class="kpi-value">8/15</div>
+            <div class="kpi-change positive">53% ocupação</div>
+          </div>
+        </div>
+
+        <!-- Pedidos Recentes -->
+        <div class="card mb-6">
+          <div class="card-body-lg">
+            <h2 style="font-size:1.125rem; font-weight:600; margin-bottom:1rem;">Pedidos Recentes</h2>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Hora</th>
+                    <th>Mesa</th>
+                    <th>Itens</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>20:05</td>
+                    <td>Mesa 7</td>
+                    <td>Bolinho de Bacalhau, Pudim de Leite (x2)</td>
+                    <td><span class="badge badge-gray">Entregue</span></td>
+                    <td style="text-align:right; font-weight:600;">R$ 68,00</td>
+                  </tr>
+                  <tr>
+                    <td>19:50</td>
+                    <td>Mesa 3</td>
+                    <td>Filé à Parmegiana, Suco de Laranja</td>
+                    <td><span class="badge badge-success">Pronto</span></td>
+                    <td style="text-align:right; font-weight:600;">R$ 74,00</td>
+                  </tr>
+                  <tr>
+                    <td>19:45</td>
+                    <td>Mesa 1</td>
+                    <td>Smash Burger Duplo (x2), Caipirinha</td>
+                    <td><span class="badge badge-info">Na fila</span></td>
+                    <td style="text-align:right; font-weight:600;">R$ 106,00</td>
+                  </tr>
+                  <tr>
+                    <td>19:32</td>
+                    <td>Mesa 5</td>
+                    <td>Picanha na Brasa, Chopp Pilsen (x2)</td>
+                    <td><span class="badge badge-warning">Preparando</span></td>
+                    <td style="text-align:right; font-weight:600;">R$ 121,90</td>
+                  </tr>
+                  <tr>
+                    <td>19:18</td>
+                    <td>Mesa 10</td>
+                    <td>Salmão Grelhado, Risoto de Cogumelos</td>
+                    <td><span class="badge badge-gray">Entregue</span></td>
+                    <td style="text-align:right; font-weight:600;">R$ 134,00</td>
+                  </tr>
+                  <tr>
+                    <td>19:05</td>
+                    <td>Mesa 12</td>
+                    <td>Bruschetta, Chopp Pilsen</td>
+                    <td><span class="badge badge-gray">Entregue</span></td>
+                    <td style="text-align:right; font-weight:600;">R$ 40,00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chamados Abertos -->
+        <div class="card">
+          <div class="card-body-lg">
+            <h2 style="font-size:1.125rem; font-weight:600; margin-bottom:1rem;">Chamados Abertos</h2>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+
+              <!-- Chamado 1 -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 5</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Chamar garçom</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span style="font-size:0.8125rem; color:var(--color-text-muted);">5min</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
+                </div>
+              </div>
+
+              <!-- Chamado 2 -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-error);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 8</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Pedir conta</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span style="font-size:0.8125rem; color:var(--color-error); font-weight:600;">12min</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
+                </div>
+              </div>
+
+              <!-- Chamado 3 -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-info);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 3</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Outro</div>
+                    <div style="font-size:0.75rem; color:var(--color-text-secondary);">Falta um talher na mesa.</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span style="font-size:0.8125rem; color:var(--color-text-muted);">2min</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>
