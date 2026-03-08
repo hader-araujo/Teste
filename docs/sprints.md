@@ -57,78 +57,339 @@ prototypes/
 
 ---
 
-## Sprint 0 — Scaffolding e Documentacao Estrutural
-- [ ] Criar toda a estrutura de pastas do monorepo com `README.md` em cada pasta relevante.
+## Sprint 0 — Scaffolding + Monorepo + Docker
 
-## Sprint 1-2 — Fundacao
-- [ ] Setup monorepo Turborepo + pnpm.
-- [ ] NestJS com estrutura de modulos, Prisma, PostgreSQL.
-- [ ] Docker Compose rodando local.
-- [ ] Modulo auth completo (register, login, JWT, roles).
-- [ ] CRUD de restaurante e mesas.
-- [ ] Seed com dados de teste.
+Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && docker compose up` funciona.
 
-## Sprint 3-4 — Cardapio e Pedidos
-- [ ] CRUD de categorias, tags de produto, produtos (com campo destino: cozinha/bar/garcom), adicionais.
-- [ ] Cache do cardapio no Redis.
-- [ ] Endpoint publico do cardapio por slug.
-- [ ] Frontend: tela do cardapio digital (Next.js).
-- [ ] Carrinho e criacao de pedido.
-- [ ] Sessao de mesa (token na URL + cookie).
-- [ ] Coleta e verificacao de WhatsApp via OTP (tela obrigatoria ao abrir a sessao).
+**Checklist:**
+- [ ] Criar toda a estrutura de pastas do monorepo (`apps/api`, `apps/web`, `packages/shared`).
+- [ ] Turborepo + pnpm workspace configurados.
+- [ ] Docker Compose com PostgreSQL (5433) e Redis (6380).
+- [ ] Prisma schema inicial (modelos base: Restaurant, User, Table).
+- [ ] ESLint, Prettier, tsconfig compartilhado.
+- [ ] `packages/shared` com estrutura basica e build funcional.
+- [ ] NestJS scaffolding com modulo raiz.
+- [ ] Next.js 14 App Router scaffolding.
+- [ ] `README.md` em cada pasta relevante.
 
-## Sprint 5-6 — KDS e Tempo Real
-- [ ] WebSocket gateway (Socket.IO).
-- [ ] Roteamento de pedidos baseado no campo **destino** do produto: cozinha -> KDS cozinha, bar -> KDS bar, garcom -> direto.
-- [ ] Sub-pedidos automaticos para pedidos mistos baseado no destino (sufixo `_cozinha`, `_bar`, `_garcom`).
-- [ ] Frontend: tela KDS com fila, cores e temporizadores.
-- [ ] Fluxo BAR com flag "tambem entrega": barman com entrega mantem status Pronto -> Entregue no KDS. Sem entrega, notifica garcom.
-- [ ] Fluxo completo: cliente pede -> roteamento -> KDS/garcom recebe -> prepara -> marca pronto -> entrega.
+---
 
-## Sprint 7-8 — Garcom, Chamados, Staff, Escala e Faturamento
-- [ ] Modulo garcom (comanda mobile).
-- [ ] **Ativacao de turno (clock-in/out):** garcom informa inicio e fim do trabalho, com senha propria. Registro de tempo de servico.
-- [ ] Botao "O Chefia" (chamados com tipo).
-- [ ] Notificacoes para o garcom (pedido pronto, chamado de mesa, bebida pronta para retirada).
-- [ ] Frontend: tela do garcom (PWA).
-- [ ] Gestao de equipe com convites + flag temporario + dias fixos + flag entrega (BAR) + **senha do garcom**.
-- [ ] Tela de Escala: programacao de equipe por dia, auto-preenchimento, ajustes manuais.
-- [ ] Tela Equipe do Dia: equipe ativa + distribuicao de mesas por garcom.
-- [ ] Configuracao de modo de distribuicao de mesas (todos vs. automatico) em Settings.
-- [ ] **Modulo Faturamento:** tela separada do dashboard com faturamento diario, mensal, fechamento de caixa e taxas de garcom.
-- [ ] Testes e2e (Supertest + Playwright).
+## Sprint 1 — Auth + Restaurant + Seed
 
-## Sprint 9 — UI/UX e Componentes Base
+**Endpoints (~8):**
+- POST `/auth/register` — Registro de restaurante + owner.
+- POST `/auth/login` — Login -> retorna JWT.
+- POST `/auth/refresh` — Refresh token.
+- GET `/auth/me` — Dados do usuario logado.
+- GET `/restaurants/:slug` — Dados publicos do restaurante.
+- PUT `/restaurants/:id` — Atualizar dados (OWNER/MANAGER).
+- GET `/restaurants/:id/settings` — Configuracoes.
+- PUT `/restaurants/:id/settings` — Atualizar configuracoes.
+
+**Checklist:**
+- [ ] Modulo Auth completo (register, login, JWT access 15min + refresh 7d, roles).
+- [ ] Roles: OWNER, MANAGER, WAITER, KITCHEN, BAR.
+- [ ] CRUD de restaurante.
+- [ ] Winston logger + Correlation ID middleware.
+- [ ] ValidationPipe global + Swagger.
+- [ ] Seed com dados de teste (dono@ze-bar.com / senha123, slug ze-bar).
+
+---
+
+## Sprint 2 — Tables + Component Library + Layout Admin
+
+**Endpoints (~7):**
+- GET `/tables` — Listar mesas do restaurante.
+- POST `/tables` — Criar mesa.
+- PUT `/tables/:id` — Atualizar mesa.
+- DELETE `/tables/:id` — Remover mesa.
+- POST `/tables/:id/open` — Abrir sessao da mesa.
+- POST `/tables/:id/close` — Fechar sessao.
+- GET `/tables/:id/session` — Sessao ativa da mesa.
+
+**Checklist:**
+- [ ] CRUD de mesas + sessao (open/close).
 - [ ] Biblioteca de componentes base (Button, Input, Badge, Modal, Toggle, Skeleton, Spinner).
 - [ ] Toast notifications (sonner).
-- [ ] Skeleton loading em todas as telas.
-- [ ] Refactor KDS e admin para usar componentes base.
-
-## Sprint 10 — Layout e Navegacao
 - [ ] AdminSidebar fixa com navegacao, avatar e role.
 - [ ] Layout admin com sidebar + mobile top bar.
-- [ ] Redesign da pagina de login.
-- [ ] KDS layout com indicador de conexao WebSocket.
+- [ ] Tela de login frontend (Next.js).
+- [ ] Skeleton loading nos componentes base.
 
-## Sprint 11 — QR Code Pix, Relatorios, Notificacoes Push
-- [ ] QR Code Pix com baixa automatica.
-- [ ] Relatorios de itens populares.
-- [ ] Notificacoes push para o garcom.
-- [ ] Racha de conta no frontend.
+---
 
-## Sprint 12+ — Dashboard Avancado e Otimizacoes
-- [ ] Dashboard gerencial avancado (mapa de mesas visual, graficos).
+## Sprint 3 — Menu CRUD Backend + Upload de Imagens
 
-## Sprint 13 — Super Admin OChefia
-- [ ] Role `SUPER_ADMIN` no sistema de auth.
-- [ ] CRUD de estabelecimentos (cadastro, edicao, suspensao).
-- [ ] Sistema de cobranca: valor do plano, registro de pagamentos, status (pago/pendente/atrasado).
-- [ ] Sistema de modulos: modulo padrao + modulos extras. Habilitar/desabilitar por estabelecimento. Valor global e override.
-- [ ] Painel `/superadmin` com listagem, filtros, indicadores visuais de inadimplencia.
-- [ ] Metricas de uso por estabelecimento.
+**Endpoints (~12):**
+- GET `/menu/categories` — Listar categorias (admin).
+- POST `/menu/categories` — Criar categoria.
+- PUT `/menu/categories/:id` — Atualizar categoria.
+- DELETE `/menu/categories/:id` — Remover categoria.
+- GET `/menu/tags` — Listar tags de produto.
+- POST `/menu/tags` — Criar tag.
+- PUT `/menu/tags/:id` — Atualizar tag.
+- DELETE `/menu/tags/:id` — Remover tag.
+- GET `/menu/products` — Listar produtos (admin).
+- POST `/menu/products` — Criar produto (inclui `destination` e `tagIds[]`).
+- PUT `/menu/products/:id` — Atualizar produto.
+- PATCH `/menu/products/:id/availability` — Toggle disponibilidade.
+- POST `/upload/product-images` — Upload de imagens (multipart, max 5).
+- DELETE `/upload/product-images/:imageId` — Remover imagem.
+
+**Checklist:**
+- [ ] CRUD de categorias.
+- [ ] CRUD de tags de produto (vegano, sem gluten, picante, etc).
+- [ ] CRUD de produtos com campo `destination` (kitchen/bar/waiter).
+- [ ] StorageService com interface (upload, delete, getUrl).
+- [ ] Implementacao Local (dev) e S3 (prod).
+- [ ] Resize com sharp (thumb 200px, media 600px, original).
+- [ ] Upload com preview, reordenacao e remocao.
+- [ ] Frontend admin: tela cardapio CRUD.
+
+---
+
+## Sprint 4 — Sessao de Mesa + WhatsApp OTP + Cardapio Frontend
+
+**Endpoints (~9):**
+- GET `/session/:token` — Dados da sessao.
+- POST `/session/:token/join` — Cliente entrar na sessao.
+- POST `/session/:token/phone` — Enviar OTP via WhatsApp.
+- POST `/session/:token/phone/verify` — Confirmar OTP.
+- GET `/session/:token/people` — Listar pessoas na sessao.
+- POST `/session/:token/people` — Adicionar pessoa na mesa.
+- DELETE `/session/:token/people/:personId` — Remover pessoa.
+- PATCH `/session/:token/service-charge` — Toggle taxa de servico.
+- GET `/menu/:restaurantSlug` — Cardapio publico (com cache Redis).
+
+**Checklist:**
+- [ ] Sessao de mesa via token na URL + cookie.
+- [ ] Verificacao WhatsApp via OTP de 6 digitos.
+- [ ] CRUD de pessoas na mesa.
+- [ ] Cache do cardapio no Redis.
+- [ ] Frontend cliente: tela WhatsApp.
+- [ ] Frontend cliente: tela pessoas (+ botao no header de TODAS as telas).
+- [ ] Frontend cliente: cardapio com galeria, categorias, filtros.
+- [ ] Frontend cliente: detalhe do produto.
+
+---
+
+## Sprint 5 — Carrinho + Pedidos + Pagamento Pix
+
+**Endpoints (~10):**
+- POST `/orders` — Criar pedido (cada item com `personIds[]` obrigatorio).
+- GET `/orders` — Listar pedidos (admin, filtros).
+- GET `/orders/:id` — Detalhes do pedido.
+- PATCH `/orders/:id/status` — Atualizar status.
+- PATCH `/orders/items/:id/status` — Status de item individual.
+- PATCH `/orders/items/:id/people` — Reatribuir pessoas a um item.
+- POST `/payments` — Iniciar pagamento individual por pessoa.
+- GET `/payments/:id/status` — Verificar status.
+- POST `/payments/pix/webhook` — Webhook de confirmacao Pix.
+- GET `/payments/session/:token` — Listar pagamentos da sessao.
+- GET `/session/:token/bill` — Conta detalhada com divisao por pessoa.
+
+**Checklist:**
+- [ ] Criacao de pedido com selecao de pessoas por item.
+- [ ] Sub-pedidos automaticos por destino (cozinha/bar/garcom) com sufixo.
+- [ ] Status: Na fila -> Preparando -> Pronto -> Entregue.
+- [ ] Pagamento individual Pix com QR Code por pessoa.
+- [ ] Webhook Pix com baixa automatica.
+- [ ] Frontend cliente: carrinho com selecao de pessoas.
+- [ ] Frontend cliente: tela "Meus Pedidos" com status e reatribuicao.
+- [ ] Frontend cliente: conta com divisao por pessoa + taxa servico.
+- [ ] Frontend cliente: pagamento Pix com QR Code.
+
+---
+
+## Sprint 6 — WebSocket Gateway + KDS Backend
+
+Infraestrutura de tempo real. Zero endpoints REST novos.
+
+**Checklist:**
+- [ ] WebSocket gateway (Socket.IO).
+- [ ] Rooms: restaurant, kds, kds:kitchen, kds:bar, waiter, admin, session.
+- [ ] Roteamento de pedidos por destino do produto.
+- [ ] Eventos: order:created, kds:new-order, kds:status-update.
+- [ ] Eventos: client:order-update, client:session-update.
+- [ ] Eventos: waiter:order-ready, waiter:call, waiter:new-order.
+- [ ] Eventos: admin:table-update, admin:metrics-update.
+- [ ] KDS backend: fila de producao e transicoes de status.
+
+---
+
+## Sprint 7 — KDS Frontend + Fluxo BAR
+
+Frontend do KDS. Zero endpoints REST novos.
+
+**Checklist:**
+- [ ] Frontend KDS cozinha (dark mode, temporizadores, cores de status).
+- [ ] Frontend KDS bar (mesma base, fila separada).
+- [ ] Cores: Verde (no prazo), Amarelo (atencao), Vermelho (atrasado).
+- [ ] Alertas visuais e sonoros para pedido novo/urgente.
+- [ ] Clique no prato para ficha tecnica (ingredientes, modo de preparo, foto).
+- [ ] Botao "Pronto" com logica:
+  - Cozinha: notifica garcom para retirada.
+  - Bar sem flag entrega: notifica garcom para retirada.
+  - Bar com flag entrega: status Pronto -> Entregue no KDS.
+- [ ] Indicador de conexao WebSocket.
+
+---
+
+## Sprint 8 — Staff + Escala + Equipe do Dia
+
+**Endpoints (~9):**
+- GET `/staff` — Listar funcionarios.
+- POST `/staff` — Criar funcionario (temporary, fixedWeekdays, delivers, pin).
+- POST `/staff/invite` — Enviar convite.
+- POST `/staff/accept` — Aceitar convite.
+- PUT `/staff/:id` — Atualizar funcionario.
+- DELETE `/staff/:id` — Desativar funcionario.
+- GET `/schedule` — Listar escala por periodo.
+- GET `/schedule/day/:date` — Equipe do dia.
+- PUT `/schedule/day/:date` — Definir equipe do dia.
+- PATCH `/schedule/day/:date/tables` — Distribuir mesas entre garcons.
+
+**Checklist:**
+- [ ] CRUD de funcionarios com flag temporario, dias fixos, flag entrega BAR, senha garcom.
+- [ ] Sistema de convites (log no console em dev).
+- [ ] Tela escala: calendario por dia, auto-preenchimento, ajustes manuais.
+- [ ] Tela equipe do dia: equipe ativa + distribuicao de mesas por garcom.
+- [ ] Config modo distribuicao (todos vs. automatico) em Settings.
+
+---
+
+## Sprint 9 — Modulo Garcom + Clock-in + Chamados
+
+**Endpoints (~8):**
+- POST `/shifts/clock-in` — Garcom inicia turno (staffId + pin).
+- POST `/shifts/clock-out` — Garcom encerra turno.
+- GET `/shifts` — Listar turnos por periodo.
+- GET `/shifts/active` — Garcons com turno ativo.
+- POST `/calls` — Criar chamado (cliente).
+- GET `/calls` — Listar chamados abertos (garcom).
+- PATCH `/calls/:id/acknowledge` — Garcom viu.
+- PATCH `/calls/:id/resolve` — Garcom resolveu.
+
+**Checklist:**
+- [ ] Clock-in/out com senha do garcom. Registro de tempo de servico.
+- [ ] Sistema de chamados com tipo (chamar garcom, pedir conta, outro).
+- [ ] Frontend garcom: clock-in com senha.
+- [ ] Frontend garcom: lista de mesas atribuidas.
+- [ ] Frontend garcom: chamados abertos.
+- [ ] Frontend garcom: detalhe da mesa (pedidos por pessoa).
+- [ ] Frontend garcom: comanda rapida.
+- [ ] Botao "O Chefia" no cliente: modal com motivo + mensagem + enviar.
+
+---
+
+## Sprint 10 — Push Notifications + Real-time Garcom
+
+Infraestrutura de notificacoes. Zero endpoints REST novos.
+
+**Checklist:**
+- [ ] Push notifications via Service Worker + Web Push API.
+- [ ] Notificacao: prato pronto para retirada.
+- [ ] Notificacao: chamado de mesa.
+- [ ] Notificacao: bebida pronta (para retirada no bar).
+- [ ] Real-time admin: table update, metrics update via WebSocket.
+- [ ] Toggle taxa de servico por sessao (garcom).
+- [ ] Funcionario BAR com flag "tambem entrega" recebe notificacao propria.
+
+---
+
+## Sprint 11 — Faturamento + Dashboard
+
+**Endpoints (~6):**
+- GET `/billing/daily` — Faturamento do dia.
+- GET `/billing/monthly` — Faturamento mensal.
+- GET `/billing/cashier` — Fechamento de caixa.
+- GET `/billing/waiter-fees` — Taxas de garcom por periodo.
+- GET `/dashboard/overview` — Metricas gerais em tempo real.
+- GET `/dashboard/popular-items` — Itens mais vendidos.
+
+**Checklist:**
+- [ ] Faturamento diario: receita, pedidos, ticket medio, comparativo.
+- [ ] Faturamento mensal: receita acumulada, grafico por dia, comparativo.
+- [ ] Fechamento de caixa: valores por forma de pagamento.
+- [ ] Taxas de garcom: valor devido a cada garcom no periodo.
+- [ ] Dashboard: tempo medio bar/cozinha/garcom, ticket medio, mesas ativas.
+- [ ] Itens populares.
+
+---
+
+## Sprint 12 — Settings + Theming + Dashboard Avancado
+
+Frontend puro. Zero endpoints REST novos.
+
+**Checklist:**
+- [ ] Frontend admin: settings com nome/logo do estabelecimento.
+- [ ] Theming: selecao de tema pronto + color picker personalizado.
+- [ ] Temas prontos: Classico, Escuro, Rustico, Moderno, Tropical, Personalizado.
+- [ ] Preview em tempo real na tela de Settings.
+- [ ] CSS custom properties no cardapio do cliente.
+- [ ] Validacao de contraste WCAG AA.
+- [ ] 2 temas demonstrados (Classico + Escuro) no cardapio.
+- [ ] Mapa de mesas visual no dashboard (drag & drop ou grid).
+- [ ] Graficos no dashboard (receita, pedidos).
+
+---
+
+## Sprint 13 — Super Admin: Estabelecimentos + Cobranca
+
+**Endpoints (~9):**
+- GET `/superadmin/establishments` — Listar todos (com filtros).
+- POST `/superadmin/establishments` — Cadastrar novo.
+- GET `/superadmin/establishments/:id` — Detalhes.
+- PUT `/superadmin/establishments/:id` — Atualizar.
+- PATCH `/superadmin/establishments/:id/status` — Alterar status.
+- GET `/superadmin/establishments/:id/billing` — Historico de cobrancas.
+- PUT `/superadmin/establishments/:id/billing/plan` — Definir valor do plano.
+- POST `/superadmin/establishments/:id/billing/payments` — Registrar pagamento.
+- PATCH `/superadmin/establishments/:id/billing/payments/:paymentId` — Atualizar status.
+
+**Checklist:**
+- [ ] Role SUPER_ADMIN no sistema de auth.
+- [ ] CRUD de estabelecimentos (nome, slug, CNPJ, responsavel, email, telefone).
+- [ ] Suspensao de estabelecimentos.
+- [ ] Sistema de cobranca: valor do plano, registro de pagamentos, status.
+- [ ] Painel `/superadmin` com listagem, filtros, indicadores de inadimplencia.
 - [ ] Seed com usuario SUPER_ADMIN.
 
-## Sprint 14+ — Fase 2 (Plataforma + Estoque) — NAO IMPLEMENTAR ATE AVISO EXPLICITO
+---
+
+## Sprint 14 — Super Admin: Modulos + Monitoramento
+
+**Endpoints (~4):**
+- GET `/superadmin/modules` — Listar modulos com valor padrao.
+- PUT `/superadmin/modules/:moduleId` — Atualizar modulo.
+- GET `/superadmin/establishments/:id/modules` — Modulos do estabelecimento.
+- PUT `/superadmin/establishments/:id/modules/:moduleId` — Habilitar/desabilitar + valor.
+
+**Checklist:**
+- [ ] Sistema de modulos: padrao + extras.
+- [ ] Habilitar/desabilitar modulos por estabelecimento.
+- [ ] Valor global e override por estabelecimento.
+- [ ] Metricas de uso por estabelecimento (pedidos/mes, mesas ativas).
+- [ ] Ultimo acesso de cada estabelecimento.
+
+---
+
+## Sprint 15 — E2E Tests + Polish + Performance
+
+**Checklist:**
+- [ ] Testes e2e com Playwright: fluxo completo do cliente (QR -> WhatsApp -> cardapio -> pedido -> pagamento).
+- [ ] Testes e2e com Playwright: fluxo admin (login -> dashboard -> mesas -> cardapio).
+- [ ] Testes e2e com Playwright: fluxo garcom (clock-in -> mesas -> chamados -> comanda).
+- [ ] Testes de contrato (API).
+- [ ] Testes de integracao (Supertest).
+- [ ] Skeleton loading em todas as telas que faltam.
+- [ ] Revisao de acessibilidade (botoes 44x44px, contraste WCAG AA, labels).
+- [ ] Performance: otimizar queries lentas, verificar cache Redis.
+- [ ] Validacao visual final.
+
+---
+
+## Sprint 16+ — Fase 2 (Plataforma + Estoque) — NAO IMPLEMENTAR ATE AVISO EXPLICITO
 **Apenas referencia arquitetural. Nao iniciar ate o usuario pedir. Cada item e um modulo extra pago.**
 - [ ] **Modulo Estoque:** Controle de estoque com baixa automatica por pedido.
 - [ ] **Modulo Estoque:** Alertas de estoque minimo em tempo real.
