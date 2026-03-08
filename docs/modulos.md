@@ -114,3 +114,11 @@ Acesso: Equipe interna OChefia (role `SUPER_ADMIN`). **Nao acessivel por estabel
 - Metricas de uso por estabelecimento (pedidos/mes, mesas ativas).
 - Ultimo acesso.
 - Acesso a logs via CloudWatch.
+
+---
+
+## Storage de Imagens
+
+- **S3 + CloudFront** em producao. Filesystem local apenas em desenvolvimento.
+- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local (dev) e S3 (prod).
+- `STORAGE_DRIVER=local|s3`. Resize com `sharp` (thumb 200px, media 600px, original). Max 5MB, JPEG/PNG/WebP.

@@ -27,7 +27,51 @@ Ciclo **sempre**: RED (teste falhando) -> GREEN (codigo minimo) -> REFACTOR.
 
 ---
 
+## Estado Atual do Repositorio
+
+**Sprint P — Prototipos HTML.** O repositorio contem apenas `CLAUDE.md` e `docs/`. A estrutura de codigo (apps/, packages/, docker) ainda nao foi criada — sera criada na Sprint 0. Ver `docs/sprints.md`.
+
+---
+
+## Quick Start
+
+```bash
+# Node 20 obrigatorio
+source ~/.nvm/nvm.sh && nvm use 20
+
+# Instalar dependencias (quando existirem)
+pnpm install
+
+# Docker (PostgreSQL 5433, Redis 6380 — portas padrao ocupadas)
+docker compose up -d postgres redis
+
+# Build shared primeiro (dependencia dos apps)
+pnpm --filter @ochefia/shared build
+
+# Dev
+pnpm --filter @ochefia/api dev     # Backend porta 3001
+pnpm --filter @ochefia/web dev     # Frontend porta 3000
+
+# Testes
+pnpm --filter @ochefia/api test    # Jest watch
+pnpm test                          # Tudo via Turborepo
+```
+
+---
+
+## Gotchas
+
+- **Node 20 via nvm**: Sempre `source ~/.nvm/nvm.sh && nvm use 20` antes de rodar comandos.
+- **Portas nao-padrao**: PostgreSQL em **5433**, Redis em **6380** (as portas padrao estao ocupadas no host).
+- **Shared deve ser buildado primeiro**: `pnpm --filter @ochefia/shared build` antes de buildar api ou web.
+- **tsconfig da API nao tem paths para @ochefia/shared**: Depende do workspace symlink + shared compilado.
+- **Seed**: Executar de `apps/api/` com `npx ts-node -r tsconfig-paths/register prisma/seed.ts`. User: `dono@ze-bar.com / senha123` (OWNER), slug `ze-bar`.
+
+---
+
 ## Estrutura do Monorepo
+
+> **Nota:** Esta e a estrutura planejada. Sera criada na Sprint 0.
 
 ```
 ochefia/
@@ -46,21 +90,9 @@ ochefia/
 
 ---
 
-## Stack Tecnologica
+## Stack
 
-| Camada | Tecnologia |
-|---|---|
-| Linguagem | TypeScript estrito |
-| Backend | Node.js + NestJS |
-| Real-time | Socket.IO via `@nestjs/websockets` |
-| Frontend | Next.js 14+ (App Router) + React 18+ + Tailwind CSS |
-| ORM | Prisma |
-| Banco | PostgreSQL com RLS (multi-tenant) |
-| Cache | Redis |
-| Monorepo | Turborepo + pnpm |
-| Testes | Jest + Supertest + Playwright — **TDD obrigatorio** |
-| Logs | Winston JSON estruturado + Correlation ID + CloudWatch (AWS) |
-| Autenticacao | JWT (access 15min + refresh 7d httpOnly cookie) |
+TypeScript estrito, NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Router + Tailwind (frontend), Socket.IO (real-time), Redis (cache), Turborepo + pnpm (monorepo). Detalhes em `docs/`.
 
 ---
 
@@ -92,11 +124,6 @@ ochefia/
 - Tabelas: **snake_case plural** via `@@map`. Campos: **camelCase**. Enums: **UPPER_CASE**.
 - Alteracoes via `prisma migrate dev`. Schema em `apps/api/prisma/schema.prisma`.
 
-### Storage de Imagens
-- **S3 + CloudFront** em producao. Filesystem local apenas em desenvolvimento.
-- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local (dev) e S3 (prod).
-- `STORAGE_DRIVER=local|s3`. Resize com `sharp` (thumb 200px, media 600px, original). Max 5MB, JPEG/PNG/WebP.
-
 ### Testes
 | Tipo | Ferramenta | Local |
 |---|---|---|
@@ -104,36 +131,6 @@ ochefia/
 | Integracao | Jest + Supertest | `apps/api/test/**/*.e2e-spec.ts` |
 | E2E | Playwright | `apps/web/e2e/**/*.spec.ts` |
 | Contrato | Jest | `apps/api/test/contracts/**/*.spec.ts` |
-
-```bash
-pnpm --filter @ochefia/api test          # Jest watch
-pnpm --filter @ochefia/api test:e2e      # Supertest
-pnpm --filter @ochefia/web test:e2e      # Playwright
-pnpm test                                # Tudo via Turborepo
-```
-
----
-
-## Roles e Permissoes
-
-```
-SUPER_ADMIN -> Painel OChefia (gestao de estabelecimentos, cobranca, modulos) — cross-tenant
-OWNER       -> Acesso total ao seu estabelecimento
-MANAGER     -> Admin sem config financeiras sensiveis
-WAITER      -> Modulo garcom + chamados
-KITCHEN     -> KDS (cozinha)
-BAR         -> KDS (bar) + flag opcional "tambem entrega" (entrega sem passar por garcom)
-```
-
----
-
-## Fase Atual
-
-**Sprint P — Prototipos HTML**
-
-Prototipos funcionais em HTML + CSS + JS vanilla para todas as telas. Validar UI antes de codigo de producao. Ver `docs/sprints.md` para detalhes e checklist.
-
-Proximo: Sprint 0 (Scaffolding) -> Sprint 1-2 (Fundacao).
 
 ---
 
