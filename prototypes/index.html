@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OChefia — Protótipos</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hub-page { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .hub-header { text-align: center; margin-bottom: 2.5rem; }
+    .hub-header h1 { font-size: 2rem; font-weight: 700; color: var(--color-primary); margin-bottom: 0.25rem; }
+    .hub-header p { font-size: 1rem; color: var(--color-text-secondary); }
+    .hub-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+    .hub-card { border-radius: var(--radius-xl); border: 1px solid var(--color-border-light); background: var(--color-white); overflow: hidden; }
+    .hub-card-header { padding: 1rem 1.25rem; font-size: 1rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 0.5rem; }
+    .hub-card-body { padding: 0.75rem 1.25rem 1.25rem; }
+    .hub-card-body ul { display: flex; flex-direction: column; gap: 0.125rem; }
+    .hub-card-body a { display: block; padding: 0.5rem 0.75rem; font-size: 0.875rem; color: var(--color-text-primary); border-radius: var(--radius-md); transition: background-color 0.15s ease, color 0.15s ease; }
+    .hub-card-body a:hover { background-color: var(--color-primary-light); color: var(--color-primary); }
+    .hub-count { font-size: 0.75rem; font-weight: 500; background: rgba(255,255,255,0.25); padding: 0.125rem 0.5rem; border-radius: var(--radius-full); }
+  </style>
+</head>
+<body>
+  <main class="hub-page">
+
+    <header class="hub-header">
+      <h1>OChefia — Protótipos</h1>
+      <p>Sprint P — Protótipos HTML estáticos de todas as telas</p>
+    </header>
+
+    <div class="hub-grid">
+
+      <!-- Design System -->
+      <div class="hub-card">
+        <div class="hub-card-header" style="background: var(--color-gray-900);">
+          Design System <span class="hub-count">1</span>
+        </div>
+        <div class="hub-card-body">
+          <ul>
+            <li><a href="style-guide.html">Style Guide</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Cliente -->
+      <div class="hub-card">
+        <div class="hub-card-header" style="background: var(--color-primary);">
+          Cliente <span class="hub-count">8</span>
+        </div>
+        <div class="hub-card-body">
+          <ul>
+            <li><a href="cliente/whatsapp.html">WhatsApp (link de entrada)</a></li>
+            <li><a href="cliente/pessoas.html">Pessoas na mesa</a></li>
+            <li><a href="cliente/cardapio.html">Cardápio</a></li>
+            <li><a href="cliente/produto.html">Detalhe do produto</a></li>
+            <li><a href="cliente/carrinho.html">Carrinho</a></li>
+            <li><a href="cliente/pedidos.html">Meus pedidos</a></li>
+            <li><a href="cliente/conta.html">Conta da mesa</a></li>
+            <li><a href="cliente/pagamento.html">Pagamento</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Admin -->
+      <div class="hub-card">
+        <div class="hub-card-header" style="background: var(--color-gray-900);">
+          Admin <span class="hub-count">9</span>
+        </div>
+        <div class="hub-card-body">
+          <ul>
+            <li><a href="admin/login.html">Login</a></li>
+            <li><a href="admin/dashboard.html">Dashboard</a></li>
+            <li><a href="admin/mesas.html">Mesas</a></li>
+            <li><a href="admin/cardapio-admin.html">Cardápio (admin)</a></li>
+            <li><a href="admin/faturamento.html">Faturamento</a></li>
+            <li><a href="admin/staff.html">Staff (equipe)</a></li>
+            <li><a href="admin/escala.html">Escala</a></li>
+            <li><a href="admin/equipe-do-dia.html">Equipe do dia</a></li>
+            <li><a href="admin/settings.html">Configurações</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- KDS -->
+      <div class="hub-card">
+        <div class="hub-card-header" style="background: #1F2937;">
+          KDS <span class="hub-count">2</span>
+        </div>
+        <div class="hub-card-body">
+          <ul>
+            <li><a href="kds/cozinha.html">Cozinha</a></li>
+            <li><a href="kds/bar.html">Bar</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Garçom -->
+      <div class="hub-card">
+        <div class="hub-card-header" style="background: var(--color-primary);">
+          Garçom <span class="hub-count">5</span>
+        </div>
+        <div class="hub-card-body">
+          <ul>
+            <li><a href="garcom/clock-in.html">Clock-in (bater ponto)</a></li>
+            <li><a href="garcom/mesas.html">Mesas</a></li>
+            <li><a href="garcom/chamados.html">Chamados</a></li>
+            <li><a href="garcom/mesa-detalhe.html">Detalhe da mesa</a></li>
+            <li><a href="garcom/comanda.html">Comanda</a></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
