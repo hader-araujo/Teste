@@ -74,6 +74,9 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Endpoint `GET /health` e `GET /health/ready` (health check basico + readiness).
 - [ ] Helmet configurado (headers de seguranca HTTP).
 - [ ] CORS configurado para origens permitidas.
+- [ ] CI/CD pipeline basico (GitHub Actions): lint + test em PRs.
+- [ ] Dependabot configurado para scanning de vulnerabilidades.
+- [ ] `pnpm audit` como step do CI.
 
 ---
 
@@ -99,6 +102,9 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] ValidationPipe global + Swagger.
 - [ ] Seed com dados de teste (dono@ze-bar.com / senha123, slug ze-bar).
 - [ ] Tabela `AuditLog` no Prisma schema (para uso em sprints futuras).
+- [ ] Rate limit especifico em `/auth/refresh` (10 tentativas por IP em 15min).
+- [ ] CSRF token (sync token pattern) para protecao de requests com cookie.
+- [ ] Error codes padronizados para modulo Auth (AUTH_001, AUTH_002, AUTH_003).
 
 ---
 
@@ -121,6 +127,8 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Layout admin com sidebar + mobile top bar.
 - [ ] Tela de login frontend (Next.js).
 - [ ] Skeleton loading nos componentes base.
+- [ ] Sentry integrado no Next.js (client-side error tracking).
+- [ ] Componentes base com `aria-label`, `role` e `focus-visible` corretos.
 
 ---
 
@@ -153,6 +161,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Sanitizar nome do arquivo (usar UUID como nome no storage).
 - [ ] Upload com preview, reordenacao e remocao.
 - [ ] Frontend admin: tela cardapio CRUD.
+- [ ] Sanitizacao de inputs de texto livre (nome de categoria, nome/descricao de produto) contra XSS.
 
 ---
 
@@ -179,6 +188,9 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Frontend cliente: tela pessoas (+ botao no header de TODAS as telas).
 - [ ] Frontend cliente: cardapio com galeria, categorias, filtros.
 - [ ] Frontend cliente: detalhe do produto.
+- [ ] Cache stampede prevention: lock-based refresh ou stale-while-revalidate no cache do cardapio.
+- [ ] Sanitizacao de nomes de pessoas na mesa contra XSS.
+- [ ] Mitigacao de session sharing: binding do token ao cookie do dispositivo.
 
 ---
 
@@ -208,6 +220,9 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Frontend cliente: tela "Meus Pedidos" com status e reatribuicao.
 - [ ] Frontend cliente: conta com divisao por pessoa + taxa servico.
 - [ ] Frontend cliente: pagamento Pix com QR Code.
+- [ ] QueueService abstraction (interface unica para Bull/Redis em dev e SQS em prod).
+- [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
+- [ ] Abstracacao de provedor de pagamento (PaymentProviderService) para evitar lock-in.
 
 ---
 
@@ -226,6 +241,9 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] Eventos: admin:table-update, admin:metrics-update.
 - [ ] KDS backend: fila de producao e transicoes de status.
 - [ ] Logica de reconexao: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
+- [ ] Testar Socket.IO com 2+ containers simultaneous (validar Redis Adapter funciona corretamente).
+- [ ] Cleanup de rooms orfas (sessoes fechadas, clientes desconectados) para prevenir memory leak.
+- [ ] Monitorar contagem de listeners por room para detectar leaks.
 
 ---
 
@@ -307,6 +325,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] Real-time admin: table update, metrics update via WebSocket.
 - [ ] Toggle taxa de servico por sessao (garcom).
 - [ ] Funcionario BAR com flag "tambem entrega" recebe notificacao propria.
+- [ ] Service Worker com estrategia de cache para cardapio (suporte offline para leitura do cardapio).
 
 ---
 
@@ -327,6 +346,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] Taxas de garcom: valor devido a cada garcom no periodo.
 - [ ] Dashboard: tempo medio bar/cozinha/garcom, ticket medio, mesas ativas. **Metricas pre-calculadas em Redis** (atualizadas por evento, nao calculadas a cada request).
 - [ ] Itens populares.
+- [ ] Metricas pre-calculadas em Redis com invalidacao por evento (nao calcular a cada request).
 
 ---
 
@@ -409,6 +429,12 @@ Frontend puro. Zero endpoints REST novos.
 - [ ] Infra: configurar auto-scaling ECS (CPU > 70% scale out, < 30% scale in, min 2, max 10).
 - [ ] Infra: configurar RDS Proxy para connection pooling.
 - [ ] Validacao visual final.
+- [ ] axe-core integrado nos testes e2e (Playwright) para validacao automatica de acessibilidade.
+- [ ] Teste de carga multi-tenant: validar isolamento de dados entre restaurantes sob carga (100+ req/s).
+- [ ] Validar database indexing: indices compostos em (restaurantId, status) para orders, (restaurantId, createdAt) para sessoes.
+- [ ] Bundle analysis com `@next/bundle-analyzer` — code splitting por modulo (admin vs cliente vs garcom).
+- [ ] DLQ processing strategy documentada e testada.
+- [ ] Rotacao de JWT_SECRET testada (suportar 2 secrets simultaneos durante transicao).
 
 ---
 

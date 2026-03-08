@@ -59,3 +59,21 @@ export const SOCKET_EVENTS = {
 - **Indicador de conexao obrigatorio** em todas as telas que dependem de WebSocket (KDS, garcom, cliente pedidos).
 - Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP como fallback para atualizacoes criticas (status de pedido, pronto para retirada).
 - Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.
+
+## Performance e Gerenciamento de Memoria
+
+### Cleanup de Rooms
+- Quando uma `TableSession` e fechada, remover todos os sockets da room `session:{token}`.
+- Implementar cleanup periodico (a cada 5 minutos) para rooms orfas (sem sockets conectados).
+- Logar rooms ativas e contagem de sockets por room em `level: debug`.
+
+### Prevencao de Memory Leak
+- Limitar listeners por socket: `socket.setMaxListeners(20)`. Logar `warn` se exceder.
+- Remover event listeners no `disconnect` (Socket.IO faz por padrao, mas verificar listeners customizados).
+- Monitorar memoria do processo Node.js (RSS) via CloudWatch — alarme se > 80% do limite do container.
+- Em ambiente com 100+ sessoes simultaneas (bar lotado), monitorar contagem total de sockets e rooms.
+
+### Backpressure
+- Se o servidor estiver sobrecarregado, usar `socket.volatile.emit()` para eventos nao-criticos (metrics-update) — descarta se nao conseguir enviar.
+- Eventos criticos (order-update, payment-update) devem usar `emit()` normal com garantia de entrega.
+- Rate limit de eventos do cliente para o servidor: maximo 10 eventos por segundo por socket. Desconectar sockets que excedem (possivel abuso).

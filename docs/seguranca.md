@@ -11,6 +11,7 @@
 - **Token da sessao deve ser criptograficamente seguro:** UUID v4 (128 bits) ou `crypto.randomBytes(32).toString('hex')`. Nunca sequencial ou previsivel.
 - Token expira automaticamente quando a sessao e fechada. Tokens de sessoes fechadas nao podem ser reutilizados.
 - Sem login do cliente no MVP. Validado por IP + cookie como camada extra.
+- **Mitigacao de session sharing:** token na URL pode ser compartilhado (ex: link enviado por WhatsApp). Binding do token ao cookie do dispositivo como camada extra — se o cookie nao bate, exigir re-verificacao WhatsApp.
 
 ## Identificacao via WhatsApp
 - Ao abrir sessao, cliente informa numero -> sistema envia OTP via WhatsApp -> confirma -> salva `phone` + `phoneVerified = true`.
@@ -22,6 +23,14 @@
 - JWT com access token (15min) + refresh token (7 dias).
 - Refresh token em httpOnly cookie com `SameSite=Strict` (protecao CSRF).
 - Access token **nunca** armazenado em cookie — apenas em memoria (variavel JS). Enviado via header `Authorization: Bearer`.
+- **Rate limit no `/auth/refresh`:** maximo 10 requests por IP em 15 minutos. Previne abuso com refresh token vazado.
+
+## CSRF (Cross-Site Request Forgery)
+- Refresh token em httpOnly cookie exige protecao CSRF adicional alem de `SameSite=Strict`.
+- Implementar **CSRF token** (sync token pattern) via `csurf` ou equivalente NestJS.
+- Token CSRF enviado em header customizado (`X-CSRF-Token`) em toda request que modifica estado (POST, PUT, PATCH, DELETE).
+- Token gerado por sessao e validado no backend.
+- `SameSite=Strict` no cookie e camada complementar, nao substitui CSRF token.
 
 ## PIN do Garcom (Clock-in)
 - **Rate limit no endpoint `/shifts/clock-in`:** maximo 5 tentativas por staffId em 15 minutos. Apos exceder, lockout de 15 minutos.
@@ -54,6 +63,41 @@
 - **WAF:** Web Application Firewall contra injecao SQL, XSS e DDoS.
 - **Helmet:** Headers de seguranca HTTP (X-Content-Type-Options, X-Frame-Options, CSP, etc).
 - **CORS:** Configurado para aceitar apenas origens conhecidas (dominio do frontend).
+
+## Content Security Policy (CSP)
+- Configurar CSP via Helmet com politica restritiva:
+  - `default-src 'self'`
+  - `img-src 'self' https://*.cloudfront.net data:` (imagens do CDN + placeholders)
+  - `connect-src 'self' wss://*.ochefia.com.br` (WebSocket)
+  - `script-src 'self'` (sem inline scripts)
+  - `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com` (Tailwind gera inline styles)
+  - `font-src 'self' https://fonts.gstatic.com`
+- Revisar e ajustar CSP conforme integracao com provedores externos (Pix, WhatsApp).
+- Usar `report-uri` para monitorar violacoes em producao.
+
+## Sanitizacao de Input
+- `class-validator` valida formato mas **nao sanitiza HTML/XSS**.
+- Usar `class-transformer` com sanitizacao para campos de texto livre (nome do restaurante, descricao de produto, nomes de pessoas na mesa).
+- Remover tags HTML e caracteres perigosos antes de persistir.
+- Campos que aceitam texto livre: `Restaurant.name`, `Product.name`, `Product.description`, `Person.name`, `Category.name`, `Tag.name`.
+
+## Dependency Scanning
+- Configurar **Dependabot** (GitHub) ou **Snyk** para scanning automatico de vulnerabilidades em dependencias.
+- `pnpm audit` como step obrigatorio no CI pipeline.
+- Bloquear merge de PRs com vulnerabilidades criticas (`high` ou `critical`).
+- Revisar dependencias transitivias trimestralmente.
+
+## Rotacao de Secrets
+- **JWT_SECRET:** rotacao a cada 90 dias. Suportar dois secrets simultaneos durante periodo de transicao (validar token com secret atual e anterior).
+- **PIX_WEBHOOK_SECRET:** rotacao conforme politica do provedor Pix.
+- Usar **AWS Secrets Manager rotation** com Lambda para rotacao automatica.
+- Nunca hardcodar secrets — mesmo em testes, usar variaveis de ambiente.
+
+## Prisma e SQL Injection
+- Prisma ORM protege contra SQL injection por padrao via queries parametrizadas.
+- **Se usar `$queryRaw` ou `$executeRaw`:** OBRIGATORIO usar template literals do Prisma (`Prisma.sql`) para parametrizacao. Nunca concatenar strings.
+- Exemplo seguro: `prisma.$queryRaw(Prisma.sql\`SELECT * FROM users WHERE id = ${userId}\`)`.
+- Exemplo **PROIBIDO**: `prisma.$queryRaw(\`SELECT * FROM users WHERE id = '${userId}'\`)`.
 
 ## Audit Log
 - Acoes administrativas criticas devem ser registradas em tabela `AuditLog`:

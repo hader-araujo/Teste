@@ -77,4 +77,33 @@ Cada restaurante pode personalizar as cores do **modulo cliente (cardapio digita
 - **Minimalista:** pouco texto, muita acao. Cardapio como app de delivery premium.
 - **Fotos grandes:** foto do produto e o elemento principal do card.
 - **Feedback visual:** toda acao com resposta imediata (toast, loading, transicao).
-- **Acessibilidade basica:** contraste WCAG AA, botoes 44x44px, labels nos inputs.
+- **Acessibilidade:** ver secao dedicada abaixo.
+
+## Acessibilidade (a11y)
+
+### Requisitos Minimos (Fase 1)
+- **Contraste:** WCAG AA em todas as combinacoes texto/fundo. Validar com ferramenta automatica (axe-core, Lighthouse).
+- **Touch targets:** botoes e links com minimo 44x44px (recomendacao WCAG 2.5.5).
+- **Labels:** todo `<input>` deve ter `<label>` associado (via `htmlFor` ou `aria-label`).
+- **Focus visible:** outline visivel em todos os elementos interativos ao navegar por teclado (`:focus-visible`).
+- **Navegacao por teclado:** todos os fluxos criticos (cardapio, carrinho, pagamento) devem ser completaveis sem mouse/touch.
+- **Aria attributes:**
+  - `aria-label` em botoes com icone sem texto.
+  - `aria-live="polite"` em regioes que atualizam em tempo real (status do pedido, timer KDS).
+  - `role="alert"` em mensagens de erro e toast notifications.
+  - `aria-expanded` em menus dropdown e modais.
+- **Semantica HTML:** usar tags semanticas (`<nav>`, `<main>`, `<header>`, `<footer>`, `<section>`, `<article>`) em vez de `<div>` generico.
+- **Imagens:** `alt` descritivo em fotos de produtos. `alt=""` para imagens decorativas.
+
+### Testes de Acessibilidade
+- **Automatizado:** axe-core integrado nos testes e2e (Playwright). Rodar `@axe-core/playwright` em todas as paginas.
+- **Manual:** testar fluxo completo do cliente com navegacao por teclado (Tab, Enter, Escape).
+- **Screen reader:** testar pelo menos 1x antes de cada release com NVDA (Windows) ou VoiceOver (Mac).
+
+### Prioridade por Modulo
+| Modulo | Prioridade a11y | Motivo |
+|---|---|---|
+| Cliente (cardapio) | **Alta** | Publico diverso, possivel obrigacao legal |
+| Admin | Media | Uso interno, equipe treinada |
+| KDS | Baixa | Operado por equipe em ambiente controlado |
+| Garcom | Media | Mobile, uso rapido, equipe treinada |

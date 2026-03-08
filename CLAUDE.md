@@ -115,7 +115,8 @@ TypeScript estrito, NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Route
 - Tailwind CSS exclusivo. Componentes >150 linhas devem ser quebrados.
 - Props tipadas com `interface`. Named exports.
 - Organizacao: `components/ui/`, `components/admin/`, `components/kds/`, `components/garcom/`, `components/cliente/`.
-- **Toda a interface (labels, botoes, mensagens, placeholders) deve ser 100% em pt-BR.** Codigo (variaveis, funcoes, classes) permanece em ingles.
+- **Toda a interface (labels, botoes, mensagens, placeholders) deve ser 100% em pt-BR com acentuacao correta.** Codigo (variaveis, funcoes, classes) permanece em ingles.
+- **Acentuacao obrigatoria:** Todo texto em portugues visivel ao usuario (UI, prototipos, mensagens de erro, placeholders, toasts) DEVE usar acentuacao correta (ã, é, ç, ô, í, ú, etc). Nunca escrever "Adicao" em vez de "Adição", "voce" em vez de "você", "pedido esta pronto" em vez de "pedido está pronto". Isso se aplica a prototipos HTML, componentes React, mensagens de toast, e qualquer texto renderizado na tela.
 
 ### Shared (`packages/shared`)
 - TypeScript puro. Zero dependencias de framework. Tudo exportado pelo `index.ts`.

@@ -110,3 +110,78 @@ Essas metricas alimentam o dashboard do Super Admin e geram alarmes automaticos.
 
 - Implementar **circuit breaker** (ex: `opossum`) para dependencias externas (WhatsApp, Pix).
 - Quando o circuit abre, retorna erro amigavel imediatamente em vez de esperar timeout.
+
+## Tracing End-to-End (Fluxo Completo)
+
+Definir trace completo para fluxos criticos:
+
+| Fluxo | Trace |
+|---|---|
+| **Pedido** | Cliente -> API (POST /orders) -> SQS (se async) -> KDS (WebSocket) -> status update -> Cliente (WebSocket) |
+| **Pagamento Pix** | Cliente -> API (POST /payments) -> Provedor Pix -> Webhook -> SQS (ochefia-pix-process) -> Worker -> API (update status) -> Cliente (WebSocket) |
+| **OTP WhatsApp** | Cliente -> API (POST /session/:token/phone) -> SQS (ochefia-otp-send) -> Worker -> WhatsApp API -> Cliente (verifica OTP) |
+| **Upload Imagem** | Admin -> API (POST /upload) -> S3 -> SQS (ochefia-image-resize) -> Worker (Sharp) -> S3 (thumbs) |
+
+- Propagar `correlationId` em headers de mensagens SQS (`MessageAttributes`).
+- X-Ray segments devem cobrir: HTTP request, SQS publish, SQS consume, chamadas externas.
+- Cada worker SQS deve criar sub-segment vinculado ao trace original.
+
+## Error Codes Padronizados
+
+Erros retornados pela API devem incluir codigo estruturado para facilitar debugging e suporte:
+
+| Prefixo | Modulo | Exemplo |
+|---|---|---|
+| `AUTH_` | Autenticacao | `AUTH_001: Credenciais invalidas`, `AUTH_002: Token expirado`, `AUTH_003: Refresh token invalido` |
+| `SESSION_` | Sessao | `SESSION_001: Token de sessao invalido`, `SESSION_002: Sessao ja fechada`, `SESSION_003: OTP expirado` |
+| `ORDER_` | Pedidos | `ORDER_001: Item indisponivel`, `ORDER_002: Sessao sem pessoas cadastradas`, `ORDER_003: Pessoa invalida` |
+| `PAY_` | Pagamentos | `PAY_001: Sessao sem pedidos`, `PAY_002: Pessoa ja pagou`, `PAY_003: Webhook timeout`, `PAY_004: Assinatura invalida` |
+| `MENU_` | Cardapio | `MENU_001: Categoria nao encontrada`, `MENU_002: Produto sem destino`, `MENU_003: Imagem invalida` |
+| `STAFF_` | Funcionarios | `STAFF_001: PIN incorreto`, `STAFF_002: Lockout ativo`, `STAFF_003: Convite expirado` |
+| `KDS_` | KDS | `KDS_001: Transicao de status invalida`, `KDS_002: Pedido nao encontrado` |
+
+Formato da resposta de erro:
+```json
+{
+  "statusCode": 400,
+  "errorCode": "ORDER_001",
+  "message": "Item 'Picanha na Brasa' esta indisponivel no momento",
+  "correlationId": "a1b2c3d4-e5f6-..."
+}
+```
+
+## Client-Side Error Tracking
+
+- Integrar **Sentry** (ou similar) no frontend Next.js para captura automatica de erros.
+- Configurar `Sentry.init()` com `dsn`, `environment` e `release`.
+- Propagar `correlationId` como tag no Sentry para vincular erros frontend com logs backend.
+- Capturar: erros JS nao tratados, erros de rede (fetch/WebSocket), erros de renderizacao React.
+- Source maps enviados ao Sentry no build (nao expor ao publico).
+- **Service Worker errors:** capturar falhas de cache e push notification separadamente.
+- Dashboard Sentry com alertas para picos de erros por release.
+
+## Dashboards de Negocio (CloudWatch Dashboards)
+
+Criar dashboards visuais no CloudWatch (ou Grafana) para acompanhamento:
+
+### Dashboard Operacional
+- Pedidos por hora (grafico de linha)
+- Tempo medio de preparo por destino (cozinha/bar)
+- Sessoes ativas por restaurante
+- Taxa de erro por endpoint (top 5)
+- Latencia P50/P95/P99
+
+### Dashboard de Negocio
+- Receita diaria acumulada
+- Taxa de conversao: sessoes abertas vs pedidos feitos
+- Cart abandonment rate
+- Pagamentos confirmados vs pendentes
+- OTP success rate
+- Restaurantes mais ativos (top 10)
+
+### Dashboard de Saude
+- Circuit breaker status (open/closed/half-open) por dependencia
+- SQS queue depth por fila
+- DLQ message count (deve ser 0)
+- Redis memory usage e hit rate
+- RDS connections e CPU

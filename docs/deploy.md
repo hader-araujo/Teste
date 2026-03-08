@@ -101,6 +101,96 @@ Variaveis principais:
 - `SQS_OTP_SEND_URL` — URL da fila SQS de OTP
 - `SQS_PIX_PROCESS_URL` — URL da fila SQS de Pix
 
+## CI/CD Pipeline (GitHub Actions)
+
+Pipeline automatizado para garantir qualidade e deploys seguros:
+
+### Pull Request (CI)
+- **Trigger:** todo PR para `main` ou `develop`.
+- **Steps:**
+  1. `pnpm install --frozen-lockfile`
+  2. `pnpm lint` (ESLint + Prettier check)
+  3. `pnpm audit --audit-level=high` (dependency scanning)
+  4. `pnpm --filter @ochefia/shared build`
+  5. `pnpm test` (unit + integration via Turborepo)
+  6. Upload de coverage report (Codecov ou similar)
+- **Branch protection:** PR so pode ser mergeado com CI verde. Minimo 1 approval.
+- **Checks obrigatorios:** lint, test, audit.
+
+### Deploy Staging (CD)
+- **Trigger:** merge para `develop`.
+- **Steps:**
+  1. CI completo (mesmos steps acima).
+  2. Build das imagens Docker (`api` + `web`).
+  3. Push para ECR.
+  4. Deploy via ECS service update (rolling update).
+  5. Smoke test automatico (`/health/ready` retorna 200).
+- **Rollback:** se smoke test falha, reverte para task definition anterior.
+
+### Deploy Production (CD)
+- **Trigger:** merge para `main` (manual ou via release tag).
+- **Steps:**
+  1. CI completo.
+  2. Testes e2e (Playwright) contra staging.
+  3. Build + push ECR com tag de versao.
+  4. Deploy ECS com rolling update (minHealthyPercent: 100, maxPercent: 200).
+  5. Smoke test + health check.
+- **Rollback automatico:** se health check falha por 3 minutos, ECS reverte.
+- **Canary (futuro):** avaliar weighted target groups no ALB para deploys graduais.
+
+## Processamento de Dead Letter Queue (DLQ)
+
+Mensagens que falharam 3x vao para DLQ e precisam de tratamento:
+
+- **Alarme CloudWatch:** DLQ com mensagens > 0 dispara alarme imediato (SNS -> email/Slack).
+- **Processo de reprocessamento:**
+  1. Engenheiro analisa mensagens na DLQ via console AWS ou CLI.
+  2. Identifica causa raiz (bug no worker, servico externo fora, dados invalidos).
+  3. Corrige o problema.
+  4. Move mensagens da DLQ de volta para fila principal (`RedrivePolicy`).
+- **Retencao DLQ:** 14 dias (tempo suficiente para analise antes de perder mensagens).
+- **Metricas:** monitorar `ApproximateNumberOfMessagesVisible` em cada DLQ.
+
+## Database Failover e Resiliencia
+
+### RDS Multi-AZ
+- RDS PostgreSQL configurado com **Multi-AZ** para alta disponibilidade.
+- Failover automatico em caso de falha da instancia primaria (30-60 segundos).
+- **Comportamento do app durante failover:**
+  - Conexoes existentes sao interrompidas.
+  - RDS Proxy absorve parte do impacto (mantem conexoes do lado do app).
+  - Prisma deve ter `connect_timeout` configurado (10s) e retry logic.
+  - Requests em andamento retornam 503; frontend exibe "Tente novamente em instantes".
+  - WebSocket permanece conectado (nao depende do banco diretamente).
+- **Backups:** automaticos diarios com retencao de 7 dias + snapshots manuais antes de migrations.
+
+### Connection Pooling
+- **RDS Proxy:** obrigatorio em producao. Prisma em Fargate abre muitas conexoes (1 por query concorrente).
+- Configurar `connection_limit` no Prisma datasource (ex: 5 por container).
+- RDS Proxy gerencia o pool real (max connections = RDS instance class limit).
+- Monitorar `DatabaseConnections` no CloudWatch.
+
+## Circuit Breaker — Configuracao
+
+Usar `opossum` para proteger chamadas a dependencias externas:
+
+| Dependencia | Timeout | Threshold | Reset |
+|---|---|---|---|
+| **WhatsApp API** | 10s | 5 falhas em 30s | 60s |
+| **Pix Provider** | 15s | 3 falhas em 60s | 120s |
+| **S3 Upload** | 30s | 5 falhas em 60s | 60s |
+
+- **Estado aberto:** retorna erro amigavel imediato + loga `warn`.
+- **Estado half-open:** permite 1 request de teste. Se sucesso, fecha o circuit.
+- **Metricas:** publicar estado do circuit breaker no CloudWatch (open/closed/half-open).
+
+## State Recovery (Timers e Status)
+
+- **KDS timers:** tempo de preparo baseado em `createdAt` do pedido no banco, **nunca em timer em memoria**. Se container reinicia, KDS recalcula tempo decorrido a partir do timestamp.
+- **Pedidos em "preparing":** ao iniciar, worker/KDS registra `startedAt` no banco. Timer no frontend e calculado como `now - startedAt`.
+- **Sessoes WebSocket:** ao reconectar, cliente faz fetch REST para sincronizar estado completo (nao depende de replay de eventos).
+- **Filas SQS:** mensagens com `visibilityTimeout` adequado (5min para image-resize, 2min para OTP, 5min para Pix). Se worker morre, mensagem volta para fila automaticamente.
+
 ## Super Admin — Painel de Controle OChefia
 
 Tela exclusiva da equipe OChefia (role `SUPER_ADMIN`). Nao acessivel por estabelecimentos.
