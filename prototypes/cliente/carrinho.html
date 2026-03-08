@@ -122,7 +122,7 @@
 
     <!-- Actions -->
     <section style="padding:0 1rem 1rem;">
-      <button class="btn btn-primary btn-full btn-lg" onclick="showToast('Pedido enviado com sucesso!', 'success')">Enviar Pedido</button>
+      <button class="btn btn-primary btn-full btn-lg" onclick="submitOrder()">Enviar Pedido</button>
       <div class="text-center mt-4">
         <a href="cardapio.html" style="color:var(--color-primary); font-weight:500; font-size:0.95rem;">Continuar comprando</a>
       </div>
@@ -178,5 +178,19 @@
   </div>
 
   <script src="../js/app.js"></script>
+  <script>
+    function submitOrder() {
+      if (cart.length === 0) {
+        showToast('Carrinho vazio', 'warning');
+        return;
+      }
+      cart = [];
+      saveCart();
+      showToast('Pedido enviado com sucesso!', 'success');
+      setTimeout(function() {
+        window.location.href = 'pedidos.html';
+      }, 800);
+    }
+  </script>
 </body>
 </html>

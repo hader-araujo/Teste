@@ -177,8 +177,12 @@ const MOCK = {
 // 2. Estado do Carrinho
 // ============================================
 
-let cart = [];
-let nextPersonId = 4;
+let cart = JSON.parse(localStorage.getItem('ochefia_cart') || '[]');
+let nextPersonId = Math.max(4, ...MOCK.people.map(p => p.id + 1));
+
+function saveCart() {
+  localStorage.setItem('ochefia_cart', JSON.stringify(cart));
+}
 
 function addToCart(productId, qty, personIds) {
   const product = MOCK.products.find(p => p.id === productId);
@@ -198,12 +202,14 @@ function addToCart(productId, qty, personIds) {
       personIds: personIds
     });
   }
+  saveCart();
   updateCartUI();
   showToast(sanitizeText(product.name) + ' adicionado ao carrinho', 'success');
 }
 
 function removeFromCart(cartItemId) {
   cart = cart.filter(item => item.id !== cartItemId);
+  saveCart();
   updateCartUI();
 }
 
@@ -211,6 +217,7 @@ function updateCartQty(cartItemId, delta) {
   const item = cart.find(i => i.id === cartItemId);
   if (!item) return;
   item.qty = Math.max(1, item.qty + delta);
+  saveCart();
   updateCartUI();
 }
 
@@ -655,6 +662,9 @@ function icon(name, size) {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore cart UI from localStorage
+  updateCartUI();
+
   // Init tabs if any exist
   document.querySelectorAll('[data-tabs]').forEach(container => {
     initTabs('[data-tabs="' + container.dataset.tabs + '"]');

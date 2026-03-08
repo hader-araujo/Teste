@@ -4,7 +4,7 @@
 Acesso: Dono/Gerente via computador ou tablet.
 
 - Mapa de mesas em tempo real (livres, ocupadas, aguardando limpeza, tempo de permanencia).
-- Metricas: tempo medio de atendimento dividido por categoria (**bar**, **cozinha**, **garcom**), tempo de preparo por prato, ticket medio por mesa.
+- Metricas: tempo medio de atendimento dividido por categoria (**bar**, **cozinha**, **garcom**), tempo de preparo por prato.
 - Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real, precificacao dinamica (Happy Hour).
 - **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando para onde o pedido vai: **cozinha**, **bar** ou **garcom** (entrega direta, sem preparo). Substitui a logica anterior de "bebida pronta" — agora qualquer produto pode ter qualquer destino.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.

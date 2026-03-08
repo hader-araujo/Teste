@@ -182,9 +182,7 @@
         addBtn.dataset.productId = product.id;
         addBtn.addEventListener('click', function(e) {
           e.stopPropagation();
-          var pid = parseInt(this.dataset.productId);
-          var personIds = MOCK.people.map(function(p) { return p.id; });
-          addToCart(pid, 1, personIds);
+          window.location.href = 'produto.html?id=' + this.dataset.productId;
         });
 
         footerDiv.appendChild(priceEl);

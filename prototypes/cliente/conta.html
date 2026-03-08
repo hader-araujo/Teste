@@ -33,79 +33,8 @@
 
       <!-- Tab: Visão Geral -->
       <div class="tab-content active" id="tab-visao-geral">
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-
-          <!-- Item 1 -->
-          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
-            <div>
-              <span style="font-weight:600; font-size:0.9rem;">1x Picanha na Brasa (400g)</span>
-              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(3 pessoas)</span>
-            </div>
-            <span style="font-weight:600; white-space:nowrap;">R$ 89,90</span>
-          </div>
-
-          <!-- Item 2 -->
-          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
-            <div>
-              <span style="font-weight:600; font-size:0.9rem;">2x Chopp Pilsen 500ml</span>
-              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(2 pessoas)</span>
-            </div>
-            <span style="font-weight:600; white-space:nowrap;">R$ 32,00</span>
-          </div>
-
-          <!-- Item 3 -->
-          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
-            <div>
-              <span style="font-weight:600; font-size:0.9rem;">2x Smash Burger Duplo</span>
-              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(2 pessoas)</span>
-            </div>
-            <span style="font-weight:600; white-space:nowrap;">R$ 84,00</span>
-          </div>
-
-          <!-- Item 4 -->
-          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
-            <div>
-              <span style="font-weight:600; font-size:0.9rem;">1x Caipirinha de Limão</span>
-              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(1 pessoa)</span>
-            </div>
-            <span style="font-weight:600; white-space:nowrap;">R$ 22,00</span>
-          </div>
-
-          <!-- Item 5 -->
-          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
-            <div>
-              <span style="font-weight:600; font-size:0.9rem;">1x Filé à Parmegiana</span>
-              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(1 pessoa)</span>
-            </div>
-            <span style="font-weight:600; white-space:nowrap;">R$ 62,00</span>
-          </div>
-
-          <!-- Item 6 -->
-          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
-            <div>
-              <span style="font-weight:600; font-size:0.9rem;">1x Suco Natural de Laranja</span>
-              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(1 pessoa)</span>
-            </div>
-            <span style="font-weight:600; white-space:nowrap;">R$ 12,00</span>
-          </div>
-
-        </div>
-
-        <!-- Totals -->
-        <div class="card-elevated mt-6" style="padding:1.25rem;">
-          <div class="flex justify-between mb-2">
-            <span style="color:var(--color-text-secondary);">Subtotal</span>
-            <span style="font-weight:600;">R$ 301,90</span>
-          </div>
-          <div class="flex justify-between mb-2">
-            <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
-            <span style="font-weight:600;">R$ 30,19</span>
-          </div>
-          <div style="border-top:1px solid var(--color-border-light); padding-top:0.75rem; margin-top:0.5rem;" class="flex justify-between">
-            <span style="font-size:1.125rem; font-weight:700;">Total</span>
-            <span style="font-size:1.125rem; font-weight:700; color:var(--color-primary);">R$ 332,09</span>
-          </div>
-        </div>
+        <div id="bill-items-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+        <div class="card-elevated mt-6" style="padding:1.25rem;" id="bill-totals"></div>
       </div>
 
       <!-- Tab: Por Pessoa -->
@@ -266,6 +195,18 @@
       </div>
     </div>
 
+    <!-- Modal Editar Pessoas do Item -->
+    <div class="modal-overlay" id="modal-edit-people">
+      <div class="modal">
+        <div class="modal-header"><h3 id="edit-people-title">Editar divisão</h3><button onclick="closeModal('modal-edit-people')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-bottom:1rem;">Selecione quem divide este item:</p>
+          <div id="edit-people-checkboxes" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <button class="btn btn-primary btn-full mt-4" onclick="saveEditPeople()">Salvar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal O Chefia -->
     <div class="modal-overlay" id="modal-chefia">
       <div class="modal">
@@ -281,5 +222,144 @@
   </div>
 
   <script src="../js/app.js"></script>
+  <script>
+    // Mock bill items (pedidos já feitos — dados estáticos do protótipo)
+    var billItems = [
+      { id: 1, name: 'Picanha na Brasa (400g)', qty: 1, price: 89.90, personIds: [1, 2, 3] },
+      { id: 2, name: 'Chopp Pilsen 500ml', qty: 2, price: 16.00, personIds: [1, 3] },
+      { id: 3, name: 'Smash Burger Duplo', qty: 2, price: 42.00, personIds: [1, 2] },
+      { id: 4, name: 'Caipirinha de Limão', qty: 1, price: 22.00, personIds: [2] },
+      { id: 5, name: 'Filé à Parmegiana', qty: 1, price: 62.00, personIds: [3] },
+      { id: 6, name: 'Suco Natural de Laranja', qty: 1, price: 12.00, personIds: [3] }
+    ];
+
+    var editingItemId = null;
+
+    function renderBillItems() {
+      var container = document.getElementById('bill-items-list');
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      billItems.forEach(function(item) {
+        var row = document.createElement('div');
+        row.className = 'flex justify-between items-center';
+        row.style.cssText = 'padding:0.5rem 0; border-bottom:1px solid var(--color-border-light); cursor:pointer; transition:background 0.15s; border-radius:6px;';
+        row.addEventListener('mouseenter', function() { this.style.background = 'var(--color-primary-light, #FFF7ED)'; });
+        row.addEventListener('mouseleave', function() { this.style.background = ''; });
+        row.dataset.itemId = item.id;
+        row.addEventListener('click', function() { openEditPeople(parseInt(this.dataset.itemId)); });
+
+        var infoDiv = document.createElement('div');
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'font-weight:600; font-size:0.9rem;';
+        nameSpan.textContent = item.qty + 'x ' + item.name;
+        var peopleSpan = document.createElement('span');
+        peopleSpan.style.cssText = 'font-size:0.8rem; color:var(--color-text-secondary); display:flex; align-items:center; gap:4px;';
+        peopleSpan.textContent = '(' + item.personIds.length + (item.personIds.length === 1 ? ' pessoa' : ' pessoas') + ')';
+        var editIcon = document.createElement('span');
+        editIcon.style.cssText = 'font-size:0.7rem; color:var(--color-primary); opacity:0.7;';
+        editIcon.textContent = '✎';
+        peopleSpan.appendChild(editIcon);
+        infoDiv.appendChild(nameSpan);
+        infoDiv.appendChild(peopleSpan);
+
+        var priceSpan = document.createElement('span');
+        priceSpan.style.cssText = 'font-weight:600; white-space:nowrap;';
+        priceSpan.textContent = formatCurrency(item.price * item.qty);
+
+        row.appendChild(infoDiv);
+        row.appendChild(priceSpan);
+        container.appendChild(row);
+      });
+
+      renderBillTotals();
+    }
+
+    function renderBillTotals() {
+      var totalsDiv = document.getElementById('bill-totals');
+      var subtotal = billItems.reduce(function(sum, item) { return sum + item.price * item.qty; }, 0);
+      var serviceCharge = subtotal * (MOCK.restaurant.serviceChargePercent / 100);
+      var total = subtotal + serviceCharge;
+
+      while (totalsDiv.firstChild) totalsDiv.removeChild(totalsDiv.firstChild);
+
+      function addRow(label, value, isBold) {
+        var row = document.createElement('div');
+        row.className = 'flex justify-between' + (isBold ? '' : ' mb-2');
+        if (isBold) row.style.cssText = 'border-top:1px solid var(--color-border-light); padding-top:0.75rem; margin-top:0.5rem;';
+        var labelSpan = document.createElement('span');
+        labelSpan.style.cssText = isBold ? 'font-size:1.125rem; font-weight:700;' : 'color:var(--color-text-secondary);';
+        labelSpan.textContent = label;
+        var valueSpan = document.createElement('span');
+        valueSpan.style.cssText = isBold ? 'font-size:1.125rem; font-weight:700; color:var(--color-primary);' : 'font-weight:600;';
+        valueSpan.textContent = formatCurrency(value);
+        row.appendChild(labelSpan);
+        row.appendChild(valueSpan);
+        totalsDiv.appendChild(row);
+      }
+
+      addRow('Subtotal', subtotal, false);
+      addRow('Taxa de serviço (' + MOCK.restaurant.serviceChargePercent + '%)', serviceCharge, false);
+      addRow('Total', total, true);
+    }
+
+    function openEditPeople(itemId) {
+      editingItemId = itemId;
+      var item = billItems.find(function(i) { return i.id === itemId; });
+      if (!item) return;
+
+      document.getElementById('edit-people-title').textContent = item.name;
+
+      var container = document.getElementById('edit-people-checkboxes');
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      MOCK.people.forEach(function(person) {
+        var isChecked = item.personIds.indexOf(person.id) !== -1;
+        var label = document.createElement('label');
+        label.style.cssText = 'display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; border:1.5px solid ' + (isChecked ? 'var(--color-primary)' : 'var(--color-border, #e5e7eb)') + '; cursor:pointer; transition:all 0.15s;';
+
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = isChecked;
+        checkbox.value = person.id;
+        checkbox.style.cssText = 'width:20px; height:20px; accent-color:var(--color-primary);';
+        checkbox.addEventListener('change', function() {
+          this.parentElement.style.borderColor = this.checked ? 'var(--color-primary)' : 'var(--color-border, #e5e7eb)';
+        });
+
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'font-weight:500; color:var(--color-text-primary);';
+        nameSpan.textContent = person.name;
+
+        label.appendChild(checkbox);
+        label.appendChild(nameSpan);
+        container.appendChild(label);
+      });
+
+      openModal('modal-edit-people');
+    }
+
+    function saveEditPeople() {
+      if (editingItemId === null) return;
+      var item = billItems.find(function(i) { return i.id === editingItemId; });
+      if (!item) return;
+
+      var checkboxes = document.querySelectorAll('#edit-people-checkboxes input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showToast('Selecione pelo menos uma pessoa', 'error');
+        return;
+      }
+
+      var newIds = [];
+      checkboxes.forEach(function(cb) { newIds.push(parseInt(cb.value)); });
+      item.personIds = newIds;
+
+      closeModal('modal-edit-people');
+      renderBillItems();
+      showToast('Divisão atualizada', 'success');
+    }
+
+    // Init
+    renderBillItems();
+  </script>
 </body>
 </html>

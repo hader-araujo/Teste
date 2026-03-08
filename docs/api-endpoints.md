@@ -109,7 +109,7 @@ Base URL: `/api/v1`
 ## Dashboard
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/dashboard/overview` | Metricas gerais em tempo real (tempo medio por categoria: bar/cozinha/garcom, ticket medio, mesas ativas) |
+| GET | `/dashboard/overview` | Metricas gerais em tempo real (tempo medio por categoria: bar/cozinha/garcom, mesas ativas) |
 | GET | `/dashboard/popular-items` | Itens mais vendidos |
 
 ## Faturamento

@@ -344,7 +344,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] Faturamento mensal: receita acumulada, grafico por dia, comparativo.
 - [ ] Fechamento de caixa: valores por forma de pagamento.
 - [ ] Taxas de garcom: valor devido a cada garcom no periodo.
-- [ ] Dashboard: tempo medio bar/cozinha/garcom, ticket medio, mesas ativas. **Metricas pre-calculadas em Redis** (atualizadas por evento, nao calculadas a cada request).
+- [ ] Dashboard: tempo medio bar/cozinha/garcom, mesas ativas. **Metricas pre-calculadas em Redis** (atualizadas por evento, nao calculadas a cada request).
 - [ ] Itens populares.
 - [ ] Metricas pre-calculadas em Redis com invalidacao por evento (nao calcular a cada request).
 
