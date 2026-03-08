@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produto — Zé do Bar</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="client-page">
+
+    <!-- Header -->
+    <header class="client-header">
+      <div class="logo">Zé do Bar</div>
+      <div class="header-actions">
+        <button onclick="openModal('modal-pessoas')" aria-label="Pessoas na mesa" style="background:none; border:none; cursor:pointer; color:inherit; display:inline-flex; padding:8px;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Image -->
+    <div style="position:relative;">
+      <div class="img-placeholder" style="width:100%; height:40vh; display:flex; align-items:center; justify-content:center; font-size:4rem; background:var(--color-gray-100, #f3f4f6);">
+        &#127869;&#65039;
+      </div>
+      <a href="cardapio.html" style="position:absolute; top:16px; left:16px; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,0.9); display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15); color:var(--color-gray-900);" aria-label="Voltar ao cardápio">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+      </a>
+    </div>
+
+    <!-- Product Details -->
+    <main style="padding:20px 16px 160px;">
+      <h1 id="product-name" style="font-size:1.5rem; font-weight:700; color:var(--color-gray-900); margin-bottom:8px;">Picanha na Brasa (400g)</h1>
+
+      <p id="product-desc" style="color:var(--color-gray-500); font-size:0.95rem; line-height:1.6; margin-bottom:16px;">
+        Picanha premium grelhada no ponto, acompanha arroz, farofa, vinagrete e mandioca frita
+      </p>
+
+      <div id="product-price" style="font-size:1.75rem; font-weight:700; color:var(--color-primary); margin-bottom:16px;">
+        R$ 89,90
+      </div>
+
+      <!-- Tags -->
+      <div id="product-tags" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;">
+        <span class="badge badge-warning" style="font-size:0.8rem;">Sugestão do Chef</span>
+      </div>
+
+      <!-- Quantity Selector -->
+      <div style="margin-bottom:24px;">
+        <label style="display:block; font-size:0.875rem; font-weight:500; color:var(--color-gray-700); margin-bottom:8px;">Quantidade</label>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <button onclick="changeQty(-1)" style="width:44px; height:44px; border-radius:50%; border:1.5px solid var(--color-gray-300); background:var(--color-white, #fff); cursor:pointer; font-size:1.25rem; display:flex; align-items:center; justify-content:center; color:var(--color-gray-700);" aria-label="Diminuir quantidade">&minus;</button>
+          <span id="qty-display" style="font-size:1.25rem; font-weight:700; color:var(--color-gray-900); min-width:24px; text-align:center;">1</span>
+          <button onclick="changeQty(1)" style="width:44px; height:44px; border-radius:50%; border:1.5px solid var(--color-gray-300); background:var(--color-white, #fff); cursor:pointer; font-size:1.25rem; display:flex; align-items:center; justify-content:center; color:var(--color-gray-700);" aria-label="Aumentar quantidade">+</button>
+        </div>
+      </div>
+
+      <!-- People Selection -->
+      <div style="margin-bottom:24px;">
+        <label style="display:block; font-size:0.875rem; font-weight:500; color:var(--color-gray-700); margin-bottom:8px;">Para quem é este pedido?</label>
+        <div id="people-checkboxes" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <p id="people-error" style="display:none; color:var(--color-error); font-size:0.8rem; margin-top:8px;">Selecione pelo menos uma pessoa.</p>
+      </div>
+    </main>
+
+    <!-- Fixed Add Button -->
+    <div style="position:fixed; bottom:72px; left:0; right:0; padding:12px 16px; background:var(--color-white, #fff); border-top:1px solid var(--color-gray-100, #f3f4f6); z-index:90;">
+      <button class="btn btn-primary btn-full btn-lg" id="add-to-cart-btn" onclick="addProductToCart()">
+        Adicionar R$ 89,90
+      </button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <a href="cardapio.html" class="active"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Cardápio</a>
+      <a href="pedidos.html"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Pedidos</a>
+      <a href="conta.html"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>Conta</a>
+      <a href="#" onclick="openModal('modal-chefia'); return false;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>O Chefia</a>
+    </nav>
+
+    <!-- Modal Pessoas -->
+    <div class="modal-overlay" id="modal-pessoas">
+      <div class="modal">
+        <div class="modal-header"><h3>Pessoas na mesa</h3><button onclick="closeModal('modal-pessoas')" aria-label="Fechar">&#10005;</button></div>
+        <div class="modal-body">
+          <div id="people-list"></div>
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <input class="input" id="new-person-name" placeholder="Nome da pessoa">
+            <button class="btn btn-primary" onclick="addPerson(document.getElementById('new-person-name').value); document.getElementById('new-person-name').value=''; renderPeopleCheckboxes();">Adicionar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal O Chefia -->
+    <div class="modal-overlay" id="modal-chefia">
+      <div class="modal">
+        <div class="modal-header"><h3>Chamar O Chefia</h3><button onclick="closeModal('modal-chefia')" aria-label="Fechar">&#10005;</button></div>
+        <div class="modal-body">
+          <div class="input-group" style="margin-bottom:16px;"><label>Motivo</label><select class="select" id="chefia-reason"><option>Chamar garçom</option><option>Pedir conta</option><option>Outro</option></select></div>
+          <div class="input-group" style="margin-bottom:16px;"><label>Mensagem (opcional)</label><textarea class="input" id="chefia-message" rows="3" placeholder="Descreva o que precisa..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="sendCall(document.getElementById('chefia-reason').value, document.getElementById('chefia-message').value)">Enviar chamado</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // NOTE: Static HTML prototype with trusted MOCK data from app.js.
+
+    var currentQty = 1;
+    var currentProduct = null;
+
+    function getProductIdFromUrl() {
+      var params = new URLSearchParams(window.location.search);
+      var id = parseInt(params.get('id'));
+      return isNaN(id) ? 4 : id; // Default to Picanha (id=4)
+    }
+
+    function loadProduct() {
+      var productId = getProductIdFromUrl();
+      currentProduct = MOCK.products.find(function(p) { return p.id === productId; });
+      if (!currentProduct) {
+        currentProduct = MOCK.products.find(function(p) { return p.id === 4; });
+      }
+
+      document.getElementById('product-name').textContent = currentProduct.name;
+      document.getElementById('product-desc').textContent = currentProduct.desc;
+      document.getElementById('product-price').textContent = formatCurrency(currentProduct.price);
+      document.title = currentProduct.name + ' \u2014 Z\u00e9 do Bar';
+
+      // Tags
+      var tagsContainer = document.getElementById('product-tags');
+      while (tagsContainer.firstChild) tagsContainer.removeChild(tagsContainer.firstChild);
+
+      if (currentProduct.tags && currentProduct.tags.length > 0) {
+        currentProduct.tags.forEach(function(tagId) {
+          var tag = MOCK.tags.find(function(t) { return t.id === tagId; });
+          if (tag) {
+            var badge = document.createElement('span');
+            badge.className = 'badge';
+            badge.style.cssText = 'font-size:0.8rem; background:' + tag.color + '20; color:' + tag.color + '; border:1px solid ' + tag.color + '40;';
+            badge.textContent = tag.name;
+            tagsContainer.appendChild(badge);
+          }
+        });
+      }
+
+      updateAddButton();
+      renderPeopleCheckboxes();
+    }
+
+    function changeQty(delta) {
+      currentQty = Math.max(1, currentQty + delta);
+      document.getElementById('qty-display').textContent = currentQty;
+      updateAddButton();
+    }
+
+    function updateAddButton() {
+      if (!currentProduct) return;
+      var total = currentProduct.price * currentQty;
+      document.getElementById('add-to-cart-btn').textContent = 'Adicionar ' + formatCurrency(total);
+    }
+
+    function renderPeopleCheckboxes() {
+      var container = document.getElementById('people-checkboxes');
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      MOCK.people.forEach(function(person) {
+        var label = document.createElement('label');
+        label.style.cssText = 'display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; border:1.5px solid var(--color-gray-200, #e5e7eb); cursor:pointer; transition:all 0.15s;';
+
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = true;
+        checkbox.value = person.id;
+        checkbox.name = 'person';
+        checkbox.style.cssText = 'width:20px; height:20px; accent-color:var(--color-primary);';
+        checkbox.addEventListener('change', function() {
+          document.getElementById('people-error').style.display = 'none';
+        });
+
+        var nameSpan = document.createElement('span');
+        nameSpan.style.cssText = 'font-weight:500; color:var(--color-gray-900);';
+        nameSpan.textContent = person.name;
+
+        label.appendChild(checkbox);
+        label.appendChild(nameSpan);
+        container.appendChild(label);
+      });
+    }
+
+    function addProductToCart() {
+      if (!currentProduct) return;
+
+      var checkboxes = document.querySelectorAll('#people-checkboxes input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        document.getElementById('people-error').style.display = 'block';
+        showToast('Selecione pelo menos uma pessoa', 'error');
+        return;
+      }
+
+      var personIds = [];
+      checkboxes.forEach(function(cb) { personIds.push(parseInt(cb.value)); });
+
+      addToCart(currentProduct.id, currentQty, personIds);
+
+      setTimeout(function() {
+        window.location.href = 'cardapio.html';
+      }, 600);
+    }
+
+    function renderPeople() {
+      var container = document.getElementById('people-list');
+      if (!container) return;
+      while (container.firstChild) container.removeChild(container.firstChild);
+      MOCK.people.forEach(function(person) {
+        var div = document.createElement('div');
+        div.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--color-gray-100, #f3f4f6);';
+        var nameSpan = document.createElement('span');
+        nameSpan.style.fontWeight = '500';
+        nameSpan.textContent = person.name;
+        var btn = document.createElement('button');
+        btn.style.cssText = 'background:none; border:none; cursor:pointer; color:var(--color-gray-400); font-size:1rem; padding:4px 8px;';
+        btn.setAttribute('aria-label', 'Remover');
+        btn.textContent = '\u2715';
+        btn.dataset.personId = person.id;
+        btn.addEventListener('click', function() { removePerson(parseInt(this.dataset.personId)); renderPeopleCheckboxes(); });
+        div.appendChild(nameSpan);
+        div.appendChild(btn);
+        container.appendChild(div);
+      });
+    }
+
+    // Init
+    loadProduct();
+    renderPeople();
+  </script>
+</body>
+</html>

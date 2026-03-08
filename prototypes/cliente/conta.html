@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conta — Zé do Bar</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="client-page">
+
+    <!-- Header -->
+    <header class="client-header">
+      <span class="logo">Zé do Bar</span>
+      <div class="header-actions">
+        <button class="header-icon-btn" onclick="openModal('modal-pessoas')" aria-label="Pessoas na mesa">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Title -->
+    <section style="padding:1rem 1rem 0;">
+      <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-text-primary);">Conta</h2>
+    </section>
+
+    <!-- Tabs -->
+    <div data-tabs="conta-tabs" style="padding:0 1rem;">
+      <div class="tabs mt-4">
+        <div class="tab active" data-tab="tab-visao-geral">Visão Geral</div>
+        <div class="tab" data-tab="tab-por-pessoa">Por Pessoa</div>
+      </div>
+
+      <!-- Tab: Visão Geral -->
+      <div class="tab-content active" id="tab-visao-geral">
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+
+          <!-- Item 1 -->
+          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">1x Picanha na Brasa (400g)</span>
+              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(3 pessoas)</span>
+            </div>
+            <span style="font-weight:600; white-space:nowrap;">R$ 89,90</span>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">2x Chopp Pilsen 500ml</span>
+              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(2 pessoas)</span>
+            </div>
+            <span style="font-weight:600; white-space:nowrap;">R$ 32,00</span>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">2x Smash Burger Duplo</span>
+              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(2 pessoas)</span>
+            </div>
+            <span style="font-weight:600; white-space:nowrap;">R$ 84,00</span>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">1x Caipirinha de Limão</span>
+              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(1 pessoa)</span>
+            </div>
+            <span style="font-weight:600; white-space:nowrap;">R$ 22,00</span>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">1x Filé à Parmegiana</span>
+              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(1 pessoa)</span>
+            </div>
+            <span style="font-weight:600; white-space:nowrap;">R$ 62,00</span>
+          </div>
+
+          <!-- Item 6 -->
+          <div class="flex justify-between items-center" style="padding:0.5rem 0; border-bottom:1px solid var(--color-border-light);">
+            <div>
+              <span style="font-weight:600; font-size:0.9rem;">1x Suco Natural de Laranja</span>
+              <span style="font-size:0.8rem; color:var(--color-text-secondary); display:block;">(1 pessoa)</span>
+            </div>
+            <span style="font-weight:600; white-space:nowrap;">R$ 12,00</span>
+          </div>
+
+        </div>
+
+        <!-- Totals -->
+        <div class="card-elevated mt-6" style="padding:1.25rem;">
+          <div class="flex justify-between mb-2">
+            <span style="color:var(--color-text-secondary);">Subtotal</span>
+            <span style="font-weight:600;">R$ 301,90</span>
+          </div>
+          <div class="flex justify-between mb-2">
+            <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+            <span style="font-weight:600;">R$ 30,19</span>
+          </div>
+          <div style="border-top:1px solid var(--color-border-light); padding-top:0.75rem; margin-top:0.5rem;" class="flex justify-between">
+            <span style="font-size:1.125rem; font-weight:700;">Total</span>
+            <span style="font-size:1.125rem; font-weight:700; color:var(--color-primary);">R$ 332,09</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Por Pessoa -->
+      <div class="tab-content" id="tab-por-pessoa">
+        <div style="display:flex; flex-direction:column; gap:1.25rem;">
+
+          <!-- João -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">J</div>
+              <h3 style="font-size:1rem; font-weight:700;">João</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
+                <span style="font-weight:500;">R$ 29,97</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Chopp Pilsen x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 16,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Smash Burger x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 42,00</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--color-border-light); margin-top:0.75rem; padding-top:0.75rem;">
+              <div class="flex justify-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal</span>
+                <span style="font-weight:500;">R$ 87,97</span>
+              </div>
+              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+                <span style="font-weight:500;">R$ 8,80</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 96,77</span>
+              </div>
+            </div>
+            <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+          <!-- Maria -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">M</div>
+              <h3 style="font-size:1rem; font-weight:700;">Maria</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
+                <span style="font-weight:500;">R$ 29,97</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Smash Burger x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 42,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Caipirinha</span>
+                <span style="font-weight:500;">R$ 22,00</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--color-border-light); margin-top:0.75rem; padding-top:0.75rem;">
+              <div class="flex justify-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal</span>
+                <span style="font-weight:500;">R$ 93,97</span>
+              </div>
+              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+                <span style="font-weight:500;">R$ 9,40</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 103,37</span>
+              </div>
+            </div>
+            <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+          <!-- Pedro -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">P</div>
+              <h3 style="font-size:1rem; font-weight:700;">Pedro</h3>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
+                <span style="font-weight:500;">R$ 29,97</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Chopp Pilsen x2 (÷2)</span>
+                <span style="font-weight:500;">R$ 16,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Filé à Parmegiana</span>
+                <span style="font-weight:500;">R$ 62,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="color:var(--color-text-secondary);">Suco Natural</span>
+                <span style="font-weight:500;">R$ 12,00</span>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--color-border-light); margin-top:0.75rem; padding-top:0.75rem;">
+              <div class="flex justify-between mb-1" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Subtotal</span>
+                <span style="font-weight:500;">R$ 119,97</span>
+              </div>
+              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+                <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
+                <span style="font-weight:500;">R$ 12,00</span>
+              </div>
+              <div class="flex justify-between">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 131,97</span>
+              </div>
+            </div>
+            <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <a href="cardapio.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+        Cardápio
+      </a>
+      <a href="pedidos.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Pedidos
+      </a>
+      <a href="conta.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Conta
+      </a>
+      <a href="#" onclick="openModal('modal-chefia'); return false;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        O Chefia
+      </a>
+    </nav>
+
+    <!-- Modal Pessoas -->
+    <div class="modal-overlay" id="modal-pessoas">
+      <div class="modal">
+        <div class="modal-header"><h3>Pessoas na mesa</h3><button onclick="closeModal('modal-pessoas')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>João</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Maria</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+            <div class="flex items-center justify-between p-3 rounded-lg" style="background:#F9FAFB"><span>Pedro</span><button class="btn-ghost btn-sm" style="color:#DC2626">✕</button></div>
+          </div>
+          <div class="flex gap-2 mt-4"><input class="input" placeholder="Nome da pessoa"><button class="btn btn-primary">Adicionar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal O Chefia -->
+    <div class="modal-overlay" id="modal-chefia">
+      <div class="modal">
+        <div class="modal-header"><h3>Chamar O Chefia</h3><button onclick="closeModal('modal-chefia')" aria-label="Fechar">✕</button></div>
+        <div class="modal-body">
+          <div class="input-group mb-4"><label>Motivo</label><select class="select"><option>Chamar garçom</option><option>Pedir conta</option><option>Outro</option></select></div>
+          <div class="input-group mb-4"><label>Mensagem (opcional)</label><textarea class="input" rows="3" placeholder="Descreva o que precisa..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="showToast('Chamado enviado!', 'success')">Enviar chamado</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

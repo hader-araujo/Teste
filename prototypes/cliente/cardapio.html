@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardápio — Zé do Bar</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="client-page">
+
+    <!-- Header -->
+    <header class="client-header">
+      <div class="logo">Zé do Bar</div>
+      <div class="header-actions">
+        <button onclick="toggleTheme()" aria-label="Alternar tema" style="background:none; border:none; cursor:pointer; color:inherit; display:inline-flex; padding:8px; font-size:1.2rem;" id="theme-toggle-btn" title="Alternar tema">
+          &#9790;
+        </button>
+        <button onclick="openModal('modal-pessoas')" aria-label="Pessoas na mesa" style="background:none; border:none; cursor:pointer; color:inherit; display:inline-flex; padding:8px;">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Category Bar -->
+    <div class="category-bar" id="category-bar" style="padding:12px 16px; display:flex; gap:8px; overflow-x:auto;"></div>
+
+    <!-- Tag Filters -->
+    <div id="tag-filters" style="padding:0 16px 12px; display:flex; gap:8px; flex-wrap:wrap;"></div>
+
+    <!-- Product Grid -->
+    <main style="padding:0 16px 160px;">
+      <div id="product-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;"></div>
+    </main>
+
+    <!-- Floating Cart -->
+    <a href="#" class="floating-cart" style="display:none; text-decoration:none;" onclick="showToast('Carrinho em breve!', 'info'); return false;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        <span class="cart-count">0</span> itens
+      </div>
+      <span class="cart-total">R$ 0,00</span>
+    </a>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <a href="cardapio.html" class="active"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Cardápio</a>
+      <a href="pedidos.html"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Pedidos</a>
+      <a href="conta.html"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>Conta</a>
+      <a href="#" onclick="openModal('modal-chefia'); return false;"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>O Chefia</a>
+    </nav>
+
+    <!-- Modal Pessoas -->
+    <div class="modal-overlay" id="modal-pessoas">
+      <div class="modal">
+        <div class="modal-header"><h3>Pessoas na mesa</h3><button onclick="closeModal('modal-pessoas')" aria-label="Fechar">&#10005;</button></div>
+        <div class="modal-body">
+          <div id="people-list"></div>
+          <div style="display:flex; gap:8px; margin-top:16px;">
+            <input class="input" id="new-person-name" placeholder="Nome da pessoa">
+            <button class="btn btn-primary" onclick="addPerson(document.getElementById('new-person-name').value); document.getElementById('new-person-name').value='';">Adicionar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal O Chefia -->
+    <div class="modal-overlay" id="modal-chefia">
+      <div class="modal">
+        <div class="modal-header"><h3>Chamar O Chefia</h3><button onclick="closeModal('modal-chefia')" aria-label="Fechar">&#10005;</button></div>
+        <div class="modal-body">
+          <div class="input-group" style="margin-bottom:16px;"><label>Motivo</label><select class="select" id="chefia-reason"><option>Chamar garçom</option><option>Pedir conta</option><option>Outro</option></select></div>
+          <div class="input-group" style="margin-bottom:16px;"><label>Mensagem (opcional)</label><textarea class="input" id="chefia-message" rows="3" placeholder="Descreva o que precisa..."></textarea></div>
+          <button class="btn btn-primary btn-full" onclick="sendCall(document.getElementById('chefia-reason').value, document.getElementById('chefia-message').value)">Enviar chamado</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // NOTE: Static HTML prototype. All data from trusted MOCK object in app.js.
+    // Safe DOM methods used throughout. sanitizeText() for defense-in-depth.
+
+    var activeCategory = null;
+    var activeTags = [];
+    var currentTheme = 'classico';
+
+    function renderCategories() {
+      var bar = document.getElementById('category-bar');
+      while (bar.firstChild) bar.removeChild(bar.firstChild);
+
+      var allBtn = document.createElement('button');
+      allBtn.className = 'btn ' + (activeCategory === null ? 'btn-primary' : '');
+      allBtn.style.cssText = 'border-radius:999px; padding:8px 16px; font-size:0.875rem; font-weight:500; white-space:nowrap; flex-shrink:0;' + (activeCategory !== null ? 'background:var(--color-gray-100); color:var(--color-gray-700);' : '');
+      allBtn.textContent = 'Todas';
+      allBtn.addEventListener('click', function() { activeCategory = null; renderCategories(); renderProducts(); });
+      bar.appendChild(allBtn);
+
+      MOCK.categories.forEach(function(cat) {
+        var btn = document.createElement('button');
+        btn.className = 'btn ' + (activeCategory === cat.id ? 'btn-primary' : '');
+        btn.style.cssText = 'border-radius:999px; padding:8px 16px; font-size:0.875rem; font-weight:500; white-space:nowrap; flex-shrink:0;' + (activeCategory !== cat.id ? 'background:var(--color-gray-100); color:var(--color-gray-700);' : '');
+        btn.textContent = cat.name;
+        btn.dataset.catId = cat.id;
+        btn.addEventListener('click', function() {
+          activeCategory = parseInt(this.dataset.catId);
+          renderCategories();
+          renderProducts();
+        });
+        bar.appendChild(btn);
+      });
+    }
+
+    function renderTagFilters() {
+      var container = document.getElementById('tag-filters');
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      var displayTags = MOCK.tags.filter(function(t) { return t.id === 1 || t.id === 2 || t.id === 4; });
+      displayTags.forEach(function(tag) {
+        var isActive = activeTags.indexOf(tag.id) !== -1;
+        var btn = document.createElement('button');
+        btn.style.cssText = 'border-radius:999px; padding:6px 14px; font-size:0.8rem; font-weight:500; border:1.5px solid ' + tag.color + '; cursor:pointer; background:' + (isActive ? tag.color : 'transparent') + '; color:' + (isActive ? '#fff' : tag.color) + '; transition:all 0.2s;';
+        btn.textContent = tag.name;
+        btn.dataset.tagId = tag.id;
+        btn.addEventListener('click', function() {
+          var tid = parseInt(this.dataset.tagId);
+          var idx = activeTags.indexOf(tid);
+          if (idx !== -1) { activeTags.splice(idx, 1); } else { activeTags.push(tid); }
+          renderTagFilters();
+          renderProducts();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function renderProducts() {
+      var grid = document.getElementById('product-grid');
+      while (grid.firstChild) grid.removeChild(grid.firstChild);
+
+      var products = filterProducts(activeCategory, activeTags, '');
+
+      products.forEach(function(product) {
+        var card = document.createElement('div');
+        card.className = 'product-card';
+        card.style.cursor = 'pointer';
+        card.dataset.productId = product.id;
+
+        // Image placeholder
+        var imgDiv = document.createElement('div');
+        imgDiv.className = 'product-image';
+        var placeholder = document.createElement('div');
+        placeholder.className = 'img-placeholder';
+        placeholder.style.cssText = 'width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:2.5rem;';
+        placeholder.textContent = '\uD83C\uDF7D\uFE0F';
+        imgDiv.appendChild(placeholder);
+
+        // Info
+        var infoDiv = document.createElement('div');
+        infoDiv.className = 'product-info';
+
+        var nameEl = document.createElement('h3');
+        nameEl.className = 'product-name';
+        nameEl.textContent = product.name;
+
+        var descEl = document.createElement('p');
+        descEl.className = 'product-desc';
+        descEl.textContent = product.desc;
+
+        var footerDiv = document.createElement('div');
+        footerDiv.className = 'product-footer';
+
+        var priceEl = document.createElement('span');
+        priceEl.className = 'product-price';
+        priceEl.textContent = formatCurrency(product.price);
+
+        var addBtn = document.createElement('button');
+        addBtn.className = 'add-btn';
+        addBtn.setAttribute('aria-label', 'Adicionar ' + product.name);
+        addBtn.textContent = '+';
+        addBtn.dataset.productId = product.id;
+        addBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var pid = parseInt(this.dataset.productId);
+          var personIds = MOCK.people.map(function(p) { return p.id; });
+          addToCart(pid, 1, personIds);
+        });
+
+        footerDiv.appendChild(priceEl);
+        footerDiv.appendChild(addBtn);
+
+        infoDiv.appendChild(nameEl);
+        infoDiv.appendChild(descEl);
+        infoDiv.appendChild(footerDiv);
+
+        card.appendChild(imgDiv);
+        card.appendChild(infoDiv);
+
+        card.addEventListener('click', function() {
+          window.location.href = 'produto.html?id=' + this.dataset.productId;
+        });
+
+        grid.appendChild(card);
+      });
+
+      if (products.length === 0) {
+        var empty = document.createElement('div');
+        empty.style.cssText = 'grid-column:1/-1; text-align:center; padding:48px 16px; color:var(--color-gray-500);';
+        empty.textContent = 'Nenhum produto encontrado com os filtros selecionados.';
+        grid.appendChild(empty);
+      }
+    }
+
+    function renderPeople() {
+      var container = document.getElementById('people-list');
+      if (!container) return;
+      while (container.firstChild) container.removeChild(container.firstChild);
+      MOCK.people.forEach(function(person) {
+        var div = document.createElement('div');
+        div.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--color-gray-100, #f3f4f6);';
+        var nameSpan = document.createElement('span');
+        nameSpan.style.fontWeight = '500';
+        nameSpan.textContent = person.name;
+        var btn = document.createElement('button');
+        btn.style.cssText = 'background:none; border:none; cursor:pointer; color:var(--color-gray-400); font-size:1rem; padding:4px 8px;';
+        btn.setAttribute('aria-label', 'Remover');
+        btn.textContent = '\u2715';
+        btn.dataset.personId = person.id;
+        btn.addEventListener('click', function() { removePerson(parseInt(this.dataset.personId)); });
+        div.appendChild(nameSpan);
+        div.appendChild(btn);
+        container.appendChild(div);
+      });
+    }
+
+    function toggleTheme() {
+      if (currentTheme === 'classico') {
+        currentTheme = 'escuro';
+        setTheme('escuro');
+        document.getElementById('theme-toggle-btn').textContent = '\u2600';
+        showToast('Tema: Escuro', 'info');
+      } else {
+        currentTheme = 'classico';
+        setTheme('classico');
+        document.getElementById('theme-toggle-btn').textContent = '\u263E';
+        showToast('Tema: Clássico', 'info');
+      }
+    }
+
+    // Init
+    renderCategories();
+    renderTagFilters();
+    renderProducts();
+    renderPeople();
+  </script>
+</body>
+</html>
