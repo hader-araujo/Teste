@@ -1,6 +1,6 @@
 # CLAUDE.md — OChefia
 
-Guia de referencia para o agente de desenvolvimento.
+SaaS de gestao para bares/restaurantes no Brasil. Monorepo TypeScript: NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Router + Tailwind (frontend), Socket.IO (real-time), Redis (cache), Turborepo + pnpm.
 
 ---
 
@@ -29,17 +29,19 @@ Ciclo **sempre**: RED (teste falhando) -> GREEN (codigo minimo) -> REFACTOR.
 
 ## Estado Atual do Repositorio
 
-**Sprint P — Prototipos HTML.** O repositorio contem apenas `CLAUDE.md` e `docs/`. A estrutura de codigo (apps/, packages/, docker) ainda nao foi criada — sera criada na Sprint 0. Ver `docs/sprints.md`.
+**Sprint P — Prototipos HTML.** O repositorio contem apenas `CLAUDE.md`, `docs/` e `prototypes/`. A estrutura de codigo (apps/, packages/, docker) ainda nao foi criada — sera criada na Sprint 0. Ver `docs/sprints.md`.
 
 ---
 
 ## Quick Start
 
+> **ATENCAO:** Os comandos abaixo so funcionam apos Sprint 0 criar a estrutura do monorepo.
+
 ```bash
 # Node 20 obrigatorio
 source ~/.nvm/nvm.sh && nvm use 20
 
-# Instalar dependencias (quando existirem)
+# Instalar dependencias
 pnpm install
 
 # Docker (PostgreSQL 5433, Redis 6380 — portas padrao ocupadas)
@@ -90,9 +92,13 @@ ochefia/
 
 ---
 
-## Stack
+## Decisoes Arquiteturais
 
-TypeScript estrito, NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Router + Tailwind (frontend), Socket.IO (real-time), Redis (cache), Turborepo + pnpm (monorepo). Detalhes em `docs/`.
+- **Multi-tenancy** via `restaurantId` em todas as queries. Ver @docs/seguranca.md
+- **Sessao do cliente** vinculada a mesa via `sessionToken`, sem cadastro. Verificacao via OTP WhatsApp.
+- **Socket.IO rooms** por `restaurantId` para real-time (KDS, garcom, dashboard).
+- **QR Code** gera URL permanente `/{slug}/mesa/{tableId}`. Sessao criada no primeiro acesso.
+- **Pix simulado** na Fase 1. Webhook recebe confirmacao. Ver @docs/api-endpoints.md
 
 ---
 
@@ -135,6 +141,16 @@ TypeScript estrito, NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Route
 
 ---
 
+## Antes de cada commit
+
+1. `pnpm test` — todos os testes devem passar.
+2. `pnpm lint` — zero warnings/errors.
+3. Nunca `git add .` — adicionar arquivos especificos por nome.
+4. Commits atomicos: 1 feature ou 1 fix por commit. Nunca misturar mudancas nao relacionadas.
+5. Se esqueceu de comitar e tem mudancas de 2 tarefas, separar em commits distintos.
+
+---
+
 ## REGRA OBRIGATORIA: Consultar docs/ antes de implementar
 
 **A especificacao completa do projeto esta nos arquivos `docs/`.** Este CLAUDE.md contem apenas convencoes e regras gerais. Os detalhes de negocio, endpoints, design, modulos e sprints estao em `docs/`.
@@ -144,23 +160,13 @@ TypeScript estrito, NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Route
 2. Ler esses arquivos com a ferramenta Read.
 3. So entao comecar a implementacao.
 
-**Exemplos:**
-- Tarefa envolve UI/CSS? -> Ler `docs/design-system.md`
-- Tarefa envolve criar/modificar endpoint? -> Ler `docs/api-endpoints.md`
-- Tarefa envolve nova sprint? -> Ler `docs/sprints.md`
-- Tarefa envolve regra de negocio de algum modulo? -> Ler `docs/modulos.md`
-- Tarefa envolve WebSocket? -> Ler `docs/websocket-events.md`
-- Tarefa envolve seguranca/auth? -> Ler `docs/seguranca.md`
-- Tarefa envolve infra/docker? -> Ler `docs/deploy.md`
-- Tarefa envolve logs? -> Ler `docs/observabilidade.md`
+**Referencia de docs (usar @imports):**
 
-| Arquivo | Conteudo |
-|---|---|
-| `docs/sprints.md` | Roadmap completo de sprints com checklists |
-| `docs/api-endpoints.md` | Todos os endpoints REST |
-| `docs/websocket-events.md` | Eventos Socket.IO + rooms |
-| `docs/design-system.md` | Cores, tipografia, componentes, theming |
-| `docs/modulos.md` | Descricao funcional de todos os modulos |
-| `docs/deploy.md` | Deploy AWS, infra cloud, Super Admin |
-| `docs/seguranca.md` | Seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload |
-| `docs/observabilidade.md` | Logs, Winston, Correlation ID, X-Ray (APM), metricas de negocio, modo degradado |
+See @docs/sprints.md for roadmap completo de sprints com checklists
+See @docs/api-endpoints.md for todos os endpoints REST
+See @docs/websocket-events.md for eventos Socket.IO + rooms
+See @docs/design-system.md for cores, tipografia, componentes, theming
+See @docs/modulos.md for descricao funcional de todos os modulos
+See @docs/deploy.md for deploy AWS, infra cloud, Super Admin
+See @docs/seguranca.md for seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload
+See @docs/observabilidade.md for logs, Winston, Correlation ID, X-Ray (APM), metricas de negocio
