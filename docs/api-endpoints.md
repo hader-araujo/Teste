@@ -2,6 +2,12 @@
 
 Base URL: `/api/v1`
 
+## Health Check
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/health` | Health check basico (API respondendo) — usado pelo ALB |
+| GET | `/health/ready` | Readiness check (banco + Redis conectados) — usado pelo ECS |
+
 ## Auth
 | Metodo | Rota | Descricao |
 |---|---|---|
@@ -41,6 +47,7 @@ Base URL: `/api/v1`
 | DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa |
 | PATCH | `/session/:token/service-charge` | Desabilitar/habilitar taxa de servico (garcom only) |
 | GET | `/session/:token/bill` | Conta detalhada com divisao por pessoa + taxa de servico |
+| DELETE | `/session/:token/data` | LGPD: exclui dados pessoais da sessao (telefone, nomes). Pedidos/pagamentos sao anonimizados |
 
 ## Menu
 | Metodo | Rota | Descricao |
@@ -69,7 +76,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos (produtos com destinos diferentes) geram sub-pedidos automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) baseado no campo `destination` do produto |
-| GET | `/orders` | Listar pedidos (admin, filtros) |
+| GET | `/orders` | Listar pedidos (admin, filtros). **Paginacao:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |
 | PATCH | `/orders/items/:id/status` | Atualizar status de item individual |
@@ -116,7 +123,7 @@ Base URL: `/api/v1`
 ## Staff
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/staff` | Listar funcionarios |
+| GET | `/staff` | Listar funcionarios. **Paginacao:** query `page` e `limit` (default 50, max 100) |
 | POST | `/staff` | Criar funcionario (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `delivers?: bool` para BAR, `pin: string` senha numerica para garcom) |
 | POST | `/staff/invite` | Enviar convite (log no console em dev) |
 | POST | `/staff/accept` | Aceitar convite e criar conta (publico) |
@@ -148,7 +155,7 @@ Base URL: `/api/v1`
 ## Super Admin — Estabelecimentos (role: SUPER_ADMIN)
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/superadmin/establishments` | Listar todos os estabelecimentos (com filtros: status, inadimplente) |
+| GET | `/superadmin/establishments` | Listar todos os estabelecimentos (com filtros: status, inadimplente). **Paginacao:** query `page` e `limit` (default 20, max 100) |
 | POST | `/superadmin/establishments` | Cadastrar novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) |
 | GET | `/superadmin/establishments/:id` | Detalhes do estabelecimento |
 | PUT | `/superadmin/establishments/:id` | Atualizar dados do estabelecimento |

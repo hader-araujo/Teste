@@ -1,7 +1,9 @@
-# Observabilidade (Logs)
+# Observabilidade (Logs, Metricas e Tracing)
 
 ## Estrategia
 - **Winston** como biblioteca de log em todo o backend (NestJS).
+- **AWS X-Ray** para distributed tracing (APM) — diagnosticar latencia entre servicos.
+- **CloudWatch Metrics** para metricas customizadas de negocio.
 - Output em **JSON estruturado**.
 - Em producao, logs vao para **stdout/stderr** e sao capturados automaticamente pelo **AWS CloudWatch** via ECS.
 - Em desenvolvimento, logs em console formatado (colorido).
@@ -20,11 +22,19 @@
 - Producao: **90 dias** de retencao nos logs.
 - Staging: **30 dias**.
 
-### Alarmes recomendados
-- Taxa de erros HTTP 5xx > threshold.
-- Latencia P95 de endpoints criticos.
+### Alarmes recomendados (infra)
+- Taxa de erros HTTP 5xx > 5/min por 3 minutos consecutivos.
+- Latencia P95 > 2s em endpoints criticos (`/orders`, `/payments`, `/menu`).
 - Erros de conexao com banco/Redis.
-- Container restarts.
+- Container restarts > 2 em 10 minutos.
+- CPU > 80% por 5 minutos (trigger de auto-scaling).
+- DLQ com mensagens (filas falhando).
+
+### Alarmes recomendados (negocio)
+- Restaurante ativo sem pedidos ha mais de 2 horas durante horario de funcionamento.
+- Webhook Pix sem confirmacao em mais de 10 minutos (possivel falha na integracao).
+- Sessao de mesa aberta ha mais de 6 horas (possivel esquecimento).
+- Falhas consecutivas de envio OTP (possivel problema com WhatsApp API).
 
 ## Correlation ID
 - Toda request HTTP recebe um **correlationId** unico (UUID v4) via middleware.
@@ -65,3 +75,38 @@ const devTransport = new winston.transports.Console({
   ),
 });
 ```
+
+## AWS X-Ray (Distributed Tracing)
+
+- Integrar via `aws-xray-sdk` no NestJS.
+- Tracing automatico de: requests HTTP, queries Prisma/PostgreSQL, chamadas Redis, requests a servicos externos (WhatsApp API, Pix).
+- Permite visualizar o caminho completo de uma request e identificar gargalos de latencia.
+- Em dev, usar modo local (`AWS_XRAY_DAEMON_ADDRESS=localhost:2000`).
+
+## Metricas Customizadas de Negocio (CloudWatch Metrics)
+
+Metricas publicadas via `putMetricData` ou extraidas de logs via Metric Filters:
+
+| Metrica | Dimensao | Uso |
+|---|---|---|
+| `OrdersCreated` | Por restaurante | Volume de pedidos por periodo |
+| `PaymentsConfirmed` | Por restaurante | Taxa de conversao de pagamento |
+| `AveragePreparationTime` | Por restaurante + destino | Tempo medio cozinha/bar |
+| `ActiveSessions` | Por restaurante | Mesas ocupadas em tempo real |
+| `OTPSendFailures` | Global | Saude da integracao WhatsApp |
+| `PixWebhookFailures` | Global | Saude da integracao Pix |
+| `CartAbandonment` | Por restaurante | Carrinhos criados vs pedidos confirmados |
+
+Essas metricas alimentam o dashboard do Super Admin e geram alarmes automaticos.
+
+## Modo Degradado (Resiliencia)
+
+| Dependencia | Fallback |
+|---|---|
+| **Redis indisponivel** | Cardapio servido direto do banco (mais lento). Metricas calculadas on-demand. Log `warn`. |
+| **S3/CloudFront indisponivel** | Imagens exibem placeholder generico. Upload bloqueado com mensagem ao admin. |
+| **WhatsApp API indisponivel** | OTP enfileirado no SQS com retry. Cliente ve "tente novamente em instantes". |
+| **Pix provider indisponivel** | Webhook enfileirado no SQS com retry. Pagamento fica "pendente" ate confirmacao. |
+
+- Implementar **circuit breaker** (ex: `opossum`) para dependencias externas (WhatsApp, Pix).
+- Quando o circuit abre, retorna erro amigavel imediatamente em vez de esperar timeout.

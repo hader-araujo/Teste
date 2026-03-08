@@ -46,3 +46,16 @@ export const SOCKET_EVENTS = {
 | Garcom | `restaurant:{id}:waiter` | Role WAITER |
 | Admin | `restaurant:{id}:admin` | OWNER/MANAGER |
 | Sessao cliente | `session:{token}` | Cliente da mesa |
+
+## Scaling com Multiplos Containers
+
+- **Obrigatorio:** usar `@socket.io/redis-adapter` para sincronizar rooms e eventos entre multiplas instancias ECS.
+- Sem o Redis Adapter, containers diferentes nao compartilham eventos — um pedido criado no container A nao chega ao KDS no container B.
+- Configurar o adapter apontando para o mesmo ElastiCache Redis usado pelo cache.
+
+## Reconexao e Resiliencia
+
+- Cliente deve implementar reconexao automatica com backoff exponencial (Socket.IO faz por padrao).
+- **Indicador de conexao obrigatorio** em todas as telas que dependem de WebSocket (KDS, garcom, cliente pedidos).
+- Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP como fallback para atualizacoes criticas (status de pedido, pronto para retirada).
+- Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.

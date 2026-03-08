@@ -71,6 +71,9 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] NestJS scaffolding com modulo raiz.
 - [ ] Next.js 14 App Router scaffolding.
 - [ ] `README.md` em cada pasta relevante.
+- [ ] Endpoint `GET /health` e `GET /health/ready` (health check basico + readiness).
+- [ ] Helmet configurado (headers de seguranca HTTP).
+- [ ] CORS configurado para origens permitidas.
 
 ---
 
@@ -89,10 +92,13 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 **Checklist:**
 - [ ] Modulo Auth completo (register, login, JWT access 15min + refresh 7d, roles).
 - [ ] Roles: OWNER, MANAGER, WAITER, KITCHEN, BAR.
+- [ ] Refresh token em httpOnly cookie com `SameSite=Strict`.
+- [ ] Rate limit especifico em `/auth/login` (5 tentativas por IP em 15min).
 - [ ] CRUD de restaurante.
 - [ ] Winston logger + Correlation ID middleware.
 - [ ] ValidationPipe global + Swagger.
 - [ ] Seed com dados de teste (dono@ze-bar.com / senha123, slug ze-bar).
+- [ ] Tabela `AuditLog` no Prisma schema (para uso em sprints futuras).
 
 ---
 
@@ -141,8 +147,10 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] CRUD de tags de produto (vegano, sem gluten, picante, etc).
 - [ ] CRUD de produtos com campo `destination` (kitchen/bar/waiter).
 - [ ] StorageService com interface (upload, delete, getUrl).
-- [ ] Implementacao Local (dev) e S3 (prod).
-- [ ] Resize com sharp (thumb 200px, media 600px, original).
+- [ ] Implementacao Local (dev) e S3 (prod). Em prod, upload via presigned URL direto ao S3.
+- [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assincrona (Bull/Redis em dev, SQS em prod).
+- [ ] Validacao de MIME type real com `file-type` (nao confiar na extensao). Aceitar apenas JPEG/PNG/WebP.
+- [ ] Sanitizar nome do arquivo (usar UUID como nome no storage).
 - [ ] Upload com preview, reordenacao e remocao.
 - [ ] Frontend admin: tela cardapio CRUD.
 
@@ -162,10 +170,11 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - GET `/menu/:restaurantSlug` — Cardapio publico (com cache Redis).
 
 **Checklist:**
-- [ ] Sessao de mesa via token na URL + cookie.
-- [ ] Verificacao WhatsApp via OTP de 6 digitos.
+- [ ] Sessao de mesa via token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32)`) na URL + cookie.
+- [ ] Verificacao WhatsApp via OTP de 6 digitos. Rate limit: 3 envios por sessao, cooldown 60s. OTP expira em 5min, max 5 tentativas.
+- [ ] Envio de OTP via fila assincrona (Bull/Redis em dev, SQS em prod).
 - [ ] CRUD de pessoas na mesa.
-- [ ] Cache do cardapio no Redis.
+- [ ] Cache do cardapio no Redis com TTL de 5min + invalidacao explicita no CRUD de produtos/categorias.
 - [ ] Frontend cliente: tela WhatsApp.
 - [ ] Frontend cliente: tela pessoas (+ botao no header de TODAS as telas).
 - [ ] Frontend cliente: cardapio com galeria, categorias, filtros.
@@ -193,7 +202,8 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Sub-pedidos automaticos por destino (cozinha/bar/garcom) com sufixo.
 - [ ] Status: Na fila -> Preparando -> Pronto -> Entregue.
 - [ ] Pagamento individual Pix com QR Code por pessoa.
-- [ ] Webhook Pix com baixa automatica.
+- [ ] Webhook Pix com validacao de assinatura do provedor (HMAC-SHA256 ou mTLS). Processamento via fila assincrona.
+- [ ] Whitelist de IPs do provedor Pix como camada extra de seguranca.
 - [ ] Frontend cliente: carrinho com selecao de pessoas.
 - [ ] Frontend cliente: tela "Meus Pedidos" com status e reatribuicao.
 - [ ] Frontend cliente: conta com divisao por pessoa + taxa servico.
@@ -207,6 +217,7 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 
 **Checklist:**
 - [ ] WebSocket gateway (Socket.IO).
+- [ ] **Redis Adapter (`@socket.io/redis-adapter`)** para sincronizar rooms entre multiplas instancias (obrigatorio para scaling).
 - [ ] Rooms: restaurant, kds, kds:kitchen, kds:bar, waiter, admin, session.
 - [ ] Roteamento de pedidos por destino do produto.
 - [ ] Eventos: order:created, kds:new-order, kds:status-update.
@@ -214,6 +225,7 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] Eventos: waiter:order-ready, waiter:call, waiter:new-order.
 - [ ] Eventos: admin:table-update, admin:metrics-update.
 - [ ] KDS backend: fila de producao e transicoes de status.
+- [ ] Logica de reconexao: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
 
 ---
 
@@ -271,7 +283,7 @@ Frontend do KDS. Zero endpoints REST novos.
 - PATCH `/calls/:id/resolve` — Garcom resolveu.
 
 **Checklist:**
-- [ ] Clock-in/out com senha do garcom. Registro de tempo de servico.
+- [ ] Clock-in/out com senha do garcom. Registro de tempo de servico. Rate limit: 5 tentativas por staffId em 15min, lockout de 15min.
 - [ ] Sistema de chamados com tipo (chamar garcom, pedir conta, outro).
 - [ ] Frontend garcom: clock-in com senha.
 - [ ] Frontend garcom: lista de mesas atribuidas.
@@ -288,6 +300,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 
 **Checklist:**
 - [ ] Push notifications via Service Worker + Web Push API.
+- [ ] **Service Worker com cache do cardapio para suporte offline** (leitura do cardapio funciona sem internet).
 - [ ] Notificacao: prato pronto para retirada.
 - [ ] Notificacao: chamado de mesa.
 - [ ] Notificacao: bebida pronta (para retirada no bar).
@@ -312,7 +325,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] Faturamento mensal: receita acumulada, grafico por dia, comparativo.
 - [ ] Fechamento de caixa: valores por forma de pagamento.
 - [ ] Taxas de garcom: valor devido a cada garcom no periodo.
-- [ ] Dashboard: tempo medio bar/cozinha/garcom, ticket medio, mesas ativas.
+- [ ] Dashboard: tempo medio bar/cozinha/garcom, ticket medio, mesas ativas. **Metricas pre-calculadas em Redis** (atualizadas por evento, nao calculadas a cada request).
 - [ ] Itens populares.
 
 ---
@@ -374,7 +387,7 @@ Frontend puro. Zero endpoints REST novos.
 
 ---
 
-## Sprint 15 — E2E Tests + Polish + Performance
+## Sprint 15 — E2E Tests + Polish + Performance + Resiliencia
 
 **Checklist:**
 - [ ] Testes e2e com Playwright: fluxo completo do cliente (QR -> WhatsApp -> cardapio -> pedido -> pagamento).
@@ -384,7 +397,17 @@ Frontend puro. Zero endpoints REST novos.
 - [ ] Testes de integracao (Supertest).
 - [ ] Skeleton loading em todas as telas que faltam.
 - [ ] Revisao de acessibilidade (botoes 44x44px, contraste WCAG AA, labels).
-- [ ] Performance: otimizar queries lentas, verificar cache Redis.
+- [ ] Performance: otimizar queries lentas (monitorar N+1 com `prisma.$on('query')`), verificar cache Redis.
+- [ ] Performance: lazy loading de imagens no cardapio (`loading="lazy"` + WebP + placeholder blur).
+- [ ] Performance: paginacao em todos os endpoints de listagem (orders, staff, establishments).
+- [ ] Resiliencia: circuit breaker (`opossum`) para dependencias externas (WhatsApp API, Pix provider).
+- [ ] Resiliencia: modo degradado quando Redis cai (fallback para banco direto).
+- [ ] Resiliencia: timeout de sessao — alerta no admin para sessoes abertas ha mais de 6 horas.
+- [ ] Resiliencia: graceful shutdown (drenar WebSocket, fechar conexoes banco/Redis em SIGTERM).
+- [ ] Seguranca: LGPD — endpoint `DELETE /session/:token/data` para exclusao de dados pessoais.
+- [ ] Seguranca: job agendado para anonimizar dados pessoais de sessoes fechadas ha mais de 90 dias.
+- [ ] Infra: configurar auto-scaling ECS (CPU > 70% scale out, < 30% scale in, min 2, max 10).
+- [ ] Infra: configurar RDS Proxy para connection pooling.
 - [ ] Validacao visual final.
 
 ---

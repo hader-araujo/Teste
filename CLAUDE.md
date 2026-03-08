@@ -161,5 +161,5 @@ TypeScript estrito, NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Route
 | `docs/design-system.md` | Cores, tipografia, componentes, theming |
 | `docs/modulos.md` | Descricao funcional de todos os modulos |
 | `docs/deploy.md` | Deploy AWS, infra cloud, Super Admin |
-| `docs/seguranca.md` | Seguranca, multi-tenancy, LGPD |
-| `docs/observabilidade.md` | Logs, Winston, Correlation ID |
+| `docs/seguranca.md` | Seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload |
+| `docs/observabilidade.md` | Logs, Winston, Correlation ID, X-Ray (APM), metricas de negocio, modo degradado |
