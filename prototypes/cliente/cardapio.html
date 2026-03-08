@@ -147,14 +147,23 @@
         card.style.cursor = 'pointer';
         card.dataset.productId = product.id;
 
-        // Image placeholder
+        // Image
         var imgDiv = document.createElement('div');
         imgDiv.className = 'product-image';
-        var placeholder = document.createElement('div');
-        placeholder.className = 'img-placeholder';
-        placeholder.style.cssText = 'width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:2.5rem;';
-        placeholder.textContent = '\uD83C\uDF7D\uFE0F';
-        imgDiv.appendChild(placeholder);
+        if (product.image) {
+          var img = document.createElement('img');
+          img.src = product.image;
+          img.alt = product.name;
+          img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+          img.loading = 'lazy';
+          imgDiv.appendChild(img);
+        } else {
+          var placeholder = document.createElement('div');
+          placeholder.className = 'img-placeholder';
+          placeholder.style.cssText = 'width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:2.5rem;';
+          placeholder.textContent = '\uD83C\uDF7D\uFE0F';
+          imgDiv.appendChild(placeholder);
+        }
 
         // Info
         var infoDiv = document.createElement('div');
