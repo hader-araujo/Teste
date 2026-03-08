@@ -43,16 +43,16 @@ prototypes/
 ```
 
 **Checklist:**
-- [ ] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
-- [ ] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
-- [ ] Telas do **admin** — login -> dashboard -> mesas -> cardapio CRUD (com tags e destino: cozinha/bar/garcom) -> faturamento (diario, mensal, taxas garcom) -> staff (com temporario + flag entrega BAR + senha garcom) -> escala -> equipe do dia (com distribuicao de mesas) -> settings (com nome/logo do estabelecimento e modo de distribuicao).
-- [ ] Telas do **KDS** — cozinha e bar com fila, cores de status, temporizadores.
-- [ ] Telas do **garcom** — ativacao de turno (clock-in com senha) -> mesas -> chamados -> detalhe da mesa -> comanda.
-- [ ] Navegacao funcional entre todas as telas (links).
-- [ ] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS.
-- [ ] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).
-- [ ] Tela de **Settings** com selecao de tema + color picker + preview do cardapio.
-- [ ] Prototipos do cliente devem demonstrar pelo menos 2 temas diferentes (Classico + Escuro) para validar que o theming funciona.
+- [x] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
+- [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
+- [x] Telas do **admin** — login -> dashboard -> mesas -> cardapio CRUD (com tags e destino: cozinha/bar/garcom) -> faturamento (diario, mensal, taxas garcom) -> staff (com temporario + flag entrega BAR + senha garcom) -> escala -> equipe do dia (com distribuicao de mesas) -> settings (com nome/logo do estabelecimento e modo de distribuicao).
+- [x] Telas do **KDS** — cozinha e bar com fila, cores de status, temporizadores.
+- [x] Telas do **garcom** — ativacao de turno (clock-in com senha) -> mesas -> chamados -> detalhe da mesa -> comanda.
+- [x] Navegacao funcional entre todas as telas (links).
+- [x] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS.
+- [x] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).
+- [x] Tela de **Settings** com selecao de tema + color picker + preview do cardapio.
+- [x] Prototipos do cliente devem demonstrar pelo menos 2 temas diferentes (Classico + Escuro) para validar que o theming funciona.
 - [ ] Validacao visual aprovada pelo usuario antes de prosseguir para Sprint 0.
 
 ---
