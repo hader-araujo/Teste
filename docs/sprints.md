@@ -34,12 +34,20 @@ prototypes/
 ├── kds/
 │   ├── cozinha.html            <- Fila de producao (dark mode, temporizadores, cores)
 │   └── bar.html                <- Fila de producao do bar
-└── garcom/
-    ├── clock-in.html           <- Ativacao de turno (senha do garcom)
-    ├── mesas.html              <- Lista de mesas atribuidas
-    ├── chamados.html           <- Chamados abertos + notificacoes
-    ├── mesa-detalhe.html       <- Pedidos da mesa com divisao por pessoa
-    └── comanda.html            <- Lancar pedido rapido
+├── garcom/
+│   ├── clock-in.html           <- Ativacao de turno (senha do garcom)
+│   ├── mesas.html              <- Lista de mesas atribuidas
+│   ├── chamados.html           <- Chamados abertos + notificacoes
+│   ├── mesa-detalhe.html       <- Pedidos da mesa com divisao por pessoa
+│   └── comanda.html            <- Lancar pedido rapido
+└── superadmin/
+    ├── login.html              <- Login do Super Admin (mesmo layout, branding OChefia)
+    ├── dashboard.html          <- Painel principal: KPIs (total estabelecimentos, ativos, suspensos, inadimplentes), ultimos acessos, alertas
+    ├── estabelecimentos.html   <- Listagem de todos os estabelecimentos com filtros (status, inadimplente) + paginacao
+    ├── estabelecimento-novo.html    <- Cadastro de novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone)
+    ├── estabelecimento-detalhe.html <- Detalhes do estabelecimento (dados, status, modulos ativos, historico de cobranca)
+    ├── cobranca.html           <- Gestao de cobranca: valor do plano, registro de pagamentos mensais, historico, status (pago/pendente/atrasado)
+    └── modulos.html            <- Gestao de modulos: listar modulos disponiveis, habilitar/desabilitar por estabelecimento, valores (global e override)
 ```
 
 **Checklist:**
@@ -48,11 +56,15 @@ prototypes/
 - [x] Telas do **admin** — login -> dashboard -> mesas -> cardapio CRUD (com tags e destino: cozinha/bar/garcom) -> faturamento (diario, mensal, taxas garcom) -> staff (com temporario + flag entrega BAR + senha garcom) -> escala -> equipe do dia (com distribuicao de mesas) -> settings (com nome/logo do estabelecimento e modo de distribuicao).
 - [x] Telas do **KDS** — cozinha e bar com fila, cores de status, temporizadores.
 - [x] Telas do **garcom** — ativacao de turno (clock-in com senha) -> mesas -> chamados -> detalhe da mesa -> comanda.
-- [x] Navegacao funcional entre todas as telas (links).
+- [x] Navegacao funcional entre todas as telas (links, incluindo Super Admin).
 - [x] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS.
 - [x] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).
 - [x] Tela de **Settings** com selecao de tema + color picker + preview do cardapio.
 - [x] Prototipos do cliente devem demonstrar pelo menos 2 temas diferentes (Classico + Escuro) para validar que o theming funciona.
+- [ ] Telas do **Super Admin** — login -> dashboard (KPIs: total estabelecimentos, ativos, suspensos, inadimplentes) -> listagem de estabelecimentos (com filtros de status e inadimplencia, paginacao) -> cadastro de novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) -> detalhe do estabelecimento (dados, status ativo/suspenso, modulos ativos, historico de cobranca) -> cobranca (valor do plano base, registro de pagamentos mensais, status pago/pendente/atrasado, indicadores de inadimplencia) -> modulos (listar modulos disponiveis com valor padrao, habilitar/desabilitar por estabelecimento, valor override).
+- [ ] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Modulos, Monitoramento.
+- [ ] Interacoes JS Super Admin: filtros na listagem, alterar status de estabelecimento, registrar pagamento, toggle de modulos.
+- [ ] Responsivo Super Admin: desktop-first (mesma diretriz do admin).
 - [ ] Validacao visual aprovada pelo usuario antes de prosseguir para Sprint 0.
 
 ---
