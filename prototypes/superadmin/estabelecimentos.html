@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estabelecimentos — Super Admin OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="superadmin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">OC</div>
+        <span class="logo-text">OChefia</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Principal</div>
+          <a href="dashboard.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Dashboard
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Gestão</div>
+          <a href="estabelecimentos.html" class="sidebar-item active">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+            Estabelecimentos
+          </a>
+          <a href="cobranca.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Cobrança
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Sistema</div>
+          <a href="modulos.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Módulos
+          </a>
+          <a href="monitoramento.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+            Monitoramento
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Admin OChefia</div>
+          <div class="sidebar-user-role">Super Admin</div>
+        </div>
+        <a href="login.html" style="color:#A5B4FC" aria-label="Sair">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div class="breadcrumb">Super Admin</div>
+          <h1>Estabelecimentos</h1>
+        </div>
+        <a href="estabelecimento-novo.html" class="btn btn-indigo">+ Novo Estabelecimento</a>
+      </div>
+
+      <!-- Page Body -->
+      <div class="admin-page-body">
+
+        <!-- Filter Bar -->
+        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem">
+          <input class="input input-indigo" placeholder="Buscar por nome ou slug..." id="searchInput" oninput="filterEstablishments()" style="max-width:300px">
+          <select class="select" id="statusFilter" onchange="filterEstablishments()" style="max-width:200px">
+            <option value="">Todos os status</option>
+            <option value="active">Ativos</option>
+            <option value="suspended">Suspensos</option>
+          </select>
+          <select class="select" id="defaultFilter" onchange="filterEstablishments()" style="max-width:200px">
+            <option value="">Todos</option>
+            <option value="yes">Inadimplentes</option>
+            <option value="no">Em dia</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="card-body-lg">
+            <div class="table-container">
+              <table class="table-indigo">
+                <thead>
+                  <tr>
+                    <th>Estabelecimento</th>
+                    <th>Slug</th>
+                    <th>CNPJ</th>
+                    <th>Cidade</th>
+                    <th>Status</th>
+                    <th style="text-align:right">Plano</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="establishmentsBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem">
+          <span id="paginationInfo" style="font-size:0.875rem;color:var(--color-text-secondary)">Mostrando 1-10 de 10 estabelecimentos</span>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-sm btn-secondary" disabled>Anterior</button>
+            <button class="btn btn-sm btn-secondary" disabled>Próximo</button>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // NOTE: innerHTML usage is safe here — all data comes from hardcoded MOCK objects,
+    // and sanitizeText() from app.js escapes any HTML entities as an extra precaution.
+    function filterEstablishments() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const defaultFilter = document.getElementById('defaultFilter').value;
+
+      let filtered = MOCK.superadmin.establishments.filter(est => {
+        const matchSearch = !search || est.name.toLowerCase().includes(search) || est.slug.toLowerCase().includes(search);
+        const matchStatus = !statusFilter || est.status === statusFilter;
+        const matchDefault = !defaultFilter ||
+          (defaultFilter === 'yes' && isDefaulting(est.id)) ||
+          (defaultFilter === 'no' && !isDefaulting(est.id));
+        return matchSearch && matchStatus && matchDefault;
+      });
+
+      renderEstablishments(filtered);
+    }
+
+    function renderEstablishments(list) {
+      const tbody = document.getElementById('establishmentsBody');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--color-text-secondary)">Nenhum estabelecimento encontrado</td></tr>';
+      } else {
+        tbody.innerHTML = list.map(est => {
+          const defaulting = isDefaulting(est.id);
+          return '<tr>' +
+            '<td><a href="estabelecimento-detalhe.html" style="color:#4F46E5;font-weight:600">' + sanitizeText(est.name) + '</a>' +
+            (defaulting ? ' <span class="badge badge-warning">Inadimplente</span>' : '') + '</td>' +
+            '<td><span style="font-family:monospace;font-size:0.8125rem">' + est.slug + '</span></td>' +
+            '<td><span style="font-family:monospace;font-size:0.8125rem">' + est.cnpj + '</span></td>' +
+            '<td>' + est.city + '</td>' +
+            '<td><span class="badge ' + getEstablishmentStatusBadge(est.status) + '">' + getEstablishmentStatusLabel(est.status) + '</span></td>' +
+            '<td style="text-align:right;font-weight:600">R$ ' + est.planAmount.toFixed(2).replace('.', ',') + '</td>' +
+            '<td><a href="estabelecimento-detalhe.html" class="btn btn-sm btn-secondary">Ver</a></td>' +
+            '</tr>';
+        }).join('');
+      }
+      document.getElementById('paginationInfo').textContent = 'Mostrando 1-' + list.length + ' de ' + list.length + ' estabelecimentos';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEstablishments(MOCK.superadmin.establishments);
+    });
+  </script>
+</body>
+</html>
