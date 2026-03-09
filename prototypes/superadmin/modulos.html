@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulos — Super Admin OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="superadmin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">OC</div>
+        <span class="logo-text">OChefia</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Principal</div>
+          <a href="dashboard.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Dashboard
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Gestão</div>
+          <a href="estabelecimentos.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+            Estabelecimentos
+          </a>
+          <a href="cobranca.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Cobrança
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Sistema</div>
+          <a href="modulos.html" class="sidebar-item active">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Módulos
+          </a>
+          <a href="monitoramento.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+            Monitoramento
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Admin OChefia</div>
+          <div class="sidebar-user-role">Super Admin</div>
+        </div>
+        <a href="login.html" style="color:#A5B4FC" aria-label="Sair">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div class="breadcrumb">Super Admin</div>
+          <h1>Módulos</h1>
+        </div>
+      </div>
+
+      <!-- Page Body -->
+      <div class="admin-page-body">
+
+        <!-- Módulos Disponíveis -->
+        <h2 style="font-size:1.125rem;font-weight:600;margin-bottom:1rem">Módulos Disponíveis</h2>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:2.5rem">
+
+          <!-- Card 1 — Padrão -->
+          <div class="card">
+            <div class="card-body-lg">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.5rem">
+                    <h4 style="font-size:1rem;font-weight:600">Padrão</h4>
+                    <span class="badge badge-indigo">Incluso</span>
+                  </div>
+                  <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">Cardápio digital, pedidos, KDS, garçom, mesas, faturamento, dashboard</p>
+                </div>
+              </div>
+              <div style="padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                <span style="font-size:0.875rem;font-weight:600;color:var(--color-text-secondary)">Incluso no plano base</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 — Estoque -->
+          <div class="card">
+            <div class="card-body-lg">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.5rem">
+                    <h4 style="font-size:1rem;font-weight:600">Estoque</h4>
+                    <span class="badge badge-warning">Extra</span>
+                  </div>
+                  <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">Controle de estoque, ingredientes, baixa automática, alertas de mínimo</p>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('Módulo atualizado!', 'success')">Editar</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor padrão</span>
+                <span style="font-size:1rem;font-weight:700">R$ 89,90</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 — Explorar -->
+          <div class="card">
+            <div class="card-body-lg">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.5rem">
+                    <h4 style="font-size:1rem;font-weight:600">Explorar</h4>
+                    <span class="badge badge-warning">Extra</span>
+                  </div>
+                  <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">App consumidor, listagem, reserva, pré-pedido, fidelidade</p>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('Módulo atualizado!', 'success')">Editar</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor padrão</span>
+                <span style="font-size:1rem;font-weight:700">R$ 149,90</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 — NFC-e/SAT -->
+          <div class="card">
+            <div class="card-body-lg">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.5rem">
+                    <h4 style="font-size:1rem;font-weight:600">NFC-e/SAT</h4>
+                    <span class="badge badge-warning">Extra</span>
+                  </div>
+                  <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">Emissão fiscal integrada (NFC-e e SAT)</p>
+                </div>
+                <button class="btn btn-sm btn-secondary" onclick="showToast('Módulo atualizado!', 'success')">Editar</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor padrão</span>
+                <span style="font-size:1rem;font-weight:700">R$ 79,90</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Módulos por Estabelecimento -->
+        <h2 style="font-size:1.125rem;font-weight:600;margin-bottom:1rem">Módulos por Estabelecimento</h2>
+
+        <div class="card">
+          <div class="card-body-lg">
+            <div class="table-container">
+              <table class="table-indigo">
+                <thead>
+                  <tr>
+                    <th>Estabelecimento</th>
+                    <th style="text-align:center">Padrão</th>
+                    <th style="text-align:center">Estoque</th>
+                    <th style="text-align:center">Explorar</th>
+                    <th style="text-align:center">NFC-e/SAT</th>
+                  </tr>
+                </thead>
+                <tbody id="modulesBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    // Renders the modules-per-establishment table using trusted mock data from MOCK.superadmin.establishments.
+    // sanitizeText() is applied for defense-in-depth even though data is hardcoded.
+    function renderModulesTable() {
+      const tbody = document.getElementById('modulesBody');
+      const rows = MOCK.superadmin.establishments.map(function(est) {
+        const hasModule = function(modId) { return est.modules.includes(modId); };
+        const toggleHTML = function(modId) {
+          const active = hasModule(modId) ? ' active' : '';
+          return '<div class="toggle toggle-indigo' + active + '" onclick="this.classList.toggle(\'active\'); showToast(\'Módulo atualizado!\', \'success\')" style="margin:0 auto"></div>';
+        };
+        return '<tr>' +
+          '<td style="font-weight:600">' + sanitizeText(est.name) + '</td>' +
+          '<td style="text-align:center"><span style="color:var(--color-success);font-size:1.25rem">\u2713</span></td>' +
+          '<td style="text-align:center">' + toggleHTML(2) + '</td>' +
+          '<td style="text-align:center">' + toggleHTML(3) + '</td>' +
+          '<td style="text-align:center">' + toggleHTML(4) + '</td>' +
+          '</tr>';
+      });
+      tbody.innerHTML = rows.join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderModulesTable();
+    });
+  </script>
+</body>
+</html>

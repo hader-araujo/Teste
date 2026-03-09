@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — OChefia Admin</title>
+  <title>Login — OChefia Super Admin</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body style="background-color:var(--color-gray-50); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem;">
@@ -12,17 +12,17 @@
     <!-- Logo -->
     <div style="margin-bottom:2rem;">
       <div style="display:inline-flex; align-items:center; gap:0.75rem; justify-content:center;">
-        <div style="width:48px; height:48px; background-color:var(--color-primary); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1.125rem;">OC</div>
+        <div style="width:48px; height:48px; background-color:#6366F1; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:1.125rem;">OC</div>
         <span style="font-size:1.5rem; font-weight:700; color:var(--color-gray-900);">OChefia</span>
       </div>
-      <p style="color:var(--color-text-secondary); margin-top:0.5rem; font-size:0.875rem;">Painel Administrativo</p>
+      <p style="color:var(--color-text-secondary); margin-top:0.5rem; font-size:0.875rem;">Painel Interno</p>
     </div>
 
     <!-- Form -->
     <form onsubmit="event.preventDefault(); window.location.href='dashboard.html';" style="text-align:left;">
       <div class="input-group mb-4">
         <label for="email">E-mail</label>
-        <input class="input" id="email" type="email" placeholder="dono@ze-bar.com" value="dono@ze-bar.com" required>
+        <input class="input" id="email" type="email" placeholder="admin@ochefia.com.br" value="admin@ochefia.com.br" required>
       </div>
 
       <div class="input-group mb-4">
@@ -30,12 +30,12 @@
         <input class="input" id="senha" type="password" placeholder="••••••••" value="senha123" required>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-full" style="margin-bottom:1rem;">
+      <button type="submit" class="btn btn-indigo btn-full" style="margin-bottom:1rem;">
         Entrar
       </button>
 
       <div style="text-align:center;">
-        <a href="#" style="font-size:0.875rem; color:var(--color-primary); font-weight:500;" onclick="showToast('Link de recuperação enviado para seu e-mail', 'info'); return false;">
+        <a href="#" style="font-size:0.875rem; color:#6366F1; font-weight:500;" onclick="showToast('Link de recuperação enviado para seu e-mail', 'info'); return false;">
           Esqueci minha senha
         </a>
       </div>

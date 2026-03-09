@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Estabelecimento — Super Admin OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="superadmin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">OC</div>
+        <span class="logo-text">OChefia</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Principal</div>
+          <a href="dashboard.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Dashboard
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Gestão</div>
+          <a href="estabelecimentos.html" class="sidebar-item active">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+            Estabelecimentos
+          </a>
+          <a href="cobranca.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Cobrança
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Sistema</div>
+          <a href="modulos.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Módulos
+          </a>
+          <a href="monitoramento.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+            Monitoramento
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Admin OChefia</div>
+          <div class="sidebar-user-role">Super Admin</div>
+        </div>
+        <a href="login.html" style="color:#A5B4FC" aria-label="Sair">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div class="breadcrumb">Super Admin > <a href="estabelecimentos.html" style="color:var(--color-indigo-400);text-decoration:none;">Estabelecimentos</a></div>
+          <h1>Novo Estabelecimento</h1>
+        </div>
+      </div>
+
+      <!-- Page Body -->
+      <div class="admin-page-body">
+
+        <div class="card" style="max-width:640px;margin:0 auto">
+          <div class="card-body-lg">
+            <form onsubmit="event.preventDefault(); showToast('Estabelecimento cadastrado com sucesso!', 'success'); setTimeout(() => window.location.href='estabelecimentos.html', 1000);">
+              <div style="display:flex;flex-direction:column;gap:1.25rem">
+
+                <div class="input-group">
+                  <label for="name">Nome do Estabelecimento</label>
+                  <input class="input input-indigo" id="name" type="text" placeholder="Ex: Restaurante Sabor & Arte" required>
+                </div>
+
+                <div class="input-group">
+                  <label for="slug">Slug (URL)</label>
+                  <input class="input input-indigo" id="slug" type="text" placeholder="restaurante-sabor-arte" required>
+                  <span style="font-size:0.75rem;color:var(--color-text-secondary)">URL: ochefia.com.br/<span id="slugPreview">...</span></span>
+                </div>
+
+                <div class="input-group">
+                  <label for="cnpj">CNPJ</label>
+                  <input class="input input-indigo" id="cnpj" type="text" placeholder="00.000.000/0000-00" required oninput="this.value = formatCNPJ(this.value)">
+                </div>
+
+                <div class="input-group">
+                  <label for="responsible">Responsável</label>
+                  <input class="input input-indigo" id="responsible" type="text" placeholder="Nome completo" required>
+                </div>
+
+                <div class="input-group">
+                  <label for="email">E-mail</label>
+                  <input class="input input-indigo" id="email" type="email" placeholder="contato@restaurante.com.br" required>
+                </div>
+
+                <div class="input-group">
+                  <label for="phone">Telefone</label>
+                  <input class="input input-indigo" id="phone" type="text" placeholder="(00) 00000-0000" required oninput="this.value = formatPhone(this.value)">
+                </div>
+
+              </div>
+
+              <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--color-border-light)">
+                <a href="estabelecimentos.html" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-indigo">Cadastrar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('name');
+      const slugInput = document.getElementById('slug');
+      const slugPreview = document.getElementById('slugPreview');
+
+      nameInput.addEventListener('input', () => {
+        const slug = slugify(nameInput.value);
+        slugInput.value = slug;
+        slugPreview.textContent = slug || '...';
+      });
+
+      slugInput.addEventListener('input', () => {
+        slugPreview.textContent = slugInput.value || '...';
+      });
+    });
+  </script>
+</body>
+</html>

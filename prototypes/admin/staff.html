@@ -52,14 +52,13 @@
     <main class="admin-content">
       <div class="page-header">
         <div>
-          <h1>Equipe</h1>
-        </div>
-        <div style="display:flex; align-items:center; gap:1rem;">
-          <button class="btn btn-primary" onclick="openModal('modal-staff')">+ Novo Funcionário</button>
           <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
           </button>
+          <div class="breadcrumb">Admin</div>
+          <h1>Equipe</h1>
         </div>
+        <button class="btn btn-primary" onclick="openModal('modal-staff')">+ Novo Funcionário</button>
       </div>
 
       <div class="admin-page-body">
@@ -75,6 +74,7 @@
                   <th>Temporário?</th>
                   <th>Dias Fixos</th>
                   <th>Entrega BAR?</th>
+                  <th>PIN</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -87,6 +87,7 @@
                   <td><span class="badge badge-gray">Não</span></td>
                   <td>—</td>
                   <td><span class="badge badge-gray">Não</span></td>
+                  <td>—</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -101,6 +102,7 @@
                   <td><span class="badge badge-gray">Não</span></td>
                   <td>—</td>
                   <td><span class="badge badge-gray">Não</span></td>
+                  <td style="font-family:monospace; letter-spacing:2px;">••••</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -118,6 +120,7 @@
                   <td><span class="badge badge-gray">Não</span></td>
                   <td>—</td>
                   <td><span class="badge badge-gray">Não</span></td>
+                  <td>—</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -135,6 +138,7 @@
                   <td><span class="badge badge-gray">Não</span></td>
                   <td>—</td>
                   <td><span class="badge badge-success">Sim</span></td>
+                  <td>—</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -152,6 +156,7 @@
                   <td><span class="badge badge-gray">Não</span></td>
                   <td>—</td>
                   <td><span class="badge badge-gray">Não</span></td>
+                  <td style="font-family:monospace; letter-spacing:2px;">••••</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -169,6 +174,7 @@
                   <td><span class="badge badge-warning">Sim</span></td>
                   <td>Seg, Qua, Sex</td>
                   <td><span class="badge badge-gray">Não</span></td>
+                  <td style="font-family:monospace; letter-spacing:2px;">••••</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -186,6 +192,7 @@
                   <td><span class="badge badge-gray">Não</span></td>
                   <td>—</td>
                   <td><span class="badge badge-gray">Não</span></td>
+                  <td>—</td>
                   <td>
                     <button class="btn-ghost btn-sm" title="Editar" style="color:var(--color-primary);">
                       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
