@@ -618,7 +618,7 @@ function toggleTheme() {
 // ============================================
 
 function toggleSidebar() {
-  const sidebar = document.querySelector('.admin-sidebar');
+  const sidebar = document.querySelector('.admin-sidebar') || document.querySelector('.superadmin-sidebar');
   const overlay = document.querySelector('.sidebar-overlay');
   if (!sidebar) return;
 
@@ -686,7 +686,7 @@ function formatCurrency(value) {
 function sanitizeText(text) {
   const div = document.createElement('div');
   div.textContent = text;
-  return div.textContent;
+  return div.innerHTML;
 }
 
 function getStatusLabel(status) {

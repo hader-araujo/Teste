@@ -80,13 +80,13 @@
 
         <!-- Filter Bar -->
         <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1.5rem">
-          <input class="input input-indigo" placeholder="Buscar por nome ou slug..." id="searchInput" oninput="filterEstablishments()" style="max-width:300px">
-          <select class="select" id="statusFilter" onchange="filterEstablishments()" style="max-width:200px">
+          <input class="input input-indigo" placeholder="Buscar por nome ou slug..." id="searchInput" oninput="filterEstablishments()" style="max-width:300px" aria-label="Buscar estabelecimento">
+          <select class="select" id="statusFilter" onchange="filterEstablishments()" style="max-width:200px" aria-label="Filtrar por status">
             <option value="">Todos os status</option>
             <option value="active">Ativos</option>
             <option value="suspended">Suspensos</option>
           </select>
-          <select class="select" id="defaultFilter" onchange="filterEstablishments()" style="max-width:200px">
+          <select class="select" id="defaultFilter" onchange="filterEstablishments()" style="max-width:200px" aria-label="Filtrar por inadimplência">
             <option value="">Todos</option>
             <option value="yes">Inadimplentes</option>
             <option value="no">Em dia</option>

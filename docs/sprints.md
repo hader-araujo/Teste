@@ -63,7 +63,7 @@ prototypes/
 - [x] Tela de **Settings** com selecao de tema + color picker + preview do cardapio.
 - [x] Prototipos do cliente devem demonstrar pelo menos 2 temas diferentes (Classico + Escuro) para validar que o theming funciona.
 - [ ] Telas do **Super Admin** — login -> dashboard (KPIs: total estabelecimentos, ativos, suspensos, inadimplentes) -> listagem de estabelecimentos (com filtros de status e inadimplencia, paginacao) -> cadastro de novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) -> detalhe do estabelecimento (dados, status ativo/suspenso, modulos ativos, historico de cobranca) -> cobranca (valor do plano base, registro de pagamentos mensais, status pago/pendente/atrasado, indicadores de inadimplencia) -> modulos (listar modulos disponiveis com valor padrao, habilitar/desabilitar por estabelecimento, valor override) -> monitoramento (métricas de uso por estabelecimento, últimos acessos, pedidos/mês).
-- [ ] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Modulos, Monitoramento.
+- [ ] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Cobranca, Modulos, Monitoramento.
 - [ ] Interacoes JS Super Admin: filtros na listagem, alterar status de estabelecimento, registrar pagamento, toggle de modulos, ordenação por métricas no monitoramento.
 - [ ] Responsivo Super Admin: desktop-first (mesma diretriz do admin).
 - [ ] Validacao visual aprovada pelo usuario antes de prosseguir para Sprint 0.
