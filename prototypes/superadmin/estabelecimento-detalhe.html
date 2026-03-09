@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zé do Bar — Super Admin OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="superadmin-sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">OC</div>
+        <span class="logo-text">OChefia</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Principal</div>
+          <a href="dashboard.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Dashboard
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Gestão</div>
+          <a href="estabelecimentos.html" class="sidebar-item active">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/><path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/><path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+            Estabelecimentos
+          </a>
+          <a href="cobranca.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Cobrança
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">Sistema</div>
+          <a href="modulos.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Módulos
+          </a>
+          <a href="monitoramento.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+            Monitoramento
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Admin OChefia</div>
+          <div class="sidebar-user-role">Super Admin</div>
+        </div>
+        <a href="login.html" style="color:#A5B4FC" aria-label="Sair">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          </button>
+          <div class="breadcrumb">Super Admin > <a href="estabelecimentos.html" style="color:var(--color-text-muted);text-decoration:underline;">Estabelecimentos</a> > Zé do Bar</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+            <h1 style="display:flex;align-items:center;gap:0.75rem">Zé do Bar <span class="badge badge-success">Ativo</span></h1>
+            <button class="btn btn-sm btn-danger" onclick="openModal('statusModal')">Suspender</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Body -->
+      <div class="admin-page-body">
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:0;border-bottom:2px solid var(--color-border-light);margin-bottom:1.5rem">
+          <button class="tab-btn" onclick="switchTab('dados')" id="tab-dados" style="padding:0.75rem 1.5rem;font-size:0.875rem;font-weight:600;color:#4F46E5;border:none;background:none;cursor:pointer;border-bottom:2px solid #6366F1;margin-bottom:-2px">Dados Gerais</button>
+          <button class="tab-btn" onclick="switchTab('cobranca')" id="tab-cobranca" style="padding:0.75rem 1.5rem;font-size:0.875rem;font-weight:600;color:var(--color-text-secondary);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Cobrança</button>
+          <button class="tab-btn" onclick="switchTab('modulos')" id="tab-modulos" style="padding:0.75rem 1.5rem;font-size:0.875rem;font-weight:600;color:var(--color-text-secondary);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px">Módulos</button>
+        </div>
+
+        <!-- Tab 1: Dados Gerais -->
+        <div id="panel-dados">
+          <div class="card">
+            <div class="card-body-lg">
+              <div style="display:flex;flex-direction:column;gap:1rem">
+                <div class="input-group">
+                  <label>Nome</label>
+                  <input class="input input-indigo" type="text" value="Zé do Bar">
+                </div>
+                <div class="input-group">
+                  <label>Slug</label>
+                  <input class="input" type="text" value="ze-bar" readonly style="background:var(--color-gray-50);color:var(--color-text-muted);cursor:not-allowed">
+                </div>
+                <div class="input-group">
+                  <label>CNPJ</label>
+                  <input class="input input-indigo" type="text" value="12.345.678/0001-90">
+                </div>
+                <div class="input-group">
+                  <label>Responsável</label>
+                  <input class="input input-indigo" type="text" value="José da Silva">
+                </div>
+                <div class="input-group">
+                  <label>E-mail</label>
+                  <input class="input input-indigo" type="email" value="jose@zebar.com.br">
+                </div>
+                <div class="input-group">
+                  <label>Telefone</label>
+                  <input class="input input-indigo" type="text" value="(11) 99999-0001">
+                </div>
+                <div class="input-group">
+                  <label>Cidade</label>
+                  <input class="input input-indigo" type="text" value="São Paulo — SP">
+                </div>
+              </div>
+              <div style="margin-top:1.5rem;display:flex;justify-content:flex-end">
+                <button class="btn btn-indigo" onclick="showToast('Dados salvos com sucesso!', 'success')">Salvar Alterações</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Cobrança -->
+        <div id="panel-cobranca" style="display:none">
+
+          <!-- Valor do Plano -->
+          <div class="card" style="margin-bottom:1.5rem">
+            <div class="card-body-lg">
+              <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem">Valor do Plano Base</h3>
+              <div style="display:flex;align-items:center;gap:1rem">
+                <span style="font-size:0.875rem;color:var(--color-text-secondary)">R$</span>
+                <input class="input input-indigo" type="text" value="299,90" style="max-width:150px">
+                <button class="btn btn-sm btn-indigo" onclick="showToast('Valor do plano atualizado!', 'success')">Salvar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Histórico de Pagamentos -->
+          <div class="card">
+            <div class="card-body-lg">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                <h3 style="font-size:1rem;font-weight:600">Histórico de Pagamentos</h3>
+                <button class="btn btn-sm btn-indigo" onclick="openModal('paymentModal')">+ Registrar Pagamento</button>
+              </div>
+              <div class="table-container">
+                <table class="table-indigo">
+                  <thead>
+                    <tr><th>Mês/Ano</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Mar/2026</td>
+                      <td style="font-weight:600">R$ 299,90</td>
+                      <td><span class="badge badge-warning">Pendente</span></td>
+                      <td>
+                        <button class="btn btn-sm btn-success" onclick="showToast('Pagamento marcado como pago!', 'success')">Marcar Pago</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Fev/2026</td>
+                      <td style="font-weight:600">R$ 299,90</td>
+                      <td><span class="badge badge-success">Pago</span></td>
+                      <td><span style="font-size:0.8125rem;color:var(--color-text-muted)">—</span></td>
+                    </tr>
+                    <tr>
+                      <td>Jan/2026</td>
+                      <td style="font-weight:600">R$ 299,90</td>
+                      <td><span class="badge badge-success">Pago</span></td>
+                      <td><span style="font-size:0.8125rem;color:var(--color-text-muted)">—</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tab 3: Módulos -->
+        <div id="panel-modulos" style="display:none">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem">
+
+            <!-- Módulo Padrão -->
+            <div class="card">
+              <div class="card-body-lg">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                  <div>
+                    <h4 style="font-size:1rem;font-weight:600">Padrão</h4>
+                    <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">Cardápio digital, pedidos, KDS, garçom, mesas, faturamento, dashboard</p>
+                  </div>
+                  <div class="toggle toggle-indigo active" style="pointer-events:none;opacity:0.5"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                  <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor</span>
+                  <span style="font-size:0.875rem;font-weight:600;color:var(--color-text-secondary)">Incluso no plano</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Módulo Estoque -->
+            <div class="card">
+              <div class="card-body-lg">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                  <div>
+                    <h4 style="font-size:1rem;font-weight:600">Estoque</h4>
+                    <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">Controle de estoque, ingredientes, baixa automática, alertas de mínimo</p>
+                  </div>
+                  <div class="toggle toggle-indigo" onclick="this.classList.toggle('active'); showToast('Módulo atualizado!', 'success')"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                  <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor (R$)</span>
+                  <input class="input input-indigo" type="text" value="89,90" style="max-width:100px;text-align:right">
+                </div>
+              </div>
+            </div>
+
+            <!-- Módulo Explorar -->
+            <div class="card">
+              <div class="card-body-lg">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                  <div>
+                    <h4 style="font-size:1rem;font-weight:600">Explorar</h4>
+                    <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">App consumidor, listagem de estabelecimentos, reserva, pré-pedido, fidelidade</p>
+                  </div>
+                  <div class="toggle toggle-indigo" onclick="this.classList.toggle('active'); showToast('Módulo atualizado!', 'success')"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                  <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor (R$)</span>
+                  <input class="input input-indigo" type="text" value="149,90" style="max-width:100px;text-align:right">
+                </div>
+              </div>
+            </div>
+
+            <!-- Módulo NFC-e/SAT -->
+            <div class="card">
+              <div class="card-body-lg">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                  <div>
+                    <h4 style="font-size:1rem;font-weight:600">NFC-e/SAT</h4>
+                    <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-top:0.25rem">Emissão fiscal integrada</p>
+                  </div>
+                  <div class="toggle toggle-indigo" onclick="this.classList.toggle('active'); showToast('Módulo atualizado!', 'success')"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--color-border-light)">
+                  <span style="font-size:0.8125rem;color:var(--color-text-secondary)">Valor (R$)</span>
+                  <input class="input input-indigo" type="text" value="79,90" style="max-width:100px;text-align:right">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Status Modal -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Suspender Estabelecimento</h3>
+        <button onclick="closeModal('statusModal')" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary)">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.875rem;color:var(--color-text-secondary)">Tem certeza que deseja suspender o acesso do <strong>Zé do Bar</strong>? O estabelecimento perderá acesso ao sistema imediatamente.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('statusModal')">Cancelar</button>
+        <button class="btn btn-danger" onclick="closeModal('statusModal'); showToast('Estabelecimento suspenso!', 'success')">Confirmar Suspensão</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Registrar Pagamento</h3>
+        <button onclick="closeModal('paymentModal')" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary)">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div class="input-group">
+            <label>Mês/Ano</label>
+            <select class="select"><option>Março 2026</option><option>Abril 2026</option><option>Maio 2026</option></select>
+          </div>
+          <div class="input-group">
+            <label>Valor (R$)</label>
+            <input class="input input-indigo" type="text" value="299,90">
+          </div>
+          <div class="input-group">
+            <label>Status</label>
+            <select class="select"><option>Pago</option><option>Pendente</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('paymentModal')">Cancelar</button>
+        <button class="btn btn-indigo" onclick="closeModal('paymentModal'); showToast('Pagamento registrado!', 'success')">Registrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function switchTab(tab) {
+      // Hide all panels
+      document.querySelectorAll('[id^="panel-"]').forEach(p => p.style.display = 'none');
+      // Deactivate all tabs
+      document.querySelectorAll('.tab-btn').forEach(t => {
+        t.style.color = 'var(--color-text-secondary)';
+        t.style.borderBottomColor = 'transparent';
+      });
+      // Show selected panel
+      document.getElementById('panel-' + tab).style.display = 'block';
+      // Activate selected tab
+      const activeTab = document.getElementById('tab-' + tab);
+      activeTab.style.color = '#4F46E5';
+      activeTab.style.borderBottomColor = '#6366F1';
+    }
+  </script>
+</body>
+</html>
