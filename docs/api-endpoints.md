@@ -5,8 +5,8 @@ Base URL: `/api/v1`
 ## Health Check
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/health` | Health check basico (API respondendo) — usado pelo ALB |
-| GET | `/health/ready` | Readiness check (banco + Redis conectados) — usado pelo ECS |
+| GET | `/health` | Health check basico (API respondendo) — usado pelo nginx (Fase 1) ou ALB (Fase 2) |
+| GET | `/health/ready` | Readiness check (banco + Redis conectados) — usado pelo Docker healthcheck (Fase 1) ou ECS (Fase 2) |
 
 ## Auth
 | Metodo | Rota | Descricao |
@@ -153,10 +153,7 @@ Base URL: `/api/v1`
 | PATCH | `/schedule/day/:date/tables` | Distribuir mesas entre garcons do dia (body: `{ assignments: [{ staffId, tableIds[] }] }`) |
 
 ## Configuracoes de Distribuicao
-| Metodo | Rota | Descricao |
-|---|---|---|
-| GET | `/restaurants/:id/settings` | Inclui `tableDistributionMode`: `all` ou `auto` |
-| PUT | `/restaurants/:id/settings` | Atualizar modo de distribuicao |
+> **Nota:** Usa os mesmos endpoints `GET/PUT /restaurants/:id/settings` da secao Restaurant acima. O campo `tableDistributionMode` (`all` ou `auto`) faz parte das configuracoes do restaurante.
 
 ## Super Admin — Estabelecimentos (role: SUPER_ADMIN)
 | Metodo | Rota | Descricao |

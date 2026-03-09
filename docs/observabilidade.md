@@ -1,14 +1,22 @@
 # Observabilidade (Logs, Metricas e Tracing)
 
 ## Estrategia
-- **Winston** como biblioteca de log em todo o backend (NestJS).
+
+### Fase 1 (Docker Only)
+- **Winston** como biblioteca de log em todo o backend (NestJS). Roda dentro do container `ochefia-api` — **nao e um container separado**.
+- Output em **JSON estruturado** para stdout/stderr.
+- Visualizavel via `docker compose logs -f api`.
+- Em desenvolvimento, logs em console formatado (colorido).
+- Sem CloudWatch, sem X-Ray. Metricas de negocio calculadas no Redis e exibidas no dashboard do admin/super admin.
+
+### Fase 2 (AWS — NAO IMPLEMENTAR ATE AVISO EXPLICITO)
 - **AWS X-Ray** para distributed tracing (APM) — diagnosticar latencia entre servicos.
 - **CloudWatch Metrics** para metricas customizadas de negocio.
-- Output em **JSON estruturado**.
-- Em producao, logs vao para **stdout/stderr** e sao capturados automaticamente pelo **AWS CloudWatch** via ECS.
-- Em desenvolvimento, logs em console formatado (colorido).
+- Logs capturados automaticamente pelo **AWS CloudWatch** via ECS.
 
-## CloudWatch (AWS)
+## CloudWatch (Fase 2 — AWS)
+
+**NAO IMPLEMENTAR ATE MIGRACAO PARA AWS.**
 
 | Recurso | Uso |
 |---|---|
@@ -62,7 +70,8 @@
 ## Configuracao Winston
 
 ```typescript
-// Producao: JSON para stdout (CloudWatch captura)
+// Producao (Fase 1): JSON para stdout (docker compose logs captura)
+// Producao (Fase 2): JSON para stdout (CloudWatch captura via ECS)
 const prodTransport = new winston.transports.Console({
   format: winston.format.json(),
 });
@@ -76,16 +85,18 @@ const devTransport = new winston.transports.Console({
 });
 ```
 
-## AWS X-Ray (Distributed Tracing)
+## AWS X-Ray (Distributed Tracing — Fase 2)
+
+**NAO IMPLEMENTAR ATE MIGRACAO PARA AWS.**
 
 - Integrar via `aws-xray-sdk` no NestJS.
 - Tracing automatico de: requests HTTP, queries Prisma/PostgreSQL, chamadas Redis, requests a servicos externos (WhatsApp API, Pix).
 - Permite visualizar o caminho completo de uma request e identificar gargalos de latencia.
 - Em dev, usar modo local (`AWS_XRAY_DAEMON_ADDRESS=localhost:2000`).
 
-## Metricas Customizadas de Negocio (CloudWatch Metrics)
+## Metricas Customizadas de Negocio
 
-Metricas publicadas via `putMetricData` ou extraidas de logs via Metric Filters:
+Na Fase 1, essas metricas sao calculadas no Redis e exibidas no dashboard admin/super admin. Na Fase 2 (AWS), publicadas via CloudWatch `putMetricData` ou extraidas de logs via Metric Filters.
 
 | Metrica | Dimensao | Uso |
 |---|---|---|
@@ -104,27 +115,26 @@ Essas metricas alimentam o dashboard do Super Admin e geram alarmes automaticos.
 | Dependencia | Fallback |
 |---|---|
 | **Redis indisponivel** | Cardapio servido direto do banco (mais lento). Metricas calculadas on-demand. Log `warn`. |
-| **S3/CloudFront indisponivel** | Imagens exibem placeholder generico. Upload bloqueado com mensagem ao admin. |
-| **WhatsApp API indisponivel** | OTP enfileirado no SQS com retry. Cliente ve "tente novamente em instantes". |
-| **Pix provider indisponivel** | Webhook enfileirado no SQS com retry. Pagamento fica "pendente" ate confirmacao. |
+| **Filesystem de imagens indisponivel** | Imagens exibem placeholder generico. Upload bloqueado com mensagem ao admin. |
+| **WhatsApp API indisponivel** | OTP enfileirado no Bull (Redis) com retry. Cliente ve "tente novamente em instantes". |
+| **Pix provider indisponivel** | Webhook enfileirado no Bull (Redis) com retry. Pagamento fica "pendente" ate confirmacao. |
 
 - Implementar **circuit breaker** (ex: `opossum`) para dependencias externas (WhatsApp, Pix).
 - Quando o circuit abre, retorna erro amigavel imediatamente em vez de esperar timeout.
 
 ## Tracing End-to-End (Fluxo Completo)
 
-Definir trace completo para fluxos criticos:
+Definir trace completo para fluxos criticos (via `correlationId` nos logs):
 
 | Fluxo | Trace |
 |---|---|
-| **Pedido** | Cliente -> API (POST /orders) -> SQS (se async) -> KDS (WebSocket) -> status update -> Cliente (WebSocket) |
-| **Pagamento Pix** | Cliente -> API (POST /payments) -> Provedor Pix -> Webhook -> SQS (ochefia-pix-process) -> Worker -> API (update status) -> Cliente (WebSocket) |
-| **OTP WhatsApp** | Cliente -> API (POST /session/:token/phone) -> SQS (ochefia-otp-send) -> Worker -> WhatsApp API -> Cliente (verifica OTP) |
-| **Upload Imagem** | Admin -> API (POST /upload) -> S3 -> SQS (ochefia-image-resize) -> Worker (Sharp) -> S3 (thumbs) |
+| **Pedido** | Cliente -> API (POST /orders) -> Bull (se async) -> KDS (WebSocket) -> status update -> Cliente (WebSocket) |
+| **Pagamento Pix** | Cliente -> API (POST /payments) -> Provedor Pix -> Webhook -> Bull (ochefia-pix-process) -> Worker -> API (update status) -> Cliente (WebSocket) |
+| **OTP WhatsApp** | Cliente -> API (POST /session/:token/phone) -> Bull (ochefia-otp-send) -> Worker -> WhatsApp API -> Cliente (verifica OTP) |
+| **Upload Imagem** | Admin -> API (POST /upload) -> Filesystem -> Bull (ochefia-image-resize) -> Worker (Sharp) -> Filesystem (thumbs) |
 
-- Propagar `correlationId` em headers de mensagens SQS (`MessageAttributes`).
-- X-Ray segments devem cobrir: HTTP request, SQS publish, SQS consume, chamadas externas.
-- Cada worker SQS deve criar sub-segment vinculado ao trace original.
+- Propagar `correlationId` nos dados do job Bull.
+- Na Fase 2 (AWS), X-Ray segments cobrem: HTTP request, SQS publish/consume, chamadas externas.
 
 ## Error Codes Padronizados
 
@@ -160,9 +170,9 @@ Formato da resposta de erro:
 - **Service Worker errors:** capturar falhas de cache e push notification separadamente.
 - Dashboard Sentry com alertas para picos de erros por release.
 
-## Dashboards de Negocio (CloudWatch Dashboards)
+## Dashboards de Negocio
 
-Criar dashboards visuais no CloudWatch (ou Grafana) para acompanhamento:
+Na Fase 1, essas metricas sao exibidas no dashboard admin e super admin do proprio sistema. Na Fase 2 (AWS), criar dashboards adicionais no CloudWatch ou Grafana.
 
 ### Dashboard Operacional
 - Pedidos por hora (grafico de linha)
@@ -181,7 +191,7 @@ Criar dashboards visuais no CloudWatch (ou Grafana) para acompanhamento:
 
 ### Dashboard de Saude
 - Circuit breaker status (open/closed/half-open) por dependencia
-- SQS queue depth por fila
-- DLQ message count (deve ser 0)
+- Bull queue depth por fila (Fase 1) / SQS queue depth (Fase 2)
+- Bull failed jobs count (deve ser 0) / DLQ message count (Fase 2)
 - Redis memory usage e hit rate
-- RDS connections e CPU
+- PostgreSQL connections e CPU

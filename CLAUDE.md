@@ -88,7 +88,7 @@ ochefia/
 └── pnpm-workspace.yaml
 ```
 
-**Containers:** `ochefia-api` (3001), `ochefia-web` (3000), `ochefia-postgres` (5433), `ochefia-redis` (6380).
+**Containers (4 no total):** `ochefia-api` (3001), `ochefia-web` (3000), `ochefia-postgres` (5433), `ochefia-redis` (6380). Logs rodam dentro do container da API (Winston stdout), nao sao container separado. Imagens em filesystem local (volume Docker). Filas via Bull + Redis. Sem AWS na Fase 1 — ver `docs/deploy.md`.
 
 ---
 
@@ -168,6 +168,6 @@ See @docs/websocket-events.md for eventos Socket.IO + rooms
 See @docs/design-system.md for cores, tipografia, componentes, theming
 See @docs/modulos.md for descricao funcional de todos os modulos
 See @docs/fluxos.md for fluxos de navegacao passo a passo de cada perfil (cliente, garcom, admin, KDS, super admin)
-See @docs/deploy.md for deploy AWS, infra cloud, Super Admin
+See @docs/deploy.md for deploy Docker (Fase 1), AWS (Fase 2), Super Admin
 See @docs/seguranca.md for seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload
-See @docs/observabilidade.md for logs, Winston, Correlation ID, X-Ray (APM), metricas de negocio
+See @docs/observabilidade.md for logs, Winston, Correlation ID, metricas de negocio

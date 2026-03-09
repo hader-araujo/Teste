@@ -63,7 +63,7 @@ prototypes/
 - [x] Tela de **Settings** com selecao de tema + color picker + preview do cardapio.
 - [x] Prototipos do cliente devem demonstrar pelo menos 2 temas diferentes (Classico + Escuro) para validar que o theming funciona.
 - [ ] Telas do **Super Admin** — login -> dashboard (KPIs: total estabelecimentos, ativos, suspensos, inadimplentes) -> listagem de estabelecimentos (com filtros de status e inadimplencia, paginacao) -> cadastro de novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) -> detalhe do estabelecimento (dados, status ativo/suspenso, modulos ativos, historico de cobranca) -> cobranca (valor do plano base, registro de pagamentos mensais, status pago/pendente/atrasado, indicadores de inadimplencia) -> modulos (listar modulos disponiveis com valor padrao, habilitar/desabilitar por estabelecimento, valor override) -> monitoramento (métricas de uso por estabelecimento, últimos acessos, pedidos/mês).
-- [ ] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Cobranca, Modulos, Monitoramento.
+- [ ] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Modulos, Monitoramento. Cobranca e acessada dentro do detalhe do estabelecimento (nao e item separado na sidebar).
 - [ ] Interacoes JS Super Admin: filtros na listagem, alterar status de estabelecimento, registrar pagamento, toggle de modulos, ordenação por métricas no monitoramento.
 - [ ] Responsivo Super Admin: desktop-first (mesma diretriz do admin).
 - [ ] Validacao visual aprovada pelo usuario antes de prosseguir para Sprint 0.
@@ -168,8 +168,8 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] CRUD de tags de produto (vegano, sem gluten, picante, etc).
 - [ ] CRUD de produtos com campo `destination` (kitchen/bar/waiter).
 - [ ] StorageService com interface (upload, delete, getUrl).
-- [ ] Implementacao Local (dev) e S3 (prod). Em prod, upload via presigned URL direto ao S3.
-- [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assincrona (Bull/Redis em dev, SQS em prod).
+- [ ] Implementacao Local (filesystem com volume Docker). `STORAGE_DRIVER=local`.
+- [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assincrona (Bull + Redis).
 - [ ] Validacao de MIME type real com `file-type` (nao confiar na extensao). Aceitar apenas JPEG/PNG/WebP.
 - [ ] Sanitizar nome do arquivo (usar UUID como nome no storage).
 - [ ] Upload com preview, reordenacao e remocao.
@@ -199,7 +199,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 **Checklist:**
 - [ ] Sessao de mesa via token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32)`) na URL + cookie.
 - [ ] Verificacao WhatsApp via OTP de 6 digitos. Rate limit: 3 envios por sessao, cooldown 60s. OTP expira em 5min, max 5 tentativas.
-- [ ] Envio de OTP via fila assincrona (Bull/Redis em dev, SQS em prod).
+- [ ] Envio de OTP via fila assincrona (Bull + Redis).
 - [ ] **Tela de escolha apos QR Code:** "Entrar na mesa" ou "Ver cardapio" (read-only sem sessao).
 - [ ] **Modo read-only do cardapio:** acesso publico com precos, sem poder fazer pedidos, sem identificacao.
 - [ ] **Sistema de aprovacao de novos entrantes:** primeiro cliente cria sessao automaticamente; novos entrantes entram em fila de aprovacao apos verificacao WhatsApp.
@@ -241,13 +241,13 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] **Log de atividade de pedidos:** registrar todas as acoes (criacao de pedido, reatribuicao de pessoas) em formato estruturado. Renderizar como texto legivel no frontend (ex: "Picanha - José realizou o pedido / Para: José e Antônio").
 - [ ] **Aba "Historico" na tela de Conta:** exibe log de atividade completo, visivel para todos os membros da mesa.
 - [ ] Pagamento individual Pix com QR Code por pessoa.
-- [ ] Webhook Pix com validacao de assinatura do provedor (HMAC-SHA256 ou mTLS). Processamento via fila assincrona.
+- [ ] Webhook Pix com validacao de assinatura do provedor (HMAC-SHA256 ou mTLS). Processamento via fila assincrona (Bull + Redis).
 - [ ] Whitelist de IPs do provedor Pix como camada extra de seguranca.
 - [ ] Frontend cliente: carrinho com selecao de pessoas.
 - [ ] Frontend cliente: tela "Meus Pedidos" com status e reatribuicao.
 - [ ] Frontend cliente: conta com divisao por pessoa + taxa servico + aba historico.
 - [ ] Frontend cliente: pagamento Pix com QR Code.
-- [ ] QueueService abstraction (interface unica para Bull/Redis em dev e SQS em prod).
+- [ ] QueueService abstraction (interface unica para Bull + Redis; preparada para futura migracao para SQS na Fase 2).
 - [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
 - [ ] Abstracacao de provedor de pagamento (PaymentProviderService) para evitar lock-in.
 
@@ -259,7 +259,7 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 
 **Checklist:**
 - [ ] WebSocket gateway (Socket.IO).
-- [ ] **Redis Adapter (`@socket.io/redis-adapter`)** para sincronizar rooms entre multiplas instancias (obrigatorio para scaling).
+- [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparacao para scaling horizontal na Fase 2).
 - [ ] Rooms: restaurant, kds, kds:kitchen, kds:bar, waiter, admin, session.
 - [ ] Roteamento de pedidos por destino do produto.
 - [ ] Eventos: order:created, kds:new-order, kds:status-update.
@@ -269,7 +269,7 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] Eventos: admin:table-update, admin:metrics-update.
 - [ ] KDS backend: fila de producao e transicoes de status.
 - [ ] Logica de reconexao: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
-- [ ] Testar Socket.IO com 2+ containers simultaneous (validar Redis Adapter funciona corretamente).
+- [ ] Testar Socket.IO com Redis Adapter (validar que eventos passam pelo Redis corretamente).
 - [ ] Cleanup de rooms orfas (sessoes fechadas, clientes desconectados) para prevenir memory leak.
 - [ ] Monitorar contagem de listeners por room para detectar leaks.
 
@@ -295,7 +295,7 @@ Frontend do KDS. Zero endpoints REST novos.
 
 ## Sprint 8 — Staff + Escala + Equipe do Dia
 
-**Endpoints (~9):**
+**Endpoints (~10):**
 - GET `/staff` — Listar funcionarios.
 - POST `/staff` — Criar funcionario (temporary, fixedWeekdays, delivers, pin).
 - POST `/staff/invite` — Enviar convite.
@@ -454,19 +454,33 @@ Frontend puro. Zero endpoints REST novos.
 - [ ] Resiliencia: graceful shutdown (drenar WebSocket, fechar conexoes banco/Redis em SIGTERM).
 - [ ] Seguranca: LGPD — endpoint `DELETE /session/:token/data` para exclusao de dados pessoais.
 - [ ] Seguranca: job agendado para anonimizar dados pessoais de sessoes fechadas ha mais de 90 dias.
-- [ ] Infra: configurar auto-scaling ECS (CPU > 70% scale out, < 30% scale in, min 2, max 10).
-- [ ] Infra: configurar RDS Proxy para connection pooling.
+- [ ] Infra: Docker Compose de producao otimizado (healthchecks, restart policies, resource limits).
 - [ ] Validacao visual final.
 - [ ] axe-core integrado nos testes e2e (Playwright) para validacao automatica de acessibilidade.
 - [ ] Teste de carga multi-tenant: validar isolamento de dados entre restaurantes sob carga (100+ req/s).
 - [ ] Validar database indexing: indices compostos em (restaurantId, status) para orders, (restaurantId, createdAt) para sessoes.
 - [ ] Bundle analysis com `@next/bundle-analyzer` — code splitting por modulo (admin vs cliente vs garcom).
-- [ ] DLQ processing strategy documentada e testada.
+- [ ] Bull failed jobs processing strategy documentada e testada.
 - [ ] Rotacao de JWT_SECRET testada (suportar 2 secrets simultaneos durante transicao).
 
 ---
 
-## Sprint 16+ — Fase 2 (Plataforma + Estoque) — NAO IMPLEMENTAR ATE AVISO EXPLICITO
+## Sprint 16 — Fase 2: Migracao para AWS — NAO IMPLEMENTAR ATE AVISO EXPLICITO
+**Apenas referencia arquitetural. Migrar para AWS quando precisar escalar alem de um servidor.**
+- [ ] **Infra:** Migrar containers para ECS Fargate.
+- [ ] **Infra:** Migrar PostgreSQL para RDS Multi-AZ + RDS Proxy.
+- [ ] **Infra:** Migrar Redis para ElastiCache.
+- [ ] **Infra:** Migrar imagens de filesystem local para S3 + CloudFront.
+- [ ] **Infra:** Migrar filas de Bull + Redis para SQS + DLQ.
+- [ ] **Infra:** Configurar auto-scaling ECS (CPU > 70% scale out, < 30% scale in, min 2, max 10).
+- [ ] **Infra:** CloudWatch (logs, metricas, alarmes) + X-Ray (tracing).
+- [ ] **Infra:** WAF, Secrets Manager, ECR, Route 53, ACM.
+- [ ] **Infra:** CI/CD com deploy para ECR + ECS rolling update.
+- [ ] Ver `docs/deploy.md` secao "Fase 2 — Migracao para AWS" para detalhes completos.
+
+---
+
+## Sprint 17+ — Fase 2: Plataforma + Estoque — NAO IMPLEMENTAR ATE AVISO EXPLICITO
 **Apenas referencia arquitetural. Nao iniciar ate o usuario pedir. Cada item e um modulo extra pago.**
 - [ ] **Modulo Estoque:** Controle de estoque com baixa automatica por pedido.
 - [ ] **Modulo Estoque:** Alertas de estoque minimo em tempo real.

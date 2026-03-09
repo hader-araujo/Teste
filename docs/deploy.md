@@ -1,72 +1,39 @@
-# Deploy — AWS Cloud
+# Deploy
 
-O OChefia roda **exclusivamente na cloud (AWS)**. Nao ha opcao de deploy local ou hibrido.
+## Fase 1 — Docker Only
 
-## Infraestrutura AWS
+A Fase 1 (MVP) roda **inteiramente em Docker**. Sem servicos AWS. O deploy e feito com Docker Compose num servidor (VPS, EC2 simples, DigitalOcean, etc.) com nginx na frente para HTTPS.
 
-| Servico | Uso |
-|---|---|
-| **ECS Fargate** | Containers `api` e `web` (serverless, sem gerenciar EC2) |
-| **RDS PostgreSQL** | Banco de dados com backups automaticos, Multi-AZ |
-| **RDS Proxy** | Connection pooling para Prisma/containers (evita esgotar conexoes do RDS) |
-| **ElastiCache Redis** | Cache de cardapio, sessoes e metricas pre-calculadas. Snapshot habilitado. |
-| **S3 + CloudFront** | Imagens de produtos (upload -> S3, entrega via CDN) |
-| **SQS** | Filas para jobs assincronos (resize de imagem, envio OTP, processamento webhook Pix) |
-| **Route 53** | DNS e dominio |
-| **ACM** | Certificados SSL/TLS (gratuito, renovacao automatica) |
-| **CloudWatch** | Logs, metricas e alarmes |
-| **X-Ray** | Distributed tracing (APM) para diagnosticar latencia |
-| **Secrets Manager** | Credenciais (JWT secret, DB password, API keys) |
-| **WAF** | Protecao contra SQL injection, XSS, DDoS |
-| **ECR** | Registro de imagens Docker |
+### Containers
 
-## Arquitetura
+| Container | Servico | Porta |
+|---|---|---|
+| `ochefia-api` | NestJS (backend + Bull workers) | 3001 |
+| `ochefia-web` | Next.js (frontend) | 3000 |
+| `ochefia-postgres` | PostgreSQL (banco de dados) | 5433 |
+| `ochefia-redis` | Redis (cache + filas Bull + Socket.IO adapter) | 6380 |
+
+**Sao 4 containers. Nada mais.** Logs nao sao um container separado — Winston roda dentro do `ochefia-api` e escreve no stdout. Visualizavel via `docker compose logs -f api`.
+
+### Arquitetura Fase 1
 
 ```
-Internet -> Route 53 -> CloudFront (CDN)
-                     -> ALB -> ECS Fargate (api + web)
-                                  -> RDS PostgreSQL
-                                  -> ElastiCache Redis
-                                  -> S3 (imagens)
+Internet -> nginx (HTTPS/TLS) -> ochefia-web (3000)
+                               -> ochefia-api (3001)
+                                    -> ochefia-postgres (5433)
+                                    -> ochefia-redis (6380)
+                                    -> filesystem local (imagens)
 ```
 
-- **HTTPS/TLS 1.3** obrigatorio (ACM + ALB).
-- Containers rodam em **subnets privadas**. Apenas o ALB e publico.
-- RDS e ElastiCache em subnets privadas, sem acesso externo.
-- **RDS Proxy** entre containers e RDS — essencial para connection pooling com Prisma em ambiente Fargate (cada container abre multiplas conexoes).
-- S3 acessado via CloudFront (origin access control).
+### Imagens (Storage)
+- **Filesystem local** com volume Docker mapeado para o host.
+- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacao: Local.
+- `STORAGE_DRIVER=local`. Resize com `sharp` (thumb 200px, media 600px, original). Max 5MB, JPEG/PNG/WebP.
+- nginx serve os arquivos estaticos do volume mapeado.
 
-## Health Checks
-
-| Endpoint | Uso |
-|---|---|
-| `GET /health` | Health check basico (API respondendo) — usado pelo ALB |
-| `GET /health/ready` | Readiness check (banco + Redis conectados) — usado pelo ECS |
-
-- ALB health check aponta para `/health` com intervalo de 30s.
-- ECS health check aponta para `/health/ready`.
-- Ambos retornam HTTP 200 quando saudavel, 503 quando nao.
-
-## Auto-Scaling
-
-- **ECS Service Auto Scaling** com target tracking:
-  - CPU medio > 70% -> scale out.
-  - CPU medio < 30% -> scale in.
-  - Minimo: 2 tasks (alta disponibilidade). Maximo: 10 tasks.
-- **Cooldown:** 60s para scale out, 300s para scale in.
-- Considerar scaling por request count no ALB para picos de horario (almoco/jantar).
-
-## Graceful Shutdown
-
-- Containers devem tratar `SIGTERM` para:
-  - Parar de aceitar novas requests.
-  - Drenar conexoes WebSocket ativas (30s de grace period).
-  - Fechar conexoes com banco e Redis.
-- ECS `deregistrationDelay` no target group: 30 segundos.
-
-## Filas Assincronas (SQS)
-
-Operacoes pesadas ou com dependencias externas devem ser processadas via fila:
+### Filas Assincronas (Bull + Redis)
+- Operacoes pesadas ou com dependencias externas sao processadas via **Bull** (biblioteca de filas para Node.js) usando o container Redis.
+- Bull roda dentro do proprio container `ochefia-api` (workers em processo).
 
 | Fila | Uso |
 |---|---|
@@ -74,36 +41,68 @@ Operacoes pesadas ou com dependencias externas devem ser processadas via fila:
 | `ochefia-otp-send` | Envio de OTP via WhatsApp API |
 | `ochefia-pix-process` | Processamento de confirmacoes webhook Pix |
 
-- **Dead Letter Queue (DLQ)** para cada fila — mensagens que falharam 3x vao para DLQ para analise.
-- Worker pode rodar como task separada no ECS ou processar inline na API (Bull/Redis como alternativa ao SQS em dev).
+- **Retries:** 3 tentativas com backoff exponencial. Mensagens que falharam 3x vao para estado `failed` no Bull e podem ser inspecionadas via Bull Dashboard (opcional) ou logs.
+- **Persistencia:** Bull usa Redis, entao filas sobrevivem a restart do container da API (desde que o Redis persista dados).
 
-## Ambientes
+### Logs e Observabilidade
+- **Winston** como biblioteca de log no backend. Output em JSON estruturado para stdout.
+- Em producao (Docker): `docker compose logs -f api` para ver logs em tempo real.
+- Em desenvolvimento: console formatado (colorido).
+- **Correlation ID** em toda request (UUID v4) propagado para services, repositorios e eventos WebSocket.
+- Sem CloudWatch, sem X-Ray na Fase 1. Ver `docs/observabilidade.md` para detalhes.
 
-| Ambiente | Uso |
+### Health Checks
+
+| Endpoint | Uso |
 |---|---|
-| `production` | Producao real |
-| `staging` | Testes pre-producao |
-| `development` | Docker Compose local para desenvolvimento (postgres 5433, redis 6380) |
+| `GET /health` | Health check basico (API respondendo) — usado pelo nginx |
+| `GET /health/ready` | Readiness check (banco + Redis conectados) — usado pelo Docker healthcheck |
 
-## Variaveis de Ambiente
+- Docker healthcheck no `docker-compose.yml` aponta para `/health/ready`.
+- nginx health check aponta para `/health`.
+- Ambos retornam HTTP 200 quando saudavel, 503 quando nao.
 
-Gerenciadas via **AWS Secrets Manager** em producao. `.env` local apenas para desenvolvimento.
+### Variaveis de Ambiente
+
+Gerenciadas via `.env` no servidor. Nunca commitar `.env` no repositorio.
 
 Variaveis principais:
-- `DATABASE_URL` — Connection string PostgreSQL (via RDS Proxy)
-- `REDIS_URL` — Connection string Redis (ElastiCache)
+- `DATABASE_URL` — Connection string PostgreSQL
+- `REDIS_URL` — Connection string Redis
 - `JWT_SECRET` — Segredo para tokens JWT
-- `S3_BUCKET` — Bucket para imagens
-- `CLOUDFRONT_URL` — URL do CDN
+- `STORAGE_DRIVER=local` — Driver de storage (filesystem local)
+- `UPLOAD_DIR` — Diretorio de upload (volume Docker mapeado)
 - `WHATSAPP_API_KEY` — API para envio de OTP
 - `PIX_WEBHOOK_SECRET` — Segredo para validar assinatura do webhook Pix
-- `SQS_IMAGE_RESIZE_URL` — URL da fila SQS de resize
-- `SQS_OTP_SEND_URL` — URL da fila SQS de OTP
-- `SQS_PIX_PROCESS_URL` — URL da fila SQS de Pix
+
+### Deploy em Producao (Fase 1)
+
+1. Servidor com Docker e Docker Compose instalados (VPS, EC2, DigitalOcean, etc.).
+2. nginx como reverse proxy com HTTPS (Let's Encrypt / Certbot).
+3. `docker compose up -d` para subir os 4 containers.
+4. Volume Docker mapeado para imagens (`./uploads:/app/uploads`).
+5. Backup do PostgreSQL via `pg_dump` agendado (cron job no host).
+6. Backup do volume de imagens via rsync ou similar.
+
+### Graceful Shutdown
+
+- Containers devem tratar `SIGTERM` para:
+  - Parar de aceitar novas requests.
+  - Drenar conexoes WebSocket ativas (30s de grace period).
+  - Fechar conexoes com banco e Redis.
+- Docker Compose `stop_grace_period: 30s`.
+
+### Scaling na Fase 1
+
+- **Vertical:** aumentar recursos do servidor (CPU, RAM).
+- Sem auto-scaling horizontal. Se necessario escalar, migrar para Fase 2 (AWS).
+- Para a maioria dos restaurantes, um servidor com 2 vCPU / 4GB RAM e suficiente.
+
+---
 
 ## CI/CD Pipeline (GitHub Actions)
 
-Pipeline automatizado para garantir qualidade e deploys seguros:
+Pipeline automatizado para garantir qualidade. Funciona igual nas duas fases.
 
 ### Pull Request (CI)
 - **Trigger:** todo PR para `main` ou `develop`.
@@ -117,58 +116,16 @@ Pipeline automatizado para garantir qualidade e deploys seguros:
 - **Branch protection:** PR so pode ser mergeado com CI verde. Minimo 1 approval.
 - **Checks obrigatorios:** lint, test, audit.
 
-### Deploy Staging (CD)
-- **Trigger:** merge para `develop`.
+### Deploy Producao (Fase 1)
+- **Trigger:** merge para `main`.
 - **Steps:**
   1. CI completo (mesmos steps acima).
   2. Build das imagens Docker (`api` + `web`).
-  3. Push para ECR.
-  4. Deploy via ECS service update (rolling update).
-  5. Smoke test automatico (`/health/ready` retorna 200).
-- **Rollback:** se smoke test falha, reverte para task definition anterior.
+  3. SSH no servidor + `docker compose pull && docker compose up -d`.
+  4. Smoke test automatico (`/health/ready` retorna 200).
+- **Rollback:** `docker compose down && docker compose up -d` com imagem anterior (tag).
 
-### Deploy Production (CD)
-- **Trigger:** merge para `main` (manual ou via release tag).
-- **Steps:**
-  1. CI completo.
-  2. Testes e2e (Playwright) contra staging.
-  3. Build + push ECR com tag de versao.
-  4. Deploy ECS com rolling update (minHealthyPercent: 100, maxPercent: 200).
-  5. Smoke test + health check.
-- **Rollback automatico:** se health check falha por 3 minutos, ECS reverte.
-- **Canary (futuro):** avaliar weighted target groups no ALB para deploys graduais.
-
-## Processamento de Dead Letter Queue (DLQ)
-
-Mensagens que falharam 3x vao para DLQ e precisam de tratamento:
-
-- **Alarme CloudWatch:** DLQ com mensagens > 0 dispara alarme imediato (SNS -> email/Slack).
-- **Processo de reprocessamento:**
-  1. Engenheiro analisa mensagens na DLQ via console AWS ou CLI.
-  2. Identifica causa raiz (bug no worker, servico externo fora, dados invalidos).
-  3. Corrige o problema.
-  4. Move mensagens da DLQ de volta para fila principal (`RedrivePolicy`).
-- **Retencao DLQ:** 14 dias (tempo suficiente para analise antes de perder mensagens).
-- **Metricas:** monitorar `ApproximateNumberOfMessagesVisible` em cada DLQ.
-
-## Database Failover e Resiliencia
-
-### RDS Multi-AZ
-- RDS PostgreSQL configurado com **Multi-AZ** para alta disponibilidade.
-- Failover automatico em caso de falha da instancia primaria (30-60 segundos).
-- **Comportamento do app durante failover:**
-  - Conexoes existentes sao interrompidas.
-  - RDS Proxy absorve parte do impacto (mantem conexoes do lado do app).
-  - Prisma deve ter `connect_timeout` configurado (10s) e retry logic.
-  - Requests em andamento retornam 503; frontend exibe "Tente novamente em instantes".
-  - WebSocket permanece conectado (nao depende do banco diretamente).
-- **Backups:** automaticos diarios com retencao de 7 dias + snapshots manuais antes de migrations.
-
-### Connection Pooling
-- **RDS Proxy:** obrigatorio em producao. Prisma em Fargate abre muitas conexoes (1 por query concorrente).
-- Configurar `connection_limit` no Prisma datasource (ex: 5 por container).
-- RDS Proxy gerencia o pool real (max connections = RDS instance class limit).
-- Monitorar `DatabaseConnections` no CloudWatch.
+---
 
 ## Circuit Breaker — Configuracao
 
@@ -178,18 +135,128 @@ Usar `opossum` para proteger chamadas a dependencias externas:
 |---|---|---|---|
 | **WhatsApp API** | 10s | 5 falhas em 30s | 60s |
 | **Pix Provider** | 15s | 3 falhas em 60s | 120s |
-| **S3 Upload** | 30s | 5 falhas em 60s | 60s |
 
 - **Estado aberto:** retorna erro amigavel imediato + loga `warn`.
 - **Estado half-open:** permite 1 request de teste. Se sucesso, fecha o circuit.
-- **Metricas:** publicar estado do circuit breaker no CloudWatch (open/closed/half-open).
+- **Metricas:** logar estado do circuit breaker (open/closed/half-open) via Winston.
 
 ## State Recovery (Timers e Status)
 
 - **KDS timers:** tempo de preparo baseado em `createdAt` do pedido no banco, **nunca em timer em memoria**. Se container reinicia, KDS recalcula tempo decorrido a partir do timestamp.
 - **Pedidos em "preparing":** ao iniciar, worker/KDS registra `startedAt` no banco. Timer no frontend e calculado como `now - startedAt`.
 - **Sessoes WebSocket:** ao reconectar, cliente faz fetch REST para sincronizar estado completo (nao depende de replay de eventos).
-- **Filas SQS:** mensagens com `visibilityTimeout` adequado (5min para image-resize, 2min para OTP, 5min para Pix). Se worker morre, mensagem volta para fila automaticamente.
+- **Filas Bull:** jobs com retry automatico. Se worker morre, job volta para fila quando timeout expira.
+
+---
+
+## Fase 2 — Migracao para AWS (apos MVP validado)
+
+**NAO IMPLEMENTAR ATE AVISO EXPLICITO.** Apenas referencia arquitetural para quando o projeto precisar escalar.
+
+### Infraestrutura AWS
+
+| Servico | Substitui (Fase 1) | Uso |
+|---|---|---|
+| **ECS Fargate** | Docker Compose no servidor | Containers `api` e `web` (serverless, sem gerenciar EC2) |
+| **RDS PostgreSQL** | Container PostgreSQL | Banco com backups automaticos, Multi-AZ |
+| **RDS Proxy** | — (novo) | Connection pooling para Prisma/containers |
+| **ElastiCache Redis** | Container Redis | Cache, filas, Socket.IO adapter. Snapshot habilitado |
+| **S3 + CloudFront** | Filesystem local | Imagens de produtos (upload -> S3, entrega via CDN) |
+| **SQS** | Bull + Redis | Filas para jobs assincronos (substituir Bull por SQS) |
+| **Route 53** | DNS do provedor | DNS e dominio |
+| **ACM** | Let's Encrypt | Certificados SSL/TLS (gratuito, renovacao automatica) |
+| **CloudWatch** | Winston stdout | Logs, metricas e alarmes |
+| **X-Ray** | — (novo) | Distributed tracing (APM) |
+| **Secrets Manager** | `.env` no servidor | Credenciais (JWT secret, DB password, API keys) |
+| **WAF** | — (novo) | Protecao contra SQL injection, XSS, DDoS |
+| **ECR** | — (novo) | Registro de imagens Docker |
+
+### Arquitetura AWS
+
+```
+Internet -> Route 53 -> CloudFront (CDN)
+                     -> ALB -> ECS Fargate (api + web)
+                                  -> RDS PostgreSQL (via RDS Proxy)
+                                  -> ElastiCache Redis
+                                  -> S3 (imagens)
+```
+
+- **HTTPS/TLS 1.3** obrigatorio (ACM + ALB).
+- Containers rodam em **subnets privadas**. Apenas o ALB e publico.
+- RDS e ElastiCache em subnets privadas, sem acesso externo.
+- **RDS Proxy** entre containers e RDS — essencial para connection pooling com Prisma em ambiente Fargate.
+- S3 acessado via CloudFront (origin access control).
+
+### Auto-Scaling
+
+- **ECS Service Auto Scaling** com target tracking:
+  - CPU medio > 70% -> scale out.
+  - CPU medio < 30% -> scale in.
+  - Minimo: 2 tasks (alta disponibilidade). Maximo: 10 tasks.
+- **Cooldown:** 60s para scale out, 300s para scale in.
+- Considerar scaling por request count no ALB para picos de horario (almoco/jantar).
+
+### Filas Assincronas (SQS)
+
+Na Fase 2, substituir Bull por SQS para maior resiliencia e scaling:
+
+| Fila | Uso |
+|---|---|
+| `ochefia-image-resize` | Resize de imagens apos upload (Sharp) |
+| `ochefia-otp-send` | Envio de OTP via WhatsApp API |
+| `ochefia-pix-process` | Processamento de confirmacoes webhook Pix |
+
+- **Dead Letter Queue (DLQ)** para cada fila — mensagens que falharam 3x vao para DLQ.
+- **Alarme CloudWatch:** DLQ com mensagens > 0 dispara alarme imediato (SNS -> email/Slack).
+- **Retencao DLQ:** 14 dias.
+
+### Deploy CD (AWS)
+
+#### Deploy Staging
+- **Trigger:** merge para `develop`.
+- Build das imagens Docker → push para ECR → deploy via ECS rolling update → smoke test.
+- **Rollback:** se smoke test falha, reverte para task definition anterior.
+
+#### Deploy Production
+- **Trigger:** merge para `main`.
+- CI completo → testes e2e (Playwright) contra staging → build + push ECR com tag de versao → deploy ECS rolling update.
+- **Rollback automatico:** se health check falha por 3 minutos, ECS reverte.
+
+### Database Failover e Resiliencia
+
+#### RDS Multi-AZ
+- Failover automatico em caso de falha (30-60 segundos).
+- RDS Proxy absorve parte do impacto.
+- Prisma com `connect_timeout` configurado (10s) e retry logic.
+- **Backups:** automaticos diarios com retencao de 7 dias + snapshots manuais antes de migrations.
+
+#### Connection Pooling
+- **RDS Proxy:** obrigatorio em producao AWS. Prisma em Fargate abre muitas conexoes.
+- `connection_limit` no Prisma datasource (ex: 5 por container).
+- Monitorar `DatabaseConnections` no CloudWatch.
+
+### Variaveis de Ambiente (AWS)
+
+Gerenciadas via **AWS Secrets Manager**. Variaveis adicionais:
+- `DATABASE_URL` — Connection string PostgreSQL (via RDS Proxy)
+- `REDIS_URL` — Connection string Redis (ElastiCache)
+- `S3_BUCKET` — Bucket para imagens
+- `CLOUDFRONT_URL` — URL do CDN
+- `STORAGE_DRIVER=s3` — Driver de storage (S3)
+- `SQS_IMAGE_RESIZE_URL` — URL da fila SQS de resize
+- `SQS_OTP_SEND_URL` — URL da fila SQS de OTP
+- `SQS_PIX_PROCESS_URL` — URL da fila SQS de Pix
+
+### Processamento de Dead Letter Queue (DLQ)
+
+- **Alarme CloudWatch:** DLQ com mensagens > 0 dispara alarme imediato.
+- **Processo de reprocessamento:**
+  1. Engenheiro analisa mensagens na DLQ via console AWS ou CLI.
+  2. Identifica causa raiz.
+  3. Corrige o problema.
+  4. Move mensagens da DLQ de volta para fila principal (`RedrivePolicy`).
+
+---
 
 ## Super Admin — Painel de Controle OChefia
 
@@ -213,13 +280,11 @@ Tela exclusiva da equipe OChefia (role `SUPER_ADMIN`). Nao acessivel por estabel
 | Modulo | Fase | Descricao |
 |---|---|---|
 | **Padrao** | 1 (MVP) | Cardapio, pedidos, KDS, garcom, faturamento, mesas |
-| **Estoque** | 2 | Controle de estoque, ingredientes, baixa automatica, alertas |
-| **Explorar** | 2 | App consumidor, listagem, reserva, fidelidade |
-| **NFC-e/SAT** | 2 | Emissao fiscal |
-
-Novos modulos serao adicionados conforme demanda.
+| **Estoque** | 2+ | Controle de estoque, ingredientes, baixa automatica, alertas |
+| **Explorar** | 2+ | App consumidor, listagem, reserva, fidelidade |
+| **NFC-e/SAT** | 2+ | Emissao fiscal |
 
 ### Monitoramento
-- Visualizar logs de qualquer estabelecimento (via CloudWatch).
-- Metricas de uso: pedidos/mes, mesas ativas, usuarios.
-- Ultimo acesso de cada estabelecimento.
+- Metricas de uso por estabelecimento (pedidos/mes, mesas ativas).
+- Ultimo acesso.
+- Fase 1: logs via `docker compose logs`. Fase 2: CloudWatch.

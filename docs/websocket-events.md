@@ -53,11 +53,10 @@ export const SOCKET_EVENTS = {
 | Admin | `restaurant:{id}:admin` | OWNER/MANAGER |
 | Sessao cliente | `session:{token}` | Cliente da mesa |
 
-## Scaling com Multiplos Containers
+## Redis Adapter (preparacao para scaling)
 
-- **Obrigatorio:** usar `@socket.io/redis-adapter` para sincronizar rooms e eventos entre multiplas instancias ECS.
-- Sem o Redis Adapter, containers diferentes nao compartilham eventos — um pedido criado no container A nao chega ao KDS no container B.
-- Configurar o adapter apontando para o mesmo ElastiCache Redis usado pelo cache.
+- Configurar `@socket.io/redis-adapter` desde a Fase 1, apontando para o container Redis. Na Fase 1 ha apenas 1 instancia da API, mas o adapter ja fica preparado para scaling horizontal na Fase 2.
+- Na Fase 2 (AWS): multiplas instancias ECS compartilham rooms e eventos via ElastiCache Redis. Sem o Redis Adapter, containers diferentes nao compartilham eventos.
 
 ## Reconexao e Resiliencia
 
@@ -76,7 +75,7 @@ export const SOCKET_EVENTS = {
 ### Prevencao de Memory Leak
 - Limitar listeners por socket: `socket.setMaxListeners(20)`. Logar `warn` se exceder.
 - Remover event listeners no `disconnect` (Socket.IO faz por padrao, mas verificar listeners customizados).
-- Monitorar memoria do processo Node.js (RSS) via CloudWatch — alarme se > 80% do limite do container.
+- Monitorar memoria do processo Node.js (RSS) via logs Winston (Fase 1) ou CloudWatch (Fase 2) — alarme se > 80% do limite do container.
 - Em ambiente com 100+ sessoes simultaneas (bar lotado), monitorar contagem total de sockets e rooms.
 
 ### Backpressure

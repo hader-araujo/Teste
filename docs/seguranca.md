@@ -61,21 +61,21 @@
 - Validar MIME type real do arquivo com biblioteca `file-type` (nao confiar apenas na extensao).
 - Aceitar apenas: `image/jpeg`, `image/png`, `image/webp`.
 - Tamanho maximo: 5MB por arquivo, 5 arquivos por request.
-- Sanitizar nome do arquivo (remover caracteres especiais, usar UUID como nome no S3).
+- Sanitizar nome do arquivo (remover caracteres especiais, usar UUID como nome no storage).
 
 ## Protecoes
 - **Rate Limiting:** Por IP via `express-rate-limit`. Rate limits especificos para endpoints sensiveis (OTP, login, clock-in, webhook).
 - **Validacao:** `class-validator` + `ValidationPipe` global.
 - **LGPD:** Dados sensiveis criptografados. Endpoint de exclusao de dados do cliente obrigatorio (ver secao LGPD abaixo).
-- **HTTPS/TLS 1.3** obrigatorio em producao.
-- **WAF:** Web Application Firewall contra injecao SQL, XSS e DDoS.
+- **HTTPS/TLS 1.3** obrigatorio em producao (nginx + Let's Encrypt na Fase 1, ACM + ALB na Fase 2).
+- **WAF:** Web Application Firewall contra injecao SQL, XSS e DDoS (Fase 2 — AWS WAF. Na Fase 1, protecao via Helmet + rate limiting + validacao de input).
 - **Helmet:** Headers de seguranca HTTP (X-Content-Type-Options, X-Frame-Options, CSP, etc).
 - **CORS:** Configurado para aceitar apenas origens conhecidas (dominio do frontend).
 
 ## Content Security Policy (CSP)
 - Configurar CSP via Helmet com politica restritiva:
   - `default-src 'self'`
-  - `img-src 'self' https://*.cloudfront.net data:` (imagens do CDN + placeholders)
+  - `img-src 'self' data:` (Fase 1: imagens servidas pelo proprio servidor. Fase 2: adicionar `https://*.cloudfront.net` para CDN)
   - `connect-src 'self' wss://*.ochefia.com.br` (WebSocket)
   - `script-src 'self'` (sem inline scripts)
   - `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com` (Tailwind gera inline styles)
@@ -98,7 +98,8 @@
 ## Rotacao de Secrets
 - **JWT_SECRET:** rotacao a cada 90 dias. Suportar dois secrets simultaneos durante periodo de transicao (validar token com secret atual e anterior).
 - **PIX_WEBHOOK_SECRET:** rotacao conforme politica do provedor Pix.
-- Usar **AWS Secrets Manager rotation** com Lambda para rotacao automatica.
+- **Fase 1:** rotacao manual — atualizar `.env` no servidor e reiniciar containers.
+- **Fase 2 (AWS):** usar AWS Secrets Manager rotation com Lambda para rotacao automatica.
 - Nunca hardcodar secrets — mesmo em testes, usar variaveis de ambiente.
 
 ## Prisma e SQL Injection

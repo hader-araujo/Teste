@@ -164,12 +164,13 @@ Acesso: Equipe interna OChefia (role `SUPER_ADMIN`). **Nao acessivel por estabel
 ### Monitoramento
 - Metricas de uso por estabelecimento (pedidos/mes, mesas ativas).
 - Ultimo acesso.
-- Acesso a logs via CloudWatch.
+- Acesso a logs via `docker compose logs` (Fase 1) ou CloudWatch (Fase 2).
 
 ---
 
 ## Storage de Imagens
 
-- **S3 + CloudFront** em producao. Filesystem local apenas em desenvolvimento.
-- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local (dev) e S3 (prod).
+- **Fase 1:** Filesystem local com volume Docker mapeado. nginx serve os arquivos estaticos.
+- **Fase 2 (AWS):** S3 + CloudFront (upload -> S3, entrega via CDN).
+- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local (Fase 1) e S3 (Fase 2).
 - `STORAGE_DRIVER=local|s3`. Resize com `sharp` (thumb 200px, media 600px, original). Max 5MB, JPEG/PNG/WebP.

@@ -110,7 +110,7 @@ Um layout unico para os quatro seria generico demais e ruim para todos. Cada int
 
 ## Diretriz Visual por Interface
 
-As tres interfaces compartilham a paleta base (orange-600 como primaria, cores semanticas) e a tipografia (Inter). Mas cada uma aplica esses fundamentos de forma diferente — superficies, elevacao, densidade, componentes e hierarquia visual variam.
+As quatro interfaces compartilham a paleta base (orange-600 como primaria, cores semanticas) e a tipografia (Inter). Mas cada uma aplica esses fundamentos de forma diferente — superficies, elevacao, densidade, componentes e hierarquia visual variam.
 
 ### 1. Cliente — Visual de App de Delivery Premium
 
@@ -247,7 +247,9 @@ O Staff se subdivide em 3 contextos com variacoes:
 
 **Tipografia:** mesma escala do cliente, mas com enfase em numeros grandes (numero da mesa, valores).
 
-#### 2c. Caixa — Layout de Tablet
+#### 2c. Caixa — Layout de Tablet (Referencia Futura)
+
+> **Nota:** O modulo Caixa nao faz parte da Fase 1. Esta secao e apenas referencia arquitetural para quando o modulo for implementado. Na Fase 1, o fechamento de conta e feito pelo garcom (via detalhe da mesa) ou pelo cliente (via pagamento Pix individual).
 
 **Superficies e Cores:** mesmas do garcom (light mode), mas layout otimizado para tablet landscape.
 
