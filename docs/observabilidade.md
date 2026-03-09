@@ -133,7 +133,7 @@ Erros retornados pela API devem incluir codigo estruturado para facilitar debugg
 | Prefixo | Modulo | Exemplo |
 |---|---|---|
 | `AUTH_` | Autenticacao | `AUTH_001: Credenciais invalidas`, `AUTH_002: Token expirado`, `AUTH_003: Refresh token invalido` |
-| `SESSION_` | Sessao | `SESSION_001: Token de sessao invalido`, `SESSION_002: Sessao ja fechada`, `SESSION_003: OTP expirado` |
+| `SESSION_` | Sessao | `SESSION_001: Token de sessao invalido`, `SESSION_002: Sessao ja fechada`, `SESSION_003: OTP expirado`, `SESSION_004: Aprovacao pendente`, `SESSION_005: Solicitacao ja processada`, `SESSION_006: Cooldown de lembrete ativo` |
 | `ORDER_` | Pedidos | `ORDER_001: Item indisponivel`, `ORDER_002: Sessao sem pessoas cadastradas`, `ORDER_003: Pessoa invalida` |
 | `PAY_` | Pagamentos | `PAY_001: Sessao sem pedidos`, `PAY_002: Pessoa ja pagou`, `PAY_003: Webhook timeout`, `PAY_004: Assinatura invalida` |
 | `MENU_` | Cardapio | `MENU_001: Categoria nao encontrada`, `MENU_002: Produto sem destino`, `MENU_003: Imagem invalida` |

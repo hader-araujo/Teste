@@ -177,13 +177,18 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 
 ---
 
-## Sprint 4 — Sessao de Mesa + WhatsApp OTP + Cardapio Frontend
+## Sprint 4 — Sessao de Mesa + WhatsApp OTP + Aprovacao + Cardapio Frontend
 
-**Endpoints (~9):**
+**Endpoints (~14):**
 - GET `/session/:token` — Dados da sessao.
-- POST `/session/:token/join` — Cliente entrar na sessao.
+- POST `/session/:token/join` — Solicitar entrada na sessao (cria sessao se primeira pessoa, ou cria solicitacao pendente).
 - POST `/session/:token/phone` — Enviar OTP via WhatsApp.
 - POST `/session/:token/phone/verify` — Confirmar OTP.
+- GET `/session/:token/join/pending` — Listar solicitacoes pendentes de aprovacao.
+- PATCH `/session/:token/join/:requestId/approve` — Aprovar novo membro.
+- PATCH `/session/:token/join/:requestId/reject` — Rejeitar novo membro.
+- POST `/session/:token/join/:requestId/remind` — Reenviar notificacao (cooldown 60s).
+- GET `/session/:token/join/:requestId/status` — Verificar status da solicitacao.
 - GET `/session/:token/people` — Listar pessoas na sessao.
 - POST `/session/:token/people` — Adicionar pessoa na mesa.
 - DELETE `/session/:token/people/:personId` — Remover pessoa.
@@ -194,6 +199,13 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Sessao de mesa via token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32)`) na URL + cookie.
 - [ ] Verificacao WhatsApp via OTP de 6 digitos. Rate limit: 3 envios por sessao, cooldown 60s. OTP expira em 5min, max 5 tentativas.
 - [ ] Envio de OTP via fila assincrona (Bull/Redis em dev, SQS em prod).
+- [ ] **Tela de escolha apos QR Code:** "Entrar na mesa" ou "Ver cardapio" (read-only sem sessao).
+- [ ] **Modo read-only do cardapio:** acesso publico com precos, sem poder fazer pedidos, sem identificacao.
+- [ ] **Sistema de aprovacao de novos entrantes:** primeiro cliente cria sessao automaticamente; novos entrantes entram em fila de aprovacao apos verificacao WhatsApp.
+- [ ] **Tela de espera para entrantes:** mensagem de aguardo + botao "Lembrar mesa" (cooldown 60s) + botao "Ver cardapio" (read-only) + botao "Cancelar".
+- [ ] **Notificacao de novo entrante:** push notification + alerta in-app para membros aprovados.
+- [ ] **Tela de pessoas com aprovacao:** exibir entrantes pendentes com botoes aprovar/rejeitar.
+- [ ] Reentrada: reconhecer membro ja aprovado via cookie + telefone verificado.
 - [ ] CRUD de pessoas na mesa.
 - [ ] Cache do cardapio no Redis com TTL de 5min + invalidacao explicita no CRUD de produtos/categorias.
 - [ ] Frontend cliente: tela WhatsApp.
@@ -202,13 +214,12 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Frontend cliente: detalhe do produto.
 - [ ] Cache stampede prevention: lock-based refresh ou stale-while-revalidate no cache do cardapio.
 - [ ] Sanitizacao de nomes de pessoas na mesa contra XSS.
-- [ ] Mitigacao de session sharing: binding do token ao cookie do dispositivo.
 
 ---
 
 ## Sprint 5 — Carrinho + Pedidos + Pagamento Pix
 
-**Endpoints (~10):**
+**Endpoints (~11):**
 - POST `/orders` — Criar pedido (cada item com `personIds[]` obrigatorio).
 - GET `/orders` — Listar pedidos (admin, filtros).
 - GET `/orders/:id` — Detalhes do pedido.
@@ -220,17 +231,20 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - POST `/payments/pix/webhook` — Webhook de confirmacao Pix.
 - GET `/payments/session/:token` — Listar pagamentos da sessao.
 - GET `/session/:token/bill` — Conta detalhada com divisao por pessoa.
+- GET `/session/:token/activity-log` — Log de atividade de pedidos e reatribuicoes.
 
 **Checklist:**
 - [ ] Criacao de pedido com selecao de pessoas por item.
 - [ ] Sub-pedidos automaticos por destino (cozinha/bar/garcom) com sufixo.
 - [ ] Status: Na fila -> Preparando -> Pronto -> Entregue.
+- [ ] **Log de atividade de pedidos:** registrar todas as acoes (criacao de pedido, reatribuicao de pessoas) em formato estruturado. Renderizar como texto legivel no frontend (ex: "Picanha - José realizou o pedido / Para: José e Antônio").
+- [ ] **Aba "Historico" na tela de Conta:** exibe log de atividade completo, visivel para todos os membros da mesa.
 - [ ] Pagamento individual Pix com QR Code por pessoa.
 - [ ] Webhook Pix com validacao de assinatura do provedor (HMAC-SHA256 ou mTLS). Processamento via fila assincrona.
 - [ ] Whitelist de IPs do provedor Pix como camada extra de seguranca.
 - [ ] Frontend cliente: carrinho com selecao de pessoas.
 - [ ] Frontend cliente: tela "Meus Pedidos" com status e reatribuicao.
-- [ ] Frontend cliente: conta com divisao por pessoa + taxa servico.
+- [ ] Frontend cliente: conta com divisao por pessoa + taxa servico + aba historico.
 - [ ] Frontend cliente: pagamento Pix com QR Code.
 - [ ] QueueService abstraction (interface unica para Bull/Redis em dev e SQS em prod).
 - [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
@@ -249,6 +263,7 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] Roteamento de pedidos por destino do produto.
 - [ ] Eventos: order:created, kds:new-order, kds:status-update.
 - [ ] Eventos: client:order-update, client:session-update.
+- [ ] Eventos de aprovacao: session:join-request, session:join-approved, session:join-rejected, session:join-remind.
 - [ ] Eventos: waiter:order-ready, waiter:call, waiter:new-order.
 - [ ] Eventos: admin:table-update, admin:metrics-update.
 - [ ] KDS backend: fila de producao e transicoes de status.

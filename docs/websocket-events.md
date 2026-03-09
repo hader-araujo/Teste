@@ -25,6 +25,12 @@ export const SOCKET_EVENTS = {
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
   CLIENT_SESSION_UPDATE: 'client:session-update',  // Conta atualizada
 
+  // Aprovacao de entrada na mesa
+  SESSION_JOIN_REQUEST: 'session:join-request',     // Novo entrante quer entrar na mesa (notifica membros aprovados)
+  SESSION_JOIN_APPROVED: 'session:join-approved',   // Solicitacao aprovada (notifica o entrante)
+  SESSION_JOIN_REJECTED: 'session:join-rejected',   // Solicitacao rejeitada (notifica o entrante)
+  SESSION_JOIN_REMIND: 'session:join-remind',       // Lembrete de aprovacao pendente (reenvio pelo entrante)
+
   // Servidor -> Admin
   ADMIN_TABLE_UPDATE: 'admin:table-update',        // Status de mesa mudou
   ADMIN_METRICS_UPDATE: 'admin:metrics-update',    // Metricas atualizaram

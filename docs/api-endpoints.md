@@ -39,14 +39,20 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/session/:token` | Dados da sessao (pedidos, conta) |
-| POST | `/session/:token/join` | Cliente entrar na sessao |
+| POST | `/session/:token/join` | Solicitar entrada na sessao. Se mesa sem sessao, cria sessao (primeiro cliente). Se mesa com sessao ativa, cria solicitacao pendente de aprovacao. Requer WhatsApp verificado |
 | POST | `/session/:token/phone` | Enviar OTP via WhatsApp para o numero informado |
 | POST | `/session/:token/phone/verify` | Confirmar OTP e salvar numero verificado na sessao |
+| GET | `/session/:token/join/pending` | Listar solicitacoes pendentes de aprovacao (visivel para membros aprovados) |
+| PATCH | `/session/:token/join/:requestId/approve` | Aprovar entrada de novo membro (qualquer membro aprovado pode aprovar) |
+| PATCH | `/session/:token/join/:requestId/reject` | Rejeitar entrada de novo membro |
+| POST | `/session/:token/join/:requestId/remind` | Reenviar notificacao de aprovacao para membros da mesa (cooldown 60s) |
+| GET | `/session/:token/join/:requestId/status` | Verificar status da solicitacao (pending/approved/rejected) — usado por quem esta aguardando |
 | GET | `/session/:token/people` | Listar pessoas cadastradas na sessao |
 | POST | `/session/:token/people` | Adicionar pessoa na mesa (body: `{ name }`) |
 | DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa |
 | PATCH | `/session/:token/service-charge` | Desabilitar/habilitar taxa de servico (garcom only) |
 | GET | `/session/:token/bill` | Conta detalhada com divisao por pessoa + taxa de servico |
+| GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuicoes. Retorna lista de acoes em formato legivel (quem pediu, quem modificou, de/para). Visivel para todos os membros da mesa |
 | DELETE | `/session/:token/data` | LGPD: exclui dados pessoais da sessao (telefone, nomes). Pedidos/pagamentos sao anonimizados |
 
 ## Menu

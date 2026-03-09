@@ -167,6 +167,7 @@ See @docs/api-endpoints.md for todos os endpoints REST
 See @docs/websocket-events.md for eventos Socket.IO + rooms
 See @docs/design-system.md for cores, tipografia, componentes, theming
 See @docs/modulos.md for descricao funcional de todos os modulos
+See @docs/fluxos.md for fluxos de navegacao passo a passo de cada perfil (cliente, garcom, admin, KDS, super admin)
 See @docs/deploy.md for deploy AWS, infra cloud, Super Admin
 See @docs/seguranca.md for seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload
 See @docs/observabilidade.md for logs, Winston, Correlation ID, X-Ray (APM), metricas de negocio

@@ -11,7 +11,15 @@
 - **Token da sessao deve ser criptograficamente seguro:** UUID v4 (128 bits) ou `crypto.randomBytes(32).toString('hex')`. Nunca sequencial ou previsivel.
 - Token expira automaticamente quando a sessao e fechada. Tokens de sessoes fechadas nao podem ser reutilizados.
 - Sem login do cliente no MVP. Validado por IP + cookie como camada extra.
-- **Mitigacao de session sharing:** token na URL pode ser compartilhado (ex: link enviado por WhatsApp). Binding do token ao cookie do dispositivo como camada extra — se o cookie nao bate, exigir re-verificacao WhatsApp.
+
+## Aprovacao de Entrada na Mesa
+- **QR Code fixo por mesa.** Qualquer pessoa pode escanear, mas entrar na sessao requer aprovacao.
+- **Primeiro cliente:** escaneia QR + verifica WhatsApp → cria sessao e entra automaticamente como primeiro membro aprovado.
+- **Novos entrantes:** escaneia QR + verifica WhatsApp → entra em fila de aprovacao. **Nao tem acesso a nenhum dado da mesa ate ser aprovado.** Qualquer membro ja aprovado pode aprovar ou rejeitar.
+- **Reentrada:** se alguem ja aprovado escaneia o QR novamente, abre o sistema normalmente (reconhecido via cookie + telefone verificado).
+- **Mitigacao de session sharing:** o sistema de aprovacao substitui a dependencia exclusiva de cookie binding. Mesmo que o link do QR seja compartilhado (ex: enviado por WhatsApp), o novo entrante precisa ser aprovado por quem esta na mesa.
+- **Notificacao de aprovacao:** membros recebem push notification + alerta in-app. O entrante pode reenviar notificacao ("Lembrar mesa") com cooldown de 60 segundos.
+- **Modo read-only:** qualquer pessoa pode ver o cardapio (com precos) sem entrar na sessao. Acesso publico, sem dados da mesa.
 
 ## Identificacao via WhatsApp
 - Ao abrir sessao, cliente informa numero -> sistema envia OTP via WhatsApp -> confirma -> salva `phone` + `phoneVerified = true`.

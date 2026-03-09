@@ -43,26 +43,77 @@ Acesso: Cozinha e Bar via tablet ou monitor.
 ## Modulo Cliente (Cardapio Digital) — Rota: `/[slug]/mesa/[mesaId]`
 Acesso: Cliente via QR Code no navegador.
 
-- **Identificacao via WhatsApp (obrigatoria):** OTP de 6 digitos via WhatsApp. Salva `phone` + `phoneVerified = true`.
+### QR Code e Entrada na Mesa
+- Cada mesa fisica tem um **QR Code fixo** impresso e colado. O QR Code gera URL permanente `/{slug}/mesa/{mesaId}`.
+- Ao escanear o QR Code, o cliente ve duas opcoes: **"Entrar na mesa"** ou **"Ver cardapio"**.
+- **Ver cardapio (modo read-only):** acessa o cardapio completo com precos, sem criar sessao, sem identificacao. Nao pode fazer pedidos. Util para ver precos antes de sentar ou enquanto aguarda aprovacao.
+
+### Abertura de Sessao (primeiro cliente)
+- Se a mesa nao tem sessao ativa, o primeiro cliente a escolher "Entrar na mesa" inicia o fluxo de abertura:
+  1. Informa numero de WhatsApp → recebe OTP 6 digitos → confirma.
+  2. Sessao criada com token criptograficamente seguro. Cliente se torna o primeiro membro aprovado.
+  3. Cadastra nomes de quem esta na mesa (incluindo o proprio).
+
+### Aprovacao de Novos Entrantes (REGRA CRITICA)
+- Se a mesa **ja tem sessao ativa** e alguem escaneia o QR Code e escolhe "Entrar na mesa":
+  1. O novo entrante informa numero de WhatsApp → recebe OTP → confirma (mesma verificacao do primeiro).
+  2. Apos verificacao, entra em **fila de aprovacao**. Nao tem acesso a nada da mesa ate ser aprovado.
+  3. **Qualquer pessoa ja aprovada na mesa** pode aprovar ou rejeitar o novo entrante.
+  4. Os membros da mesa recebem **notificacao (push + alerta na tela)** de que alguem quer entrar.
+- **Tela de espera (enquanto aguarda aprovacao):**
+  - Mensagem "Aguardando aprovacao da mesa..."
+  - Botao **"Lembrar mesa"** — reenvia notificacao (cooldown de 60 segundos).
+  - Botao **"Ver cardapio"** — abre modo read-only enquanto espera.
+  - Botao **"Cancelar"** — desiste e sai da fila de aprovacao.
+- **Se o QR Code for lido por alguem ja aprovado na sessao**, apenas abre o sistema normalmente.
+- **Na tela de pessoas**, exibir entrantes pendentes com opcao de aprovar/rejeitar.
+
+### Identificacao via WhatsApp
+- **Obrigatoria para entrar na mesa.** OTP de 6 digitos via WhatsApp. Salva `phone` + `phoneVerified = true`.
+
+### Cardapio e Pedidos
 - Cardapio com galeria de fotos, descricoes, filtros (vegano, sem gluten, etc).
 - Upselling: sugestoes automaticas de adicionais e acompanhamentos.
 - **Pessoas na mesa (REGRA CRITICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao. **OBRIGATORIO:** um botao visivel no header de TODAS as telas do cliente (cardapio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Nao basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
 - **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados.
 - **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Pedidos mistos (produtos com destinos diferentes) geram **sub-pedidos** automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) baseado no campo **destino** de cada produto. Cada sub-pedido segue seu fluxo independente.
 - **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuicao de pessoas.
-- **Tela "Conta"**:
+
+### Conta e Pagamento
+- **Tela "Conta"** com 3 abas: **Visao Geral**, **Por Pessoa**, **Historico**.
   - **Visao geral:** lista todos os itens. Nome do item exibe entre parenteses a quantidade de pessoas que dividem (ex: "Picanha na Brasa (3)"). Clicar no item abre modal para editar quem divide — selecionar/desselecionar pessoas.
   - **Por pessoa:** lista itens de cada pessoa com quantidade de pessoas que dividem entre parenteses. Itens iguais com grupos de divisao diferentes sao diferenciados por **cor** (barra lateral ou indicador colorido), para distinguir visualmente que sao pedidos separados.
+  - **Historico (log de atividade):** registro legivel de todas as acoes de pedido e reatribuicao. Visivel para todos na mesa. Formato simples para leigos:
+    ```
+    Picanha - José realizou o pedido
+    Para: José e Antônio
+
+    Picanha - Marta modificou
+    De: José e Antônio
+    Para: Marta e José
+
+    Frango à Passarinho - José realizou o pedido
+    Para: Pedro e Carlos
+    ```
   - Taxa de servico (%) configuravel.
 - **Pagamento individual:** Pix com QR Code por pessoa.
-- **Botao "O Chefia" (REGRA CRITICA — deve ser funcional em TODAS as telas do cliente):** presente na bottom nav de todas as telas (cardapio, pedidos, conta). Ao clicar, abre modal com selecao de motivo (ex: "Chamar garcom", "Pedir a conta", "Outro") + campo de mensagem opcional + botao "Enviar chamado". Nao e um link decorativo — deve ter interacao funcional no prototipo e no codigo.
+
+### Botao "O Chefia"
+- **(REGRA CRITICA — deve ser funcional em TODAS as telas do cliente):** presente na bottom nav de todas as telas (cardapio, pedidos, conta). Ao clicar, abre modal com selecao de motivo (ex: "Chamar garcom", "Pedir a conta", "Outro") + campo de mensagem opcional + botao "Enviar chamado". Nao e um link decorativo — deve ter interacao funcional no prototipo e no codigo.
 
 ## Modulo Garcom — Rota: `/garcom`
 Acesso: Celular do garcom (PWA).
 
+### Navegacao
+- **Bottom nav fixa com 3 tabs:** Mesas, Chamados, Turno.
+- "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas a partir de uma mesa especifica — **nao** aparecem na bottom nav.
+
+### Funcionalidades
 - **Ativacao de turno (clock-in):** garcom precisa informar que comecou a trabalhar no dia. Requer **senha do garcom** (definida no cadastro do funcionario). Ao ativar, salva hora de inicio. Ao encerrar, salva hora de fim. Registro de tempo de servico por dia.
-- Comanda mobile: lancar pedidos rapidos.
-- Lista de mesas atribuidas com status (mesas definidas na Equipe do Dia).
+- **Lista de mesas atribuidas** com status (mesas definidas na Equipe do Dia). Tap na mesa abre o detalhe.
+- **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta".
+- **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido".
+- **Chamados:** lista de chamados abertos de clientes (independente de mesa).
 - Notificacoes push: prato pronto, chamado de mesa, bebida pronta (para retirada no bar ou cozinha).
 - Historico de pedidos com divisao por pessoa.
 - Toggle taxa de servico por sessao.
