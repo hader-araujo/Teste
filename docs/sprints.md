@@ -193,7 +193,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - GET `/session/:token/people` — Listar pessoas na sessao.
 - POST `/session/:token/people` — Adicionar pessoa na mesa.
 - DELETE `/session/:token/people/:personId` — Remover pessoa.
-- PATCH `/session/:token/service-charge` — Toggle taxa de servico.
+- PATCH `/session/:token/service-charge` — Toggle taxa de servico (garcom only).
 - GET `/menu/:restaurantSlug` — Cardapio publico (com cache Redis).
 
 **Checklist:**
@@ -214,6 +214,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Frontend cliente: cardapio com galeria, categorias, filtros.
 - [ ] Frontend cliente: detalhe do produto.
 - [ ] Cache stampede prevention: lock-based refresh ou stale-while-revalidate no cache do cardapio.
+- [ ] Endpoint `PATCH /session/:token/service-charge` para toggle de taxa de servico (backend — uso pelo garcom na Sprint 10).
 - [ ] Sanitizacao de nomes de pessoas na mesa contra XSS.
 
 ---
@@ -262,11 +263,12 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparacao para scaling horizontal na Fase 2).
 - [ ] Rooms: restaurant, kds, kds:kitchen, kds:bar, waiter, admin, session.
 - [ ] Roteamento de pedidos por destino do produto.
-- [ ] Eventos: order:created, kds:new-order, kds:status-update.
-- [ ] Eventos: client:order-update, client:session-update.
+- [ ] Eventos client->server: order:created, call:request, payment:initiated.
+- [ ] Eventos server->KDS: kds:new-order, kds:status-update.
+- [ ] Eventos server->cliente: client:order-update, client:session-update.
 - [ ] Eventos de aprovacao: session:join-request, session:join-approved, session:join-rejected, session:join-remind.
-- [ ] Eventos: waiter:order-ready, waiter:call, waiter:new-order.
-- [ ] Eventos: admin:table-update, admin:metrics-update.
+- [ ] Eventos server->garcom: waiter:order-ready, waiter:call, waiter:new-order.
+- [ ] Eventos server->admin: admin:table-update, admin:metrics-update.
 - [ ] KDS backend: fila de producao e transicoes de status.
 - [ ] Logica de reconexao: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
 - [ ] Testar Socket.IO com Redis Adapter (validar que eventos passam pelo Redis corretamente).
@@ -420,16 +422,20 @@ Frontend puro. Zero endpoints REST novos.
 
 ## Sprint 14 — Super Admin: Modulos + Monitoramento
 
-**Endpoints (~4):**
+**Endpoints (~7):**
 - GET `/superadmin/modules` — Listar modulos com valor padrao.
 - PUT `/superadmin/modules/:moduleId` — Atualizar modulo.
 - GET `/superadmin/establishments/:id/modules` — Modulos do estabelecimento.
 - PUT `/superadmin/establishments/:id/modules/:moduleId` — Habilitar/desabilitar + valor.
+- GET `/superadmin/monitoring/overview` — Metricas globais (total pedidos/mes, mesas ativas, estabelecimentos por status).
+- GET `/superadmin/monitoring/establishments` — Metricas de uso por estabelecimento (pedidos/mes, mesas ativas, ultimo acesso). **Paginacao:** query `page` e `limit` (default 20, max 100). Ordenavel por qualquer metrica.
+- GET `/superadmin/monitoring/establishments/:id/activity` — Historico de atividade de um estabelecimento (ultimos acessos, pedidos recentes).
 
 **Checklist:**
 - [ ] Sistema de modulos: padrao + extras.
 - [ ] Habilitar/desabilitar modulos por estabelecimento.
 - [ ] Valor global e override por estabelecimento.
+- [ ] Endpoints de monitoramento: metricas globais, metricas por estabelecimento, historico de atividade.
 - [ ] Metricas de uso por estabelecimento (pedidos/mes, mesas ativas).
 - [ ] Ultimo acesso de cada estabelecimento.
 

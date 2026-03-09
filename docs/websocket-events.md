@@ -11,7 +11,6 @@ export const SOCKET_EVENTS = {
 
   // Servidor -> KDS
   KDS_NEW_ORDER: 'kds:new-order',           // Novo pedido na fila
-  KDS_ORDER_CANCELLED: 'kds:order-cancelled',
 
   // KDS -> Servidor
   KDS_STATUS_UPDATE: 'kds:status-update',   // Cozinha mudou status (preparing/ready)

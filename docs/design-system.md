@@ -13,7 +13,7 @@ O OChefia nao tem um unico layout. Sao **quatro interfaces completamente distint
 | Aspecto | Diretriz |
 |---|---|
 | Layout | Mobile-only. Scroll vertical. Cards de produto com foto dominante |
-| Navegacao | Minima — categorias no topo, carrinho fixo embaixo |
+| Navegacao | Bottom nav fixa com 4 tabs (Cardapio, Pedidos, Conta, O Chefia) + categorias no topo (na tela de cardapio) + botao de pessoas no header |
 | Densidade | Baixa. Muito espaco em branco. Poucos elementos por tela |
 | Interacao | Toque simples. Adicionar ao carrinho em 1 tap. Sem menus complexos |
 | Foco | Fotos dos pratos, precos claros, botao de pedir sempre visivel |
@@ -131,6 +131,10 @@ As quatro interfaces compartilham a paleta base (orange-600 como primaria, cores
 | Badge quantidade | `#FFFFFF` sobre orange | `bg-white text-orange-600` |
 | Fundo do header | `#FFFFFF` com blur | `bg-white/90 backdrop-blur` |
 | Divisor entre secoes | `#F3F4F6` | `gray-100` |
+| Bottom nav fundo | `#FFFFFF` com borda superior | `white border-t border-gray-100` |
+| Bottom nav tab ativa | `#EA580C` | `text-orange-600` |
+| Bottom nav tab inativa | `#9CA3AF` | `text-gray-400` |
+| Botao pessoas (header) | `#6B7280` com badge orange | `text-gray-500` + badge `bg-orange-600` |
 
 **Componentes**
 
@@ -139,8 +143,10 @@ As quatro interfaces compartilham a paleta base (orange-600 como primaria, cores
 | **Card de produto** | Foto 16:9 no topo (ou lado esquerdo em lista), nome em `font-semibold text-base`, descricao em `text-sm text-gray-500` truncada 2 linhas, preco em `font-bold text-orange-600`. Rounded-2xl, shadow-md. Sem borda |
 | **Botao adicionar** | Circular ou pill. `bg-orange-600 text-white rounded-full`. Minimo 44x44px. Icone "+" quando simples, texto "Adicionar R$ XX" no detalhe |
 | **Barra de categorias** | Scroll horizontal no topo. Chips com `rounded-full`. Ativa: `bg-orange-600 text-white`. Inativa: `bg-gray-100 text-gray-700` |
-| **Carrinho flutuante** | Barra fixa no bottom. `bg-orange-600 text-white rounded-t-2xl`. Mostra total e quantidade. Tap abre o carrinho |
-| **Header** | Logo do restaurante (ou nome), endereco resumido. Sticky com blur. Minimalista |
+| **Bottom nav** | Barra fixa no bottom com 4 tabs: Cardapio, Pedidos, Conta, O Chefia. Icone + texto. Tab ativa: `text-orange-600`. Tab inativa: `text-gray-400`. Fundo `bg-white` com `border-t border-gray-100`. Altura `64px`. Quando ha itens no carrinho, a tab "Cardapio" exibe badge de quantidade |
+| **Carrinho flutuante** | Barra sobreposta acima da bottom nav (visivel apenas na tela de cardapio quando ha itens). `bg-orange-600 text-white rounded-t-2xl`. Mostra total e quantidade. Tap abre o carrinho |
+| **Header** | Logo do restaurante (ou nome), endereco resumido. Sticky com blur. Minimalista. **Botao de pessoas** sempre visivel a direita (icone de grupo + badge com quantidade de pessoas na mesa). Tap abre modal/tela para adicionar/remover pessoas |
+| **Modal "O Chefia"** | Abre ao tocar na tab "O Chefia" da bottom nav. Selecao de motivo (Chamar garcom, Pedir a conta, Outro) + campo de mensagem opcional + botao "Enviar chamado". `bg-white rounded-t-2xl` (bottom sheet). Overlay `bg-black/50` |
 | **Tela de detalhe do prato** | Foto grande (hero, 40% da tela). Nome, descricao completa, preco. Opcoes de adicionais como checkboxes/radio. Botao "Adicionar" fixo embaixo |
 | **Status do pedido** | Timeline vertical com icones. Verde = concluido, orange = atual, cinza = pendente. Animacao pulse no passo atual |
 
@@ -161,7 +167,7 @@ As quatro interfaces compartilham a paleta base (orange-600 como primaria, cores
 - Gap entre cards: `gap-3`
 - Cards em lista (1 coluna) ou grid 2 colunas em telas maiores
 - Foto do produto: aspect-ratio 16:9, `rounded-xl`, `object-cover`
-- Sem sidebar, sem menu hamburguer. Navegacao 100% por scroll + categorias
+- Sem sidebar, sem menu hamburguer. Navegacao via bottom nav (4 tabs) + scroll + categorias no cardapio
 
 **Tom geral:** limpo, arejado, as fotos sao as protagonistas. Poucos elementos de UI, muito espaco em branco. O cliente nem percebe que esta usando um "sistema" — parece um cardapio bonito.
 

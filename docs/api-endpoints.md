@@ -172,6 +172,13 @@ Base URL: `/api/v1`
 | POST | `/superadmin/establishments/:id/billing/payments` | Registrar pagamento mensal (body: `{ month, year, status, amount }`) |
 | PATCH | `/superadmin/establishments/:id/billing/payments/:paymentId` | Atualizar status de pagamento (pago, pendente, atrasado) |
 
+## Super Admin — Monitoramento (role: SUPER_ADMIN)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/superadmin/monitoring/overview` | Metricas globais da plataforma (total pedidos/mes, mesas ativas, estabelecimentos por status) |
+| GET | `/superadmin/monitoring/establishments` | Metricas de uso por estabelecimento (pedidos/mes, mesas ativas, ultimo acesso). **Paginacao:** query `page` e `limit` (default 20, max 100). Ordenavel por qualquer metrica |
+| GET | `/superadmin/monitoring/establishments/:id/activity` | Historico de atividade de um estabelecimento (ultimos acessos, pedidos recentes) |
+
 ## Super Admin — Modulos (role: SUPER_ADMIN)
 | Metodo | Rota | Descricao |
 |---|---|---|
