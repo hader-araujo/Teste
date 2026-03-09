@@ -258,6 +258,34 @@
         card.appendChild(emptyText);
       }
 
+      // Action button
+      var btnWrap = document.createElement('div');
+      btnWrap.style.cssText = 'margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--color-border-light);';
+
+      var btn = document.createElement('button');
+      if (table.status === 'livre') {
+        btn.className = 'btn btn-sm btn-success';
+        btn.textContent = 'Abrir Sessão';
+        btn.onclick = (function(num) {
+          return function(e) {
+            e.stopPropagation();
+            showToast('Sessão aberta na Mesa ' + num, 'success');
+          };
+        })(table.number);
+      } else {
+        btn.className = 'btn btn-sm btn-secondary';
+        btn.textContent = 'Fechar Sessão';
+        btn.onclick = (function(num) {
+          return function(e) {
+            e.stopPropagation();
+            showToast('Sessão fechada na Mesa ' + num, 'info');
+          };
+        })(table.number);
+      }
+      btn.style.cssText = 'width:100%;';
+      btnWrap.appendChild(btn);
+      card.appendChild(btnWrap);
+
       return card;
     }
 

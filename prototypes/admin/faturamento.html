@@ -67,6 +67,7 @@
             <button class="tab active" data-tab="tab-diario">Diário</button>
             <button class="tab" data-tab="tab-mensal">Mensal</button>
             <button class="tab" data-tab="tab-taxas">Taxas de Garçom</button>
+            <button class="tab" data-tab="tab-caixa">Caixa</button>
           </div>
 
           <!-- Tab Diário -->
@@ -225,6 +226,91 @@
                 <span>Dia 8</span>
                 <span>Dia 15</span>
                 <span>Dia 30</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab Caixa -->
+          <div class="tab-content" id="tab-caixa">
+            <h2 style="font-size:1.25rem; font-weight:700; color:var(--color-text-primary); margin-bottom:1.5rem;">Fechamento de Caixa — Hoje</h2>
+            <div class="card-elevated" style="border-radius:var(--radius-xl); overflow:hidden;">
+              <div style="overflow-x:auto;">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Forma de Pagamento</th>
+                      <th>Pagamentos</th>
+                      <th>Valor</th>
+                      <th style="min-width:200px;">Proporção</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:600;">
+                        <span style="display:flex; align-items:center; gap:0.5rem;">
+                          <span style="font-size:1.25rem;">📱</span> Pix
+                        </span>
+                      </td>
+                      <td>28 pagamentos</td>
+                      <td style="font-weight:600;">R$ 2.840,00</td>
+                      <td>
+                        <div style="background:var(--color-gray-100); border-radius:9999px; height:8px; overflow:hidden;">
+                          <div style="background:var(--color-primary); height:100%; width:66.4%; border-radius:9999px;"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--color-text-muted);">66,4%</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:600;">
+                        <span style="display:flex; align-items:center; gap:0.5rem;">
+                          <span style="font-size:1.25rem;">💳</span> Cartão de Crédito
+                        </span>
+                      </td>
+                      <td>8 pagamentos</td>
+                      <td style="font-weight:600;">R$ 890,00</td>
+                      <td>
+                        <div style="background:var(--color-gray-100); border-radius:9999px; height:8px; overflow:hidden;">
+                          <div style="background:var(--color-info); height:100%; width:20.8%; border-radius:9999px;"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--color-text-muted);">20,8%</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:600;">
+                        <span style="display:flex; align-items:center; gap:0.5rem;">
+                          <span style="font-size:1.25rem;">💳</span> Cartão de Débito
+                        </span>
+                      </td>
+                      <td>5 pagamentos</td>
+                      <td style="font-weight:600;">R$ 350,00</td>
+                      <td>
+                        <div style="background:var(--color-gray-100); border-radius:9999px; height:8px; overflow:hidden;">
+                          <div style="background:var(--color-warning); height:100%; width:8.2%; border-radius:9999px;"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--color-text-muted);">8,2%</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:600;">
+                        <span style="display:flex; align-items:center; gap:0.5rem;">
+                          <span style="font-size:1.25rem;">💵</span> Dinheiro
+                        </span>
+                      </td>
+                      <td>6 pagamentos</td>
+                      <td style="font-weight:600;">R$ 200,00</td>
+                      <td>
+                        <div style="background:var(--color-gray-100); border-radius:9999px; height:8px; overflow:hidden;">
+                          <div style="background:var(--color-success); height:100%; width:4.7%; border-radius:9999px;"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--color-text-muted);">4,7%</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding:1rem 1.5rem; border-top:1px solid var(--color-border-light); display:flex; justify-content:space-between; background:var(--color-gray-50);">
+                <span style="font-weight:700;">Total (47 pagamentos)</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 4.280,00</span>
               </div>
             </div>
           </div>

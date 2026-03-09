@@ -30,6 +30,7 @@
       <div class="tabs mt-4">
         <div class="tab active" data-tab="tab-visao-geral">Visão Geral</div>
         <div class="tab" data-tab="tab-por-pessoa">Por Pessoa</div>
+        <div class="tab" data-tab="tab-historico">Histórico</div>
       </div>
 
       <!-- Tab: Visão Geral -->
@@ -40,6 +41,7 @@
 
       <!-- Tab: Por Pessoa -->
       <div class="tab-content" id="tab-por-pessoa">
+        <p style="font-size:0.8rem; color:var(--color-text-secondary); margin-bottom:0.75rem;">As cores na lateral indicam grupos de divisão diferentes.</p>
         <div style="display:flex; flex-direction:column; gap:1.25rem;">
 
           <!-- João -->
@@ -49,15 +51,15 @@
               <h3 style="font-size:1rem; font-weight:700;">João</h3>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #2563EB; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
                 <span style="font-weight:500;">R$ 29,97</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #EA580C; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Chopp Pilsen x2 (÷2)</span>
                 <span style="font-weight:500;">R$ 16,00</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #EA580C; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Smash Burger x2 (÷2)</span>
                 <span style="font-weight:500;">R$ 42,00</span>
               </div>
@@ -86,11 +88,11 @@
               <h3 style="font-size:1rem; font-weight:700;">Maria</h3>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #2563EB; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
                 <span style="font-weight:500;">R$ 29,97</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #EA580C; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Smash Burger x2 (÷2)</span>
                 <span style="font-weight:500;">R$ 42,00</span>
               </div>
@@ -123,11 +125,11 @@
               <h3 style="font-size:1rem; font-weight:700;">Pedro</h3>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.875rem;">
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #2563EB; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Picanha na Brasa (÷3)</span>
                 <span style="font-weight:500;">R$ 29,97</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between" style="border-left:3px solid #EA580C; padding-left:8px; border-radius:2px;">
                 <span style="color:var(--color-text-secondary);">Chopp Pilsen x2 (÷2)</span>
                 <span style="font-weight:500;">R$ 16,00</span>
               </div>
@@ -155,6 +157,56 @@
               </div>
             </div>
             <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tab: Histórico -->
+      <div class="tab-content" id="tab-historico">
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">19:32</div>
+            <div style="font-size:0.9rem;"><strong>Picanha na Brasa</strong> — João realizou o pedido</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">Para: João, Maria e Pedro</div>
+          </div>
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">19:32</div>
+            <div style="font-size:0.9rem;"><strong>Chopp Pilsen x2</strong> — João realizou o pedido</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">Para: João e Pedro</div>
+          </div>
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">19:45</div>
+            <div style="font-size:0.9rem;"><strong>Smash Burger Duplo x2</strong> — Maria realizou o pedido</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">Para: João e Maria</div>
+          </div>
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">19:45</div>
+            <div style="font-size:0.9rem;"><strong>Caipirinha de Limão</strong> — Maria realizou o pedido</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">Para: Maria</div>
+          </div>
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">19:50</div>
+            <div style="font-size:0.9rem;"><strong>Filé à Parmegiana</strong> — Pedro realizou o pedido</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">Para: Pedro</div>
+          </div>
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">19:50</div>
+            <div style="font-size:0.9rem;"><strong>Suco Natural</strong> — Pedro realizou o pedido</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">Para: Pedro</div>
+          </div>
+
+          <div style="background:var(--color-bg-secondary, #F9FAFB); border-radius:12px; padding:1rem; border-left:3px solid #CA8A04;">
+            <div style="font-size:0.75rem; color:var(--color-text-muted, #9CA3AF); margin-bottom:0.35rem;">20:05</div>
+            <div style="font-size:0.9rem;"><strong>Picanha na Brasa</strong> — Maria modificou</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary); margin-top:0.25rem;">De: João, Maria e Pedro</div>
+            <div style="font-size:0.825rem; color:var(--color-text-secondary);">Para: João e Pedro</div>
           </div>
 
         </div>

@@ -28,6 +28,11 @@
           <span class="dot"></span>
           <span>Conectado</span>
         </div>
+        <!-- Sound toggle -->
+        <button class="kds-sound-toggle" onclick="toggleKdsSound(this)" aria-label="Alternar som de notificações" title="Som ativo" style="display:flex; align-items:center; gap:0.375rem; background:var(--color-gray-700); color:var(--color-gray-200); border:none; padding:0.375rem 0.75rem; border-radius:var(--radius-full); cursor:pointer; font-size:0.8125rem; font-weight:500;">
+          <span class="kds-sound-icon">🔔</span>
+          <span class="kds-sound-label">Som ativo</span>
+        </button>
       </div>
     </header>
 
@@ -46,7 +51,7 @@
         <div class="kds-items">
           <div class="kds-item">
             <span class="kds-item-qty">2x</span>
-            <span class="kds-item-name">Chopp Pilsen</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Chopp Pilsen', 'Chopp pilsen artesanal, 300ml, servido a 3°C', 'Abrir a torneira inclinando o copo a 45°. Completar com colarinho de 2 dedos.')">Chopp Pilsen</span>
           </div>
         </div>
         <button class="kds-bump-btn" onclick="kdsBump('42-B')">PRONTO</button>
@@ -64,7 +69,7 @@
         <div class="kds-items">
           <div class="kds-item">
             <span class="kds-item-qty">1x</span>
-            <span class="kds-item-name">Caipirinha de Limão</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Caipirinha de Limão', 'Cachaça artesanal (50ml), limão tahiti, açúcar, gelo', 'Cortar limão em pedaços, macerar com açúcar. Adicionar cachaça e gelo. Mexer bem.')">Caipirinha de Limão</span>
           </div>
         </div>
         <button class="kds-bump-btn" onclick="kdsBump('43-B')">PRONTO</button>
@@ -85,11 +90,11 @@
         <div class="kds-items">
           <div class="kds-item">
             <span class="kds-item-qty">1x</span>
-            <span class="kds-item-name">Suco Natural de Laranja</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Suco Natural de Laranja', 'Laranjas pera (4 unidades), gelo', 'Espremer laranjas no momento. Servir com gelo, sem açúcar.')">Suco Natural de Laranja</span>
           </div>
           <div class="kds-item">
             <span class="kds-item-qty">2x</span>
-            <span class="kds-item-name">Chopp Pilsen</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Chopp Pilsen', 'Chopp pilsen artesanal, 300ml, servido a 3°C', 'Abrir a torneira inclinando o copo a 45°. Completar com colarinho de 2 dedos.')">Chopp Pilsen</span>
           </div>
         </div>
         <button class="kds-bump-btn" id="btn-pronto-49B" onclick="this.style.display='none'; document.getElementById('btn-entregue-49B').style.display='block'; showToast('Pedido #49-B pronto! Aguardando entrega.', 'success');">PRONTO</button>
@@ -108,7 +113,7 @@
         <div class="kds-items">
           <div class="kds-item">
             <span class="kds-item-qty">3x</span>
-            <span class="kds-item-name">Caipirinha de Limão</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Caipirinha de Limão', 'Cachaça artesanal (50ml), limão tahiti, açúcar, gelo', 'Cortar limão em pedaços, macerar com açúcar. Adicionar cachaça e gelo. Mexer bem.')">Caipirinha de Limão</span>
           </div>
           <div class="kds-item-obs">1 sem açúcar</div>
         </div>
@@ -116,8 +121,64 @@
       </article>
 
     </main>
+
+    <!-- Modal Ficha Técnica -->
+    <div id="modal-ficha" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="ficha-title">
+      <div class="modal" style="background-color:var(--color-gray-800); color:var(--color-gray-200); border:1px solid var(--color-gray-700);">
+        <div class="modal-header" style="border-bottom-color:var(--color-gray-700);">
+          <h3 id="ficha-title" style="color:var(--color-gray-50);">Ficha Técnica</h3>
+          <button onclick="closeModal('modal-ficha')" style="background:none; border:none; color:var(--color-gray-400); font-size:1.5rem; cursor:pointer;" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="modal-body">
+          <!-- Foto -->
+          <div style="background-color:var(--color-gray-700); border-radius:var(--radius-lg); height:180px; display:flex; align-items:center; justify-content:center; margin-bottom:1.25rem;">
+            <span style="color:var(--color-gray-500); font-size:0.875rem;">📷 Foto do prato</span>
+          </div>
+          <!-- Ingredientes -->
+          <div style="margin-bottom:1rem;">
+            <h4 style="color:var(--color-gray-50); font-size:0.875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Ingredientes</h4>
+            <p id="ficha-ingredientes" style="color:var(--color-gray-300); font-size:0.9375rem; line-height:1.5;">—</p>
+          </div>
+          <!-- Modo de Preparo -->
+          <div>
+            <h4 style="color:var(--color-gray-50); font-size:0.875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Modo de Preparo</h4>
+            <p id="ficha-preparo" style="color:var(--color-gray-300); font-size:0.9375rem; line-height:1.5;">—</p>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top-color:var(--color-gray-700);">
+          <button onclick="closeModal('modal-ficha')" class="btn" style="background-color:var(--color-gray-700); color:var(--color-gray-200);">Fechar</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="../js/app.js"></script>
+  <script>
+    function openFichaTecnica(nome, ingredientes, preparo) {
+      document.getElementById('ficha-title').textContent = nome;
+      document.getElementById('ficha-ingredientes').textContent = ingredientes;
+      document.getElementById('ficha-preparo').textContent = preparo;
+      openModal('modal-ficha');
+    }
+
+    function toggleKdsSound(btn) {
+      var icon = btn.querySelector('.kds-sound-icon');
+      var label = btn.querySelector('.kds-sound-label');
+      if (label.textContent === 'Som ativo') {
+        icon.textContent = '🔕';
+        label.textContent = 'Som desativado';
+        btn.title = 'Som desativado';
+        btn.style.backgroundColor = 'var(--color-gray-600)';
+        showToast('Som de notificações desativado', 'warning');
+      } else {
+        icon.textContent = '🔔';
+        label.textContent = 'Som ativo';
+        btn.title = 'Som ativo';
+        btn.style.backgroundColor = 'var(--color-gray-700)';
+        showToast('Som de notificações ativado', 'success');
+      }
+    }
+  </script>
 </body>
 </html>

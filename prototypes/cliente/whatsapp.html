@@ -12,11 +12,22 @@
     <!-- Logo -->
     <div style="text-align:center; margin-bottom:32px;">
       <h1 style="font-size:2rem; font-weight:700; color:var(--color-primary);">Zé do Bar</h1>
-      <p style="color:var(--color-gray-500); margin-top:8px; font-size:0.95rem;">Verificação WhatsApp</p>
+      <p id="subtitle-text" style="color:var(--color-gray-500); margin-top:8px; font-size:0.95rem;">Mesa 5</p>
+    </div>
+
+    <!-- Choice Section (visible by default) -->
+    <div id="choice-section" style="width:100%; max-width:360px; text-align:center;">
+      <p style="color:var(--color-gray-700); margin-bottom:24px; font-size:0.95rem;">O que deseja fazer?</p>
+      <button class="btn btn-primary btn-full btn-lg" onclick="showPhoneSection()" style="margin-bottom:12px;">
+        Entrar na mesa
+      </button>
+      <a href="cardapio.html" class="btn btn-full btn-lg" style="display:block; text-align:center; text-decoration:none; background:var(--color-gray-100, #f3f4f6); color:var(--color-gray-700); border:1px solid var(--color-gray-200, #e5e7eb);">
+        Ver cardápio
+      </a>
     </div>
 
     <!-- Phone Input Section -->
-    <div id="phone-section" style="width:100%; max-width:360px;">
+    <div id="phone-section" style="width:100%; max-width:360px; display:none;">
       <div class="input-group mb-4">
         <label for="phone-input">Número de celular</label>
         <input class="input" id="phone-input" type="tel" placeholder="(11) 99999-9999" value="(11) 99999-9999" maxlength="15" oninput="maskPhone(this)">
@@ -45,7 +56,32 @@
       </p>
     </div>
 
+    <!-- Approval Waiting Section (hidden by default) -->
+    <div id="approval-section" style="width:100%; max-width:360px; display:none; text-align:center;">
+      <div style="margin-bottom:24px;">
+        <div id="pulse-dot" style="width:16px; height:16px; border-radius:50%; background:var(--color-primary); margin:0 auto 16px; animation:pulse-dot 1.5s ease-in-out infinite;"></div>
+        <p style="color:var(--color-gray-900); font-size:1.1rem; font-weight:600; margin-bottom:8px;">Aguardando aprovação da mesa...</p>
+        <p style="color:var(--color-gray-500); font-size:0.85rem;">Alguém na mesa precisa aprovar sua entrada.</p>
+      </div>
+      <button class="btn btn-primary btn-full" id="remind-btn" onclick="remindTable()" style="margin-bottom:12px;">
+        Lembrar mesa
+      </button>
+      <a href="cardapio.html" class="btn btn-full" style="display:block; text-align:center; text-decoration:none; background:var(--color-gray-100, #f3f4f6); color:var(--color-gray-700); border:1px solid var(--color-gray-200, #e5e7eb); margin-bottom:12px;">
+        Ver cardápio
+      </a>
+      <button class="btn btn-full" onclick="cancelApproval()" style="background:none; color:var(--color-gray-500); border:1px solid var(--color-gray-200, #e5e7eb);">
+        Cancelar
+      </button>
+    </div>
+
   </div>
+
+  <style>
+    @keyframes pulse-dot {
+      0%, 100% { transform:scale(1); opacity:1; }
+      50% { transform:scale(1.6); opacity:0.5; }
+    }
+  </style>
 
   <script src="../js/app.js"></script>
   <script>
@@ -60,6 +96,12 @@
         v = '(' + v;
       }
       input.value = v;
+    }
+
+    function showPhoneSection() {
+      document.getElementById('choice-section').style.display = 'none';
+      document.getElementById('phone-section').style.display = 'block';
+      document.getElementById('subtitle-text').textContent = 'Verificação WhatsApp';
     }
 
     function sendCode() {
@@ -92,13 +134,52 @@
         return;
       }
       showToast('Verificação concluída!', 'success');
-      setTimeout(() => {
-        window.location.href = 'pessoas.html';
-      }, 800);
+      // Randomly simulate: first client (goes to pessoas) or new entrant (approval wait)
+      const isFirstClient = Math.random() > 0.5;
+      if (isFirstClient) {
+        setTimeout(() => {
+          window.location.href = 'pessoas.html';
+        }, 800);
+      } else {
+        setTimeout(() => {
+          document.getElementById('otp-section').style.display = 'none';
+          document.getElementById('approval-section').style.display = 'block';
+          document.getElementById('subtitle-text').textContent = 'Entrada na mesa';
+        }, 800);
+      }
     }
 
     function resendCode() {
       showToast('Novo código enviado!', 'success');
+    }
+
+    var remindCooldown = null;
+    function remindTable() {
+      var btn = document.getElementById('remind-btn');
+      if (remindCooldown) return;
+      showToast('Notificação reenviada!', 'success');
+      btn.disabled = true;
+      var remaining = 60;
+      btn.textContent = 'Aguarde ' + remaining + 's';
+      btn.style.opacity = '0.6';
+      remindCooldown = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(remindCooldown);
+          remindCooldown = null;
+          btn.disabled = false;
+          btn.textContent = 'Lembrar mesa';
+          btn.style.opacity = '1';
+        } else {
+          btn.textContent = 'Aguarde ' + remaining + 's';
+        }
+      }, 1000);
+    }
+
+    function cancelApproval() {
+      document.getElementById('approval-section').style.display = 'none';
+      document.getElementById('choice-section').style.display = 'block';
+      document.getElementById('subtitle-text').textContent = 'Mesa 5';
     }
   </script>
 </body>
