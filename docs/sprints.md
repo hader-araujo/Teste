@@ -147,7 +147,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 
 ## Sprint 3 — Menu CRUD Backend + Upload de Imagens
 
-**Endpoints (~12):**
+**Endpoints (~14):**
 - GET `/menu/categories` — Listar categorias (admin).
 - POST `/menu/categories` — Criar categoria.
 - PUT `/menu/categories/:id` — Atualizar categoria.
@@ -220,7 +220,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 
 ## Sprint 5 — Carrinho + Pedidos + Pagamento Pix
 
-**Endpoints (~11):**
+**Endpoints (~12):**
 - POST `/orders` — Criar pedido (cada item com `personIds[]` obrigatorio).
 - GET `/orders` — Listar pedidos (admin, filtros).
 - GET `/orders/:id` — Detalhes do pedido.

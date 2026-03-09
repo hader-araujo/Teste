@@ -202,7 +202,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 | **Timer** | Contador de minutos desde que o pedido entrou. Muda de cor automaticamente: cinza (<10min), amarelo (10-15min), vermelho (>15min) |
 | **Botao Bump (pronto)** | Grande, ocupa toda a largura do card. `min-h-[56px]`. Verde. Um toque para marcar como pronto. Sem confirmacao |
 | **Alerta sonoro** | Novo pedido: beep curto. Pedido atrasado: beep repetido. Configuravel |
-| **Filtro por estacao** | Tabs no topo: "Todos", "Cozinha", "Bar", "Sobremesa". Cada estacao ve apenas seus itens |
+| **Filtro por estacao** | Tabs no topo: "Todos", "Cozinha", "Bar". Cada estacao ve apenas seus itens (baseado no campo `destination` do produto) |
 
 **Tipografia especifica**
 

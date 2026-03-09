@@ -5,7 +5,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 
 - Mapa de mesas em tempo real (livres, ocupadas, aguardando limpeza, tempo de permanencia).
 - Metricas: tempo medio de atendimento dividido por categoria (**bar**, **cozinha**, **garcom**), tempo de preparo por prato.
-- Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real, precificacao dinamica (Happy Hour).
+- Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
 - **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando para onde o pedido vai: **cozinha**, **bar** ou **garcom** (entrega direta, sem preparo). Substitui a logica anterior de "bebida pronta" — agora qualquer produto pode ter qualquer destino.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
 - Gestao de funcionarios: cadastro de garcons, cozinheiros, gerentes com permissoes por role.
@@ -73,7 +73,7 @@ Acesso: Cliente via QR Code no navegador.
 
 ### Cardapio e Pedidos
 - Cardapio com galeria de fotos, descricoes, filtros (vegano, sem gluten, etc).
-- Upselling: sugestoes automaticas de adicionais e acompanhamentos.
+- Upselling: sugestoes automaticas de adicionais e acompanhamentos (referencia futura — sem endpoint/sprint definido na Fase 1).
 - **Pessoas na mesa (REGRA CRITICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao. **OBRIGATORIO:** um botao visivel no header de TODAS as telas do cliente (cardapio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Nao basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
 - **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados.
 - **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Pedidos mistos (produtos com destinos diferentes) geram **sub-pedidos** automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) baseado no campo **destino** de cada produto. Cada sub-pedido segue seu fluxo independente.

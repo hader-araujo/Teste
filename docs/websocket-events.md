@@ -35,7 +35,7 @@ export const SOCKET_EVENTS = {
   ADMIN_TABLE_UPDATE: 'admin:table-update',        // Status de mesa mudou
   ADMIN_METRICS_UPDATE: 'admin:metrics-update',    // Metricas atualizaram
 
-  // Estoque
+  // Estoque (Fase 2 — NAO IMPLEMENTAR)
   STOCK_ALERT_TRIGGERED: 'stock:alert-triggered',
   STOCK_UPDATED: 'stock:updated',
 } as const;
