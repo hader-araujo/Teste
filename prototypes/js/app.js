@@ -170,7 +170,128 @@ const MOCK = {
     { id: 'moderno', name: 'Moderno', primary: '#7C3AED', secondary: '#1E1B4B', bg: '#FFFFFF', desc: 'Gastrobar, contemporâneo' },
     { id: 'tropical', name: 'Tropical', primary: '#059669', secondary: '#064E3B', bg: '#FFFFFF', desc: 'Praia, açaí, sucos' },
     { id: 'personalizado', name: 'Personalizado', primary: '#EA580C', secondary: '#111827', bg: '#FFFFFF', desc: 'Livre' }
-  ]
+  ],
+
+  // ---- Super Admin ----
+  superadmin: {
+    user: { name: 'Admin OChefia', email: 'admin@ochefia.com.br', role: 'SUPER_ADMIN' },
+
+    kpis: {
+      totalEstablishments: 24,
+      active: 18,
+      suspended: 3,
+      defaulting: 3
+    },
+
+    modules: [
+      { id: 1, name: 'Padrão', description: 'Cardápio digital, pedidos, KDS, garçom, mesas, faturamento, dashboard', defaultAmount: 0, type: 'included' },
+      { id: 2, name: 'Estoque', description: 'Controle de estoque, ingredientes, baixa automática, alertas de mínimo', defaultAmount: 89.90, type: 'extra' },
+      { id: 3, name: 'Explorar', description: 'App consumidor, listagem, reserva, pré-pedido, fidelidade', defaultAmount: 149.90, type: 'extra' },
+      { id: 4, name: 'NFC-e/SAT', description: 'Emissão fiscal integrada (NFC-e e SAT)', defaultAmount: 79.90, type: 'extra' }
+    ],
+
+    establishments: [
+      {
+        id: 1, name: 'Zé do Bar', slug: 'ze-bar', cnpj: '12.345.678/0001-90',
+        responsible: 'José da Silva', email: 'jose@zebar.com.br', phone: '(11) 99999-0001',
+        status: 'active', planAmount: 299.90, city: 'São Paulo — SP',
+        lastAccess: '2026-03-09 14:32', ordersMonth: 982, activeTables: 8,
+        modules: [1], createdAt: '2025-08-15'
+      },
+      {
+        id: 2, name: 'Cantina da Nonna', slug: 'cantina-nonna', cnpj: '23.456.789/0001-01',
+        responsible: 'Maria Rossi', email: 'maria@cantinanonna.com.br', phone: '(11) 98888-0002',
+        status: 'active', planAmount: 299.90, city: 'São Paulo — SP',
+        lastAccess: '2026-03-09 12:15', ordersMonth: 1245, activeTables: 12,
+        modules: [1, 2], createdAt: '2025-09-02'
+      },
+      {
+        id: 3, name: 'Boteco do Chico', slug: 'boteco-chico', cnpj: '34.567.890/0001-12',
+        responsible: 'Francisco Almeida', email: 'chico@botecochico.com.br', phone: '(21) 97777-0003',
+        status: 'active', planAmount: 299.90, city: 'Rio de Janeiro — RJ',
+        lastAccess: '2026-03-08 22:45', ordersMonth: 756, activeTables: 6,
+        modules: [1], createdAt: '2025-10-10'
+      },
+      {
+        id: 4, name: 'Sushi Kento', slug: 'sushi-kento', cnpj: '45.678.901/0001-23',
+        responsible: 'Kento Yamada', email: 'kento@sushikento.com.br', phone: '(11) 96666-0004',
+        status: 'suspended', planAmount: 399.90, city: 'São Paulo — SP',
+        lastAccess: '2026-02-20 18:00', ordersMonth: 0, activeTables: 0,
+        modules: [1, 2, 4], createdAt: '2025-07-22'
+      },
+      {
+        id: 5, name: 'Churrascaria Fogo Vivo', slug: 'fogo-vivo', cnpj: '56.789.012/0001-34',
+        responsible: 'Roberto Santos', email: 'roberto@fogovivo.com.br', phone: '(31) 95555-0005',
+        status: 'active', planAmount: 299.90, city: 'Belo Horizonte — MG',
+        lastAccess: '2026-03-09 11:00', ordersMonth: 2100, activeTables: 20,
+        modules: [1, 2], createdAt: '2025-06-01'
+      },
+      {
+        id: 6, name: 'Pizzaria Bella Massa', slug: 'bella-massa', cnpj: '67.890.123/0001-45',
+        responsible: 'Antônio Ferreira', email: 'antonio@bellamassa.com.br', phone: '(41) 94444-0006',
+        status: 'active', planAmount: 299.90, city: 'Curitiba — PR',
+        lastAccess: '2026-03-09 13:20', ordersMonth: 890, activeTables: 10,
+        modules: [1], createdAt: '2025-11-15'
+      },
+      {
+        id: 7, name: 'Açaí da Praia', slug: 'acai-praia', cnpj: '78.901.234/0001-56',
+        responsible: 'Camila Souza', email: 'camila@acaipraia.com.br', phone: '(71) 93333-0007',
+        status: 'active', planAmount: 199.90, city: 'Salvador — BA',
+        lastAccess: '2026-03-09 10:45', ordersMonth: 1580, activeTables: 5,
+        modules: [1], createdAt: '2025-12-01'
+      },
+      {
+        id: 8, name: 'Gastrobar 404', slug: 'gastrobar-404', cnpj: '89.012.345/0001-67',
+        responsible: 'Lucas Mendes', email: 'lucas@gastrobar404.com.br', phone: '(11) 92222-0008',
+        status: 'suspended', planAmount: 399.90, city: 'São Paulo — SP',
+        lastAccess: '2026-01-15 20:30', ordersMonth: 0, activeTables: 0,
+        modules: [1, 3], createdAt: '2025-08-20'
+      },
+      {
+        id: 9, name: 'Espetaria Brasa & Cia', slug: 'brasa-cia', cnpj: '90.123.456/0001-78',
+        responsible: 'Paulo Oliveira', email: 'paulo@brasacia.com.br', phone: '(62) 91111-0009',
+        status: 'active', planAmount: 299.90, city: 'Goiânia — GO',
+        lastAccess: '2026-03-07 19:00', ordersMonth: 420, activeTables: 7,
+        modules: [1], createdAt: '2026-01-10'
+      },
+      {
+        id: 10, name: 'Café & Brunch Studio', slug: 'cafe-brunch', cnpj: '01.234.567/0001-89',
+        responsible: 'Ana Clara Lima', email: 'ana@cafebrunch.com.br', phone: '(51) 90000-0010',
+        status: 'suspended', planAmount: 199.90, city: 'Porto Alegre — RS',
+        lastAccess: '2026-02-28 09:15', ordersMonth: 0, activeTables: 0,
+        modules: [1], createdAt: '2026-02-01'
+      }
+    ],
+
+    payments: [
+      { id: 1, establishmentId: 1, month: 3, year: 2026, amount: 299.90, status: 'pending' },
+      { id: 2, establishmentId: 1, month: 2, year: 2026, amount: 299.90, status: 'paid' },
+      { id: 3, establishmentId: 1, month: 1, year: 2026, amount: 299.90, status: 'paid' },
+      { id: 4, establishmentId: 2, month: 3, year: 2026, amount: 389.80, status: 'paid' },
+      { id: 5, establishmentId: 2, month: 2, year: 2026, amount: 389.80, status: 'paid' },
+      { id: 6, establishmentId: 2, month: 1, year: 2026, amount: 299.90, status: 'paid' },
+      { id: 7, establishmentId: 3, month: 3, year: 2026, amount: 299.90, status: 'overdue' },
+      { id: 8, establishmentId: 3, month: 2, year: 2026, amount: 299.90, status: 'paid' },
+      { id: 9, establishmentId: 4, month: 3, year: 2026, amount: 469.70, status: 'overdue' },
+      { id: 10, establishmentId: 4, month: 2, year: 2026, amount: 469.70, status: 'overdue' },
+      { id: 11, establishmentId: 5, month: 3, year: 2026, amount: 389.80, status: 'paid' },
+      { id: 12, establishmentId: 5, month: 2, year: 2026, amount: 389.80, status: 'paid' },
+      { id: 13, establishmentId: 6, month: 3, year: 2026, amount: 299.90, status: 'pending' },
+      { id: 14, establishmentId: 7, month: 3, year: 2026, amount: 199.90, status: 'paid' },
+      { id: 15, establishmentId: 8, month: 3, year: 2026, amount: 549.80, status: 'overdue' },
+      { id: 16, establishmentId: 8, month: 2, year: 2026, amount: 549.80, status: 'overdue' },
+      { id: 17, establishmentId: 9, month: 3, year: 2026, amount: 299.90, status: 'pending' },
+      { id: 18, establishmentId: 10, month: 3, year: 2026, amount: 199.90, status: 'overdue' }
+    ],
+
+    recentAlerts: [
+      { type: 'overdue', message: 'Sushi Kento — 2 meses em atraso', time: '2h atrás' },
+      { type: 'overdue', message: 'Gastrobar 404 — 2 meses em atraso', time: '2h atrás' },
+      { type: 'overdue', message: 'Boteco do Chico — pagamento de março atrasado', time: '5h atrás' },
+      { type: 'overdue', message: 'Café & Brunch Studio — pagamento de março atrasado', time: '1 dia' },
+      { type: 'new', message: 'Espetaria Brasa & Cia — cadastrado', time: '2 meses' }
+    ]
+  }
 };
 
 // ============================================
@@ -630,6 +751,62 @@ function getDestinationBadgeClass(dest) {
 function getWeekdayLabel(day) {
   const labels = { 'seg': 'Seg', 'ter': 'Ter', 'qua': 'Qua', 'qui': 'Qui', 'sex': 'Sex', 'sab': 'Sáb', 'dom': 'Dom' };
   return labels[day] || day;
+}
+
+// ============================================
+// Super Admin — Helpers
+// ============================================
+
+function getEstablishmentStatusLabel(status) {
+  const labels = { 'active': 'Ativo', 'suspended': 'Suspenso' };
+  return labels[status] || status;
+}
+
+function getEstablishmentStatusBadge(status) {
+  const classes = { 'active': 'badge-success', 'suspended': 'badge-error' };
+  return classes[status] || 'badge-gray';
+}
+
+function getPaymentStatusLabel(status) {
+  const labels = { 'paid': 'Pago', 'pending': 'Pendente', 'overdue': 'Atrasado' };
+  return labels[status] || status;
+}
+
+function getPaymentStatusBadge(status) {
+  const classes = { 'paid': 'badge-success', 'pending': 'badge-warning', 'overdue': 'badge-error' };
+  return classes[status] || 'badge-gray';
+}
+
+function isDefaulting(establishmentId) {
+  return MOCK.superadmin.payments.some(p => p.establishmentId === establishmentId && p.status === 'overdue');
+}
+
+function formatCNPJ(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 14);
+  return digits.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')
+    .replace(/^(\d{2})(\d{3})(\d{3})(\d{4})/, '$1.$2.$3/$4')
+    .replace(/^(\d{2})(\d{3})(\d{3})/, '$1.$2.$3')
+    .replace(/^(\d{2})(\d{3})/, '$1.$2')
+    .replace(/^(\d{2})/, '$1');
+}
+
+function formatPhone(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 2) return digits.length ? '(' + digits : '';
+  if (digits.length <= 7) return '(' + digits.slice(0, 2) + ') ' + digits.slice(2);
+  return '(' + digits.slice(0, 2) + ') ' + digits.slice(2, 7) + '-' + digits.slice(7);
+}
+
+function slugify(text) {
+  return text.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function getMonthLabel(month) {
+  const labels = ['', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  return labels[month] || '';
 }
 
 // ============================================

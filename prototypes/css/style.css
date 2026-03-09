@@ -1544,6 +1544,180 @@ table tbody tr:hover {
 }
 
 /* ============================================
+   Super Admin — Estilos específicos
+   ============================================ */
+
+/* Sidebar indigo */
+.superadmin-sidebar {
+  width: var(--sidebar-width);
+  background-color: #1E1B4B;
+  color: #A5B4FC;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 200;
+  overflow-y: auto;
+  transition: transform var(--transition-slow);
+}
+
+.superadmin-sidebar .sidebar-logo {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(165, 180, 252, 0.15);
+}
+
+.superadmin-sidebar .logo-icon {
+  width: 36px;
+  height: 36px;
+  background-color: #6366F1;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.superadmin-sidebar .logo-text {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+}
+
+.superadmin-sidebar .sidebar-nav {
+  flex: 1;
+  padding: 1rem 0;
+}
+
+.superadmin-sidebar .sidebar-group {
+  margin-bottom: 0.5rem;
+}
+
+.superadmin-sidebar .sidebar-group-label {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(165, 180, 252, 0.5);
+}
+
+.superadmin-sidebar .sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #A5B4FC;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.superadmin-sidebar .sidebar-item:hover {
+  color: white;
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
+.superadmin-sidebar .sidebar-item.active {
+  color: white;
+  background-color: rgba(99, 102, 241, 0.2);
+}
+
+.superadmin-sidebar .sidebar-item.active svg {
+  color: #818CF8;
+}
+
+.superadmin-sidebar .sidebar-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.superadmin-sidebar .sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(165, 180, 252, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.superadmin-sidebar .sidebar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background-color: #4338CA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.superadmin-sidebar .sidebar-user-info .sidebar-user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.superadmin-sidebar .sidebar-user-info .sidebar-user-role {
+  font-size: 0.75rem;
+  color: #A5B4FC;
+}
+
+/* Botões indigo */
+.btn-indigo {
+  background-color: #6366F1;
+  color: white;
+}
+.btn-indigo:hover {
+  background-color: #4F46E5;
+}
+.btn-indigo:focus-visible {
+  outline: 2px solid #6366F1;
+  outline-offset: 2px;
+}
+
+/* KPI card com borda indigo */
+.kpi-indigo {
+  border-top: 4px solid #6366F1;
+}
+
+/* KPI card com borda vermelha (alertas) */
+.kpi-alert {
+  border-top: 4px solid #DC2626;
+}
+
+/* Tabela hover indigo */
+.table-indigo tbody tr:hover {
+  background-color: #EEF2FF;
+}
+
+/* Toggle indigo */
+.toggle-indigo.active {
+  background-color: #6366F1;
+}
+
+/* Badge indigo */
+.badge-indigo {
+  background-color: #EEF2FF;
+  color: #4F46E5;
+}
+
+/* Input focus indigo */
+.input-indigo:focus {
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ============================================
    11. Responsivo
    ============================================ */
 
@@ -1563,6 +1737,13 @@ table tbody tr:hover {
   }
 
   .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .superadmin-sidebar {
+    transform: translateX(-100%);
+  }
+  .superadmin-sidebar.open {
     transform: translateX(0);
   }
 
