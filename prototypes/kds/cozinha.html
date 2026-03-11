@@ -181,6 +181,30 @@
       openModal('modal-ficha');
     }
 
+    // Dynamic timer updates — simulates real-time countdown from data-start-minutes
+    function updateKdsTimers() {
+      document.querySelectorAll('.kds-card').forEach(function(card) {
+        var timerEl = card.querySelector('.kds-timer');
+        if (!timerEl) return;
+        var current = parseInt(timerEl.textContent);
+        if (isNaN(current)) return;
+        current += 1;
+        timerEl.textContent = current + 'min';
+
+        // Update colors based on thresholds
+        timerEl.classList.remove('warning', 'danger');
+        card.classList.remove('status-warning', 'status-danger');
+        if (current >= 15) {
+          timerEl.classList.add('danger');
+          card.classList.add('status-danger');
+        } else if (current >= 10) {
+          timerEl.classList.add('warning');
+          card.classList.add('status-warning');
+        }
+      });
+    }
+    setInterval(updateKdsTimers, 60000); // Update every 60 seconds
+
     function toggleKdsSound(btn) {
       var icon = btn.querySelector('.kds-sound-icon');
       var label = btn.querySelector('.kds-sound-label');
