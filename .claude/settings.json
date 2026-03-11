@@ -1,4 +1,18 @@
 {
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | grep -q '\\.env'; then echo 'BLOQUEADO: edição de arquivos .env não permitida. Secrets nunca devem ser commitados.' >&2; exit 2; fi",
+            "statusMessage": "Verificando proteção de .env..."
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,

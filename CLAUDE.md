@@ -67,7 +67,7 @@ pnpm test                          # Tudo via Turborepo
 - **Portas nao-padrao**: PostgreSQL em **5433**, Redis em **6380** (as portas padrao estao ocupadas no host).
 - **Shared deve ser buildado primeiro**: `pnpm --filter @ochefia/shared build` antes de buildar api ou web.
 - **tsconfig da API nao tem paths para @ochefia/shared**: Depende do workspace symlink + shared compilado.
-- **Seed**: Executar de `apps/api/` com `npx ts-node -r tsconfig-paths/register prisma/seed.ts`. User: `dono@ze-bar.com / senha123` (OWNER), slug `ze-bar`.
+- **Seed**: Executar de `apps/api/` com `npx ts-node -r tsconfig-paths/register prisma/seed.ts`. Dados de teste no CLAUDE.local.md.
 
 ---
 
@@ -99,6 +99,20 @@ ochefia/
 - **Socket.IO rooms** por `restaurantId` para real-time (KDS, garcom, dashboard).
 - **QR Code** gera URL permanente `/{slug}/mesa/{tableId}`. Sessao criada no primeiro acesso.
 - **Pix simulado** na Fase 1. Webhook recebe confirmacao. Ver @docs/api-endpoints.md
+
+---
+
+## Não Faça
+
+- **Não usar `npm`** — sempre `pnpm`. O projeto usa pnpm workspaces.
+- **Não usar `any`** em TypeScript. Sem exceções.
+- **Não usar `export default`** (salvo páginas Next.js).
+- **Não usar `git add .`** — adicionar arquivos específicos por nome.
+- **Não implementar Fase 2** (AWS, estoque, explorar, NFC-e) até aviso explícito.
+- **Não criar arquivos fora da estrutura definida** — respeitar a organização do monorepo.
+- **Não commitar `.env`, secrets ou credentials** — nunca.
+- **Não escrever texto em português sem acentuação** — "Adição" nunca "Adicao".
+- **Não pular testes** — TDD é inviolável. Teste primeiro, código depois.
 
 ---
 
@@ -145,9 +159,8 @@ ochefia/
 
 1. `pnpm test` — todos os testes devem passar.
 2. `pnpm lint` — zero warnings/errors.
-3. Nunca `git add .` — adicionar arquivos especificos por nome.
-4. Commits atomicos: 1 feature ou 1 fix por commit. Nunca misturar mudancas nao relacionadas.
-5. Se esqueceu de comitar e tem mudancas de 2 tarefas, separar em commits distintos.
+3. Commits atomicos: 1 feature ou 1 fix por commit.
+4. Se tem mudancas de 2 tarefas, separar em commits distintos.
 
 ---
 
@@ -160,14 +173,16 @@ ochefia/
 2. Ler esses arquivos com a ferramenta Read.
 3. So entao comecar a implementacao.
 
-**Referencia de docs (usar @imports):**
+**Docs importados automaticamente (sempre no contexto):**
 
 See @docs/sprints.md for roadmap completo de sprints com checklists
-See @docs/api-endpoints.md for todos os endpoints REST
-See @docs/websocket-events.md for eventos Socket.IO + rooms
 See @docs/design-system.md for cores, tipografia, componentes, theming
 See @docs/modulos.md for descricao funcional de todos os modulos
 See @docs/fluxos.md for fluxos de navegacao passo a passo de cada perfil (cliente, garcom, admin, KDS, super admin)
-See @docs/deploy.md for deploy Docker (Fase 1), AWS (Fase 2), Super Admin
 See @docs/seguranca.md for seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload
-See @docs/observabilidade.md for logs, Winston, Correlation ID, metricas de negocio
+
+**Docs adicionais (ler sob demanda antes de implementar a feature relevante):**
+- `docs/api-endpoints.md` — endpoints REST (ler ao implementar endpoints)
+- `docs/websocket-events.md` — eventos Socket.IO (ler ao implementar real-time)
+- `docs/deploy.md` — deploy Docker/AWS (ler ao configurar infra)
+- `docs/observabilidade.md` — logs, Winston, Correlation ID, metricas de negocio
