@@ -118,7 +118,7 @@
             <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
           </div>
 
-          <!-- Pedro -->
+          <!-- Pedro (taxa de serviço desabilitada pelo garçom) -->
           <div class="card-elevated" style="padding:1.25rem;">
             <div class="flex items-center gap-2 mb-4">
               <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">P</div>
@@ -147,13 +147,14 @@
                 <span style="color:var(--color-text-secondary);">Subtotal</span>
                 <span style="font-weight:500;">R$ 119,97</span>
               </div>
-              <div class="flex justify-between mb-2" style="font-size:0.85rem;">
+              <div class="flex justify-between mb-2" style="font-size:0.85rem; text-decoration:line-through; opacity:0.5;">
                 <span style="color:var(--color-text-secondary);">Taxa de serviço (10%)</span>
                 <span style="font-weight:500;">R$ 12,00</span>
               </div>
+              <div style="font-size:0.75rem; color:var(--color-text-muted); margin-bottom:0.5rem; font-style:italic;">Sem taxa de serviço (removida pelo garçom)</div>
               <div class="flex justify-between">
                 <span style="font-weight:700;">Total</span>
-                <span style="font-weight:700; color:var(--color-primary);">R$ 131,97</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 119,97</span>
               </div>
             </div>
             <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
@@ -327,15 +328,30 @@
       renderBillTotals();
     }
 
+    // Mock: Pedro (id 3) tem taxa desabilitada pelo garçom
+    var personServiceChargeDisabled = [3]; // personIds sem taxa
+
     function renderBillTotals() {
       var totalsDiv = document.getElementById('bill-totals');
       var subtotal = billItems.reduce(function(sum, item) { return sum + item.price * item.qty; }, 0);
-      var serviceCharge = subtotal * (MOCK.restaurant.serviceChargePercent / 100);
+
+      // Calcular taxa apenas sobre itens de pessoas com taxa ativa
+      var serviceCharge = 0;
+      billItems.forEach(function(item) {
+        var activePersons = item.personIds.filter(function(pid) {
+          return personServiceChargeDisabled.indexOf(pid) === -1;
+        });
+        if (activePersons.length > 0) {
+          var perPerson = (item.price * item.qty) / item.personIds.length;
+          serviceCharge += perPerson * activePersons.length * (MOCK.restaurant.serviceChargePercent / 100);
+        }
+      });
+
       var total = subtotal + serviceCharge;
 
       while (totalsDiv.firstChild) totalsDiv.removeChild(totalsDiv.firstChild);
 
-      function addRow(label, value, isBold) {
+      function addRow(label, value, isBold, note) {
         var row = document.createElement('div');
         row.className = 'flex justify-between' + (isBold ? '' : ' mb-2');
         if (isBold) row.style.cssText = 'border-top:1px solid var(--color-border-light); padding-top:0.75rem; margin-top:0.5rem;';
@@ -348,10 +364,17 @@
         row.appendChild(labelSpan);
         row.appendChild(valueSpan);
         totalsDiv.appendChild(row);
+        if (note) {
+          var noteDiv = document.createElement('div');
+          noteDiv.style.cssText = 'font-size:0.75rem; color:var(--color-text-muted); margin-bottom:0.5rem; font-style:italic;';
+          noteDiv.textContent = note;
+          totalsDiv.appendChild(noteDiv);
+        }
       }
 
       addRow('Subtotal', subtotal, false);
-      addRow('Taxa de serviço (' + MOCK.restaurant.serviceChargePercent + '%)', serviceCharge, false);
+      var taxNote = personServiceChargeDisabled.length > 0 ? 'Pedro sem taxa (removida pelo garçom)' : null;
+      addRow('Taxa de serviço (' + MOCK.restaurant.serviceChargePercent + '%)', serviceCharge, false, taxNote);
       addRow('Total', total, true);
     }
 
