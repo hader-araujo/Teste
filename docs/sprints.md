@@ -339,14 +339,13 @@ Frontend do KDS. Zero endpoints REST novos.
 
 ## Sprint 9 — Modulo Garcom + Clock-in + Chamados
 
-**Endpoints (~8):**
+**Endpoints (~7):**
 - POST `/shifts/clock-in` — Garcom inicia turno (staffId + pin).
 - POST `/shifts/clock-out` — Garcom encerra turno.
 - GET `/shifts` — Listar turnos por periodo.
 - GET `/shifts/active` — Garcons com turno ativo.
 - POST `/calls` — Criar chamado (cliente).
 - GET `/calls` — Listar chamados abertos (garcom).
-- PATCH `/calls/:id/acknowledge` — Garcom viu.
 - PATCH `/calls/:id/resolve` — Garcom resolveu.
 
 **Checklist:**

@@ -128,7 +128,6 @@ Base URL: `/api/v1`
 |---|---|---|
 | POST | `/calls` | Criar chamado (cliente) |
 | GET | `/calls` | Listar chamados abertos (garcom) |
-| PATCH | `/calls/:id/acknowledge` | Garcom viu |
 | PATCH | `/calls/:id/resolve` | Garcom resolveu |
 
 ## Stock (Fase 2 — NAO IMPLEMENTAR)

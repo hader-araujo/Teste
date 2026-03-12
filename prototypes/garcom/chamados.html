@@ -63,9 +63,8 @@
             </div>
             <span style="font-size:0.75rem; color:var(--color-text-muted); font-weight:600;">5min</span>
           </div>
-          <div class="flex gap-2" style="margin-top:0.75rem;">
-            <button class="btn btn-secondary btn-sm" onclick="showToast('Chamado da Mesa 5 visualizado', 'info')">Vi</button>
-            <button class="btn btn-success btn-sm" onclick="this.closest('article').style.opacity='0.4'; showToast('Chamado da Mesa 5 resolvido', 'success')">Resolvido</button>
+          <div style="margin-top:0.75rem;">
+            <button class="btn btn-success btn-sm" style="width:100%;" onclick="this.closest('article').style.opacity='0.4'; showToast('Chamado da Mesa 5 resolvido', 'success')">Resolvido</button>
           </div>
         </div>
       </article>
@@ -83,29 +82,27 @@
           <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-top:0.5rem; font-style:italic;">
             "Gostaríamos de fechar a conta, por favor."
           </p>
-          <div class="flex gap-2" style="margin-top:0.75rem;">
-            <button class="btn btn-secondary btn-sm" onclick="showToast('Chamado da Mesa 8 visualizado', 'info')">Vi</button>
-            <button class="btn btn-success btn-sm" onclick="this.closest('article').style.opacity='0.4'; showToast('Chamado da Mesa 8 resolvido', 'success')">Resolvido</button>
+          <div style="margin-top:0.75rem;">
+            <button class="btn btn-success btn-sm" style="width:100%;" onclick="this.closest('article').style.opacity='0.4'; showToast('Chamado da Mesa 8 resolvido', 'success')">Resolvido</button>
           </div>
         </div>
       </article>
 
-      <!-- Chamado — Mesa 3 — Outro (already acknowledged) -->
-      <article class="card" style="border-left:4px solid var(--color-info); opacity:0.7;">
+      <!-- Chamado — Mesa 3 — Outro -->
+      <article class="card" style="border-left:4px solid var(--color-info);">
         <div class="card-body">
           <div class="flex justify-between items-center mb-2">
             <div class="flex items-center gap-2">
               <span style="font-size:1.125rem; font-weight:700; color:var(--color-text-primary);">Mesa 3</span>
               <span class="badge badge-info">Outro</span>
-              <span class="badge badge-gray">Visto</span>
             </div>
             <span style="font-size:0.75rem; color:var(--color-text-muted); font-weight:600;">2min</span>
           </div>
           <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-top:0.5rem; font-style:italic;">
             "Falta um talher na mesa."
           </p>
-          <div class="flex gap-2" style="margin-top:0.75rem;">
-            <button class="btn btn-success btn-sm" onclick="this.closest('article').style.opacity='0.3'; showToast('Chamado da Mesa 3 resolvido', 'success')">Resolvido</button>
+          <div style="margin-top:0.75rem;">
+            <button class="btn btn-success btn-sm" style="width:100%;" onclick="this.closest('article').style.opacity='0.4'; showToast('Chamado da Mesa 3 resolvido', 'success')">Resolvido</button>
           </div>
         </div>
       </article>

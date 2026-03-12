@@ -55,7 +55,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Navegacao:** bottom nav fixa com 3 tabs: **Chamados, Mesas, Turno**. Chamados e a tela principal (primeira tab). Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
 
 1. **Turno** → seleciona nome → informa senha → "Iniciar Turno" → turno ativo
-2. **Chamados** (tab principal) → ve chamados abertos + itens prontos para retirada dos seus setores → "Vi" / "Resolvido" / "Retirar". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
+2. **Chamados** (tab principal) → ve chamados abertos + itens prontos para retirada dos seus setores → "Resolvido" / "Retirar". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
 3. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
 4. Toca numa mesa **livre** → **Abrir mesa:**
    - Quantas pessoas na mesa
