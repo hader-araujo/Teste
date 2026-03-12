@@ -40,6 +40,7 @@ prototypes/
 │   ├── clock-in.html           <- Ativacao de turno (senha do garcom)
 │   ├── mesas.html              <- Lista de mesas dos setores atribuídos
 │   ├── chamados.html           <- Chamados abertos + notificacoes
+│   ├── mesa-abrir.html         <- Abrir mesa (quantidade de pessoas + nomes)
 │   ├── mesa-detalhe.html       <- Pedidos da mesa com divisao por pessoa
 │   └── comanda.html            <- Lancar pedido rapido
 └── superadmin/
@@ -58,7 +59,7 @@ prototypes/
 - [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
 - [x] Telas do **admin** — login -> dashboard (KPIs dinâmicos por Local de Preparo + seção alertas) -> mesas (filtros: todas/com problema/ociosas + delete de mesa) -> cardápio CRUD (com tags, Ponto de Entrega ou "Garçom", flag entrega imediata) -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> desempenho da equipe (métricas por garçom e por Local de Preparo) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
 - [x] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
-- [x] Telas do **garçom** — ativação de turno (clock-in com senha) -> mesas agrupadas por setor -> chamados -> detalhe da mesa (com botão "Retirar" em itens prontos) -> comanda.
+- [x] Telas do **garçom** — ativação de turno (clock-in com senha) -> chamados (tab principal, com banner de notificação) -> mesas agrupadas por setor -> abrir mesa (pessoas + nomes) -> detalhe da mesa (com botão "Retirar" em itens prontos) -> comanda.
 - [x] Navegacao funcional entre todas as telas (links, incluindo Super Admin).
 - [x] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS, claim de retirada no garçom.
 - [x] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).

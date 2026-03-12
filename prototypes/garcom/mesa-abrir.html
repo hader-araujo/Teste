@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abrir Mesa 7 — OChefia Garçom</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .person-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+    .person-row:last-child { border-bottom: none; }
+    .person-number {
+      width: 28px; height: 28px; border-radius: var(--radius-full);
+      background: var(--color-primary-light); color: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.8125rem; flex-shrink: 0;
+    }
+    .person-input {
+      flex: 1; border: 1px solid var(--color-border-light);
+      border-radius: var(--radius-md); padding: 0.625rem 0.875rem;
+      font-size: 0.9375rem; background: white;
+    }
+    .person-input:focus {
+      outline: none; border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1);
+    }
+    .person-input::placeholder { color: var(--color-text-muted); }
+    .person-remove {
+      width: 28px; height: 28px; border-radius: var(--radius-full);
+      border: none; background: var(--color-gray-100); color: var(--color-text-muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0; transition: all 0.15s;
+    }
+    .person-remove:hover { background: var(--color-error); color: white; }
+    .quantity-control {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--color-gray-50); border-radius: var(--radius-xl);
+      padding: 0.5rem;
+    }
+    .qty-btn {
+      width: 44px; height: 44px; border-radius: var(--radius-full);
+      border: none; background: white; font-size: 1.25rem; font-weight: 700;
+      color: var(--color-primary); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-sm); transition: all 0.15s;
+    }
+    .qty-btn:hover { background: var(--color-primary); color: white; }
+    .qty-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .qty-btn:disabled:hover { background: white; color: var(--color-primary); }
+    .qty-value {
+      font-size: 1.5rem; font-weight: 700; color: var(--color-text-primary);
+      min-width: 40px; text-align: center;
+    }
+    .mesa-info-bar {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem; background: var(--color-primary-light);
+      border-radius: var(--radius-xl); margin-bottom: 1.5rem;
+    }
+    .mesa-info-bar .mesa-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-lg);
+      background: var(--color-primary); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1.125rem;
+    }
+    .section-label {
+      font-size: 0.9375rem; font-weight: 600; color: var(--color-text-primary);
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="waiter-layout">
+
+    <!-- Header -->
+    <header class="waiter-header">
+      <a href="mesas.html" class="back-btn" aria-label="Voltar">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12,19 5,12 12,5"/></svg>
+      </a>
+      <h1>Abrir Mesa</h1>
+      <div></div>
+    </header>
+
+    <main style="padding:1rem;">
+
+      <!-- Mesa Info -->
+      <div class="mesa-info-bar">
+        <div class="mesa-icon">7</div>
+        <div>
+          <div style="font-weight:700; font-size:1.0625rem; color:var(--color-text-primary);">Mesa 7</div>
+          <div style="font-size:0.8125rem; color:var(--color-text-secondary);">Salão Principal · Livre</div>
+        </div>
+      </div>
+
+      <!-- Quantidade de pessoas -->
+      <div style="margin-bottom:1.5rem;">
+        <div class="section-label">Quantas pessoas?</div>
+        <div class="quantity-control">
+          <button class="qty-btn" id="btn-minus" onclick="changeQty(-1)">−</button>
+          <span class="qty-value" id="qty-value">2</span>
+          <button class="qty-btn" id="btn-plus" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Nomes -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+          <div class="section-label" style="margin-bottom:0;">Nomes (opcional)</div>
+          <span style="font-size:0.75rem; color:var(--color-text-muted);">Pode preencher depois</span>
+        </div>
+        <div class="card" style="padding:0.75rem 1rem;">
+          <div id="people-list">
+            <div class="person-row">
+              <span class="person-number">1</span>
+              <input type="text" class="person-input" placeholder="Nome da pessoa 1">
+            </div>
+            <div class="person-row">
+              <span class="person-number">2</span>
+              <input type="text" class="person-input" placeholder="Nome da pessoa 2">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observação -->
+      <div style="margin-bottom:2rem;">
+        <div class="section-label">Observação (opcional)</div>
+        <textarea style="
+          width:100%; border:1px solid var(--color-border-light); border-radius:var(--radius-lg);
+          padding:0.75rem; font-size:0.9375rem; resize:none; height:80px; font-family:inherit;
+        " placeholder="Ex: aniversário, cadeirinha de bebê, alergia..."></textarea>
+      </div>
+
+      <!-- Botão Abrir -->
+      <button class="btn btn-primary" style="width:100%; padding:1rem; font-size:1.0625rem; font-weight:700; border-radius:var(--radius-xl);" onclick="openTable()">
+        Abrir Mesa 7
+      </button>
+
+    </main>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    var qty = 2;
+
+    function changeQty(delta) {
+      qty = Math.max(1, Math.min(20, qty + delta));
+      document.getElementById('qty-value').textContent = qty;
+      document.getElementById('btn-minus').disabled = qty <= 1;
+      document.getElementById('btn-plus').disabled = qty >= 20;
+      renderPeople();
+    }
+
+    function renderPeople() {
+      var list = document.getElementById('people-list');
+      var currentValues = [];
+      list.querySelectorAll('.person-input').forEach(function(input) {
+        currentValues.push(input.value);
+      });
+
+      list.textContent = '';
+      for (var i = 0; i < qty; i++) {
+        var row = document.createElement('div');
+        row.className = 'person-row';
+
+        var num = document.createElement('span');
+        num.className = 'person-number';
+        num.textContent = i + 1;
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'person-input';
+        input.placeholder = 'Nome da pessoa ' + (i + 1);
+        if (currentValues[i]) input.value = currentValues[i];
+
+        row.appendChild(num);
+        row.appendChild(input);
+        list.appendChild(row);
+      }
+    }
+
+    function openTable() {
+      var names = [];
+      document.querySelectorAll('.person-input').forEach(function(input) {
+        if (input.value.trim()) names.push(input.value.trim());
+      });
+      var msg = 'Mesa 7 aberta com ' + qty + ' pessoa' + (qty > 1 ? 's' : '');
+      if (names.length > 0) msg += ' (' + names.join(', ') + ')';
+      showToast(msg, 'success');
+      setTimeout(function() {
+        window.location.href = 'mesa-detalhe.html';
+      }, 1200);
+    }
+
+    // Init
+    document.getElementById('btn-minus').disabled = qty <= 1;
+  </script>
+</body>
+</html>

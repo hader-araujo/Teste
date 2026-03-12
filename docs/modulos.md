@@ -184,7 +184,8 @@ Acesso: Celular do garcom (PWA).
 
 ### Funcionalidades
 - **Ativacao de turno (clock-in):** garcom precisa informar que comecou a trabalhar no dia. Requer **senha do garcom** (definida no cadastro do funcionario). Ao ativar, salva hora de inicio. Ao encerrar, salva hora de fim. Registro de tempo de servico por dia.
-- **Lista de mesas dos setores atribuidos** com status (setores definidos na Equipe do Dia). Tap na mesa abre o detalhe.
+- **Lista de mesas dos setores atribuidos** com status (setores definidos na Equipe do Dia). Tap na mesa livre abre tela de abertura; tap na mesa ocupada abre o detalhe.
+- **Abrir mesa:** tela para o garçom abrir sessão em mesa livre. Quantidade de pessoas + nomes (opcional, pode pular). Cria sessão e vai para detalhe da mesa. Alternativa ao fluxo via QR Code do cliente.
 - **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta".
 - **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido".
 - **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.

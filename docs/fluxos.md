@@ -57,7 +57,11 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 1. **Turno** → seleciona nome → informa senha → "Iniciar Turno" → turno ativo
 2. **Chamados** (tab principal) → ve chamados abertos + itens prontos para retirada dos seus setores → "Vi" / "Resolvido" / "Retirar". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
 3. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
-4. Toca numa mesa → **Detalhe da mesa:**
+4. Toca numa mesa **livre** → **Abrir mesa:**
+   - Quantas pessoas na mesa
+   - Nomes das pessoas (campo para cada, pode pular)
+   - Botão "Abrir Mesa" → cria sessão → vai para detalhe da mesa
+5. Toca numa mesa **ocupada** → **Detalhe da mesa:**
    - Pessoas na mesa
    - Pedidos ativos com status de cada item
    - Itens com status "Pronto" exibem botão **"Retirar"** — ao tocar, garçom assume a entrega (claim). Item some da tela dos outros garçons do setor em tempo real. Após buscar, marca **"Entregue"**
