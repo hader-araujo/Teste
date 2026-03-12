@@ -144,7 +144,7 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/dashboard/overview` | Métricas gerais em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas |
 | GET | `/dashboard/popular-items` | Itens mais vendidos |
-| GET | `/dashboard/alerts` | Alertas em tempo real: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos) |
+| GET | `/dashboard/alerts` | Alertas em tempo real: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), mesas sem setor, setores sem garçom atribuído |
 
 ## Desempenho da Equipe
 | Metodo | Rota | Descricao |

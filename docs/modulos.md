@@ -46,7 +46,7 @@ Cada pedido gera até **3 grupos de entrega** independentes:
 Acesso: Dono/Gerente via computador ou tablet.
 
 - **Mapa de mesas em tempo real** (livres, ocupadas, aguardando limpeza, tempo de permanência). Filtros: "Todas", "Com problema", "Ociosas". Indicadores visuais de alerta: pedido atrasado, chamado sem resposta, tempo sem novo pedido. Botão deletar mesa (soft delete — só se não tiver sessão ativa; histórico preservado para métricas; permite recriar mesa com mesmo nome/número).
-- **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas).
+- **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas, mesas sem setor, setores sem garçom atribuído).
 - **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
   - **Por garçom:** tempo médio de entrega (Pronto → Entregue), quantidade de pedidos atendidos, escalações (nível 1 e 2), taxa de serviço acumulada. Filtro por período (dia/semana/mês).
   - **Por Local de Preparo:** tempo médio de preparo (Na fila → Pronto), quantidade de pedidos, itens mais demorados. Filtro por período.
