@@ -108,6 +108,55 @@
       color: var(--color-text-primary);
       min-width: 60px;
     }
+    .sector-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.875rem;
+      background: var(--color-gray-100);
+      border: 2px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .sector-toggle:hover {
+      border-color: var(--color-primary);
+    }
+    .sector-toggle.selected {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    .sector-toggle .check-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid var(--color-gray-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .sector-toggle.selected .check-icon {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+    .waiter-card-header {
+      cursor: pointer;
+    }
+    .waiter-card-header:hover {
+      background: var(--color-gray-50);
+    }
+    .waiter-card-header .edit-hint {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-left: auto;
+    }
   </style>
 </head>
 <body>
@@ -233,51 +282,8 @@
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
             <h2 style="font-size:1.125rem; font-weight:600; color:var(--color-text-primary);">Atribuição de Setores</h2>
           </div>
-          <div class="mesa-distribution-grid">
-
-            <!-- Carlos -->
-            <div class="waiter-card">
-              <div class="waiter-card-header">
-                <div class="avatar">CS</div>
-                <div class="info">
-                  <div class="name">Carlos Silva</div>
-                  <div class="count">1 setor</div>
-                </div>
-              </div>
-              <div class="waiter-card-body">
-                <span class="mesa-chip">Salão Principal</span>
-              </div>
-            </div>
-
-            <!-- Fernanda -->
-            <div class="waiter-card">
-              <div class="waiter-card-header">
-                <div class="avatar">FL</div>
-                <div class="info">
-                  <div class="name">Fernanda Lima</div>
-                  <div class="count">1 setor</div>
-                </div>
-              </div>
-              <div class="waiter-card-body">
-                <span class="mesa-chip">Terraço</span>
-              </div>
-            </div>
-
-            <!-- Lucas -->
-            <div class="waiter-card">
-              <div class="waiter-card-header">
-                <div class="avatar">LT</div>
-                <div class="info">
-                  <div class="name">Lucas Temp</div>
-                  <div class="count">2 setores</div>
-                </div>
-              </div>
-              <div class="waiter-card-body">
-                <span class="mesa-chip">Salão Principal</span>
-                <span class="mesa-chip">Terraço</span>
-              </div>
-            </div>
-
+          <p style="font-size:0.8125rem; color:var(--color-text-secondary); margin-bottom:1.25rem;">Clique nos setores para atribuir ou remover de cada garçom.</p>
+          <div class="mesa-distribution-grid" id="sector-assignment-grid">
           </div>
         </section>
 
@@ -287,5 +293,90 @@
   </div>
 
   <script src="../js/app.js"></script>
+  <script>
+    (function() {
+      var waiters = [
+        { initials: 'CS', name: 'Carlos Silva', sectors: ['Salão Principal'] },
+        { initials: 'FL', name: 'Fernanda Lima', sectors: ['Terraço'] },
+        { initials: 'LT', name: 'Lucas Temp', sectors: ['Salão Principal', 'Terraço'] }
+      ];
+      var allSectors = MOCK.sectors.map(function(s) { return s.name; });
+      var grid = document.getElementById('sector-assignment-grid');
+
+      function createEl(tag, className, text) {
+        var el = document.createElement(tag);
+        if (className) el.className = className;
+        if (text) el.textContent = text;
+        return el;
+      }
+
+      function createCheckSvg() {
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 16 16');
+        svg.setAttribute('width', '12');
+        svg.setAttribute('height', '12');
+        svg.setAttribute('fill', 'white');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z');
+        svg.appendChild(path);
+        return svg;
+      }
+
+      function render() {
+        grid.textContent = '';
+        waiters.forEach(function(w, wi) {
+          var count = w.sectors.length;
+          var countText = count === 0 ? 'Nenhum setor' : count === 1 ? '1 setor' : count + ' setores';
+
+          var card = createEl('div', 'waiter-card');
+
+          var header = createEl('div', 'waiter-card-header');
+          header.appendChild(createEl('div', 'avatar', w.initials));
+          var info = createEl('div', 'info');
+          info.appendChild(createEl('div', 'name', w.name));
+          info.appendChild(createEl('div', 'count', countText));
+          header.appendChild(info);
+          card.appendChild(header);
+
+          var body = createEl('div', 'waiter-card-body');
+          allSectors.forEach(function(sName) {
+            var isSelected = w.sectors.indexOf(sName) !== -1;
+            var btn = createEl('button', 'sector-toggle' + (isSelected ? ' selected' : ''));
+            btn.dataset.waiter = wi;
+            btn.dataset.sector = sName;
+
+            var checkIcon = createEl('span', 'check-icon');
+            if (isSelected) checkIcon.appendChild(createCheckSvg());
+            btn.appendChild(checkIcon);
+
+            var label = document.createTextNode(sName);
+            btn.appendChild(label);
+
+            btn.addEventListener('click', function() {
+              var idx = waiters[wi].sectors.indexOf(sName);
+              if (idx !== -1) {
+                if (waiters[wi].sectors.length === 1) {
+                  showToast('Garçom precisa ter pelo menos 1 setor', 'error');
+                  return;
+                }
+                waiters[wi].sectors.splice(idx, 1);
+                showToast(sName + ' removido de ' + waiters[wi].name, 'info');
+              } else {
+                waiters[wi].sectors.push(sName);
+                showToast(sName + ' atribuído a ' + waiters[wi].name, 'success');
+              }
+              render();
+            });
+
+            body.appendChild(btn);
+          });
+          card.appendChild(body);
+          grid.appendChild(card);
+        });
+      }
+
+      render();
+    })();
+  </script>
 </body>
 </html>
