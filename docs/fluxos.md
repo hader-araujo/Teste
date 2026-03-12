@@ -52,23 +52,23 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 ## Garcom
 
 **Dispositivo:** celular (PWA).
-**Navegacao:** bottom nav fixa com 3 tabs: **Mesas, Chamados, Turno**. Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
+**Navegacao:** bottom nav fixa com 3 tabs: **Chamados, Mesas, Turno**. Chamados e a tela principal (primeira tab). Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
 
 1. **Turno** → seleciona nome → informa senha → "Iniciar Turno" → turno ativo
-2. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
-3. Toca numa mesa → **Detalhe da mesa:**
+2. **Chamados** (tab principal) → ve chamados abertos + itens prontos para retirada dos seus setores → "Vi" / "Resolvido" / "Retirar". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
+3. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
+4. Toca numa mesa → **Detalhe da mesa:**
    - Pessoas na mesa
    - Pedidos ativos com status de cada item
    - Itens com status "Pronto" exibem botão **"Retirar"** — ao tocar, garçom assume a entrega (claim). Item some da tela dos outros garçons do setor em tempo real. Após buscar, marca **"Entregue"**
    - Botão **"Novo Pedido"** → abre **Comanda**
    - Botão **"Fechar conta"**
-4. **Comanda** (a partir do detalhe da mesa):
+5. **Comanda** (a partir do detalhe da mesa):
    - Seleciona pessoas ("Para quem?")
    - Busca produto ou navega por categorias
    - Toca "+" para adicionar itens
    - Barra fixa com contagem + total → "Enviar Pedido"
    - Apos enviar, volta para detalhe da mesa
-5. **Chamados** (tab fixa) → ve chamados abertos de clientes dos seus setores → "Visto" / "Resolvido"
 6. Recebe **notificacoes push**: item pronto para retirada (com indicacao do **Ponto de Entrega**), chamado de mesa
 7. **Turno** → "Encerrar Turno" quando termina o expediente
 

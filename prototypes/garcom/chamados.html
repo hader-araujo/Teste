@@ -15,6 +15,41 @@
       <div class="waiter-badge" aria-label="3 chamados pendentes">3</div>
     </header>
 
+    <!-- Notification Banner -->
+    <div id="notif-banner" style="
+      margin: 0.75rem 1rem 0;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+      border-radius: var(--radius-lg);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: bannerIn 0.4s ease;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    ">
+      <div style="
+        width: 32px; height: 32px; border-radius: var(--radius-full);
+        background: rgba(255,255,255,0.2); display: flex; align-items: center;
+        justify-content: center; flex-shrink: 0; font-size: 1rem;
+      ">!</div>
+      <div style="flex:1; font-size: 0.8125rem; line-height: 1.4;">
+        <strong>Picanha na Brasa</strong> pronta para retirada — Pass da Cozinha · Mesa 5
+      </div>
+      <button onclick="document.getElementById('notif-banner').style.display='none'" style="
+        background: rgba(255,255,255,0.2); border: none; color: white;
+        width: 24px; height: 24px; border-radius: var(--radius-full);
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+        font-size: 0.875rem; flex-shrink: 0;
+      ">✕</button>
+    </div>
+    <style>
+      @keyframes bannerIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    </style>
+
     <!-- Call List -->
     <main style="padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
 
@@ -79,13 +114,13 @@
 
     <!-- Bottom Tabs -->
     <nav class="waiter-tabs" aria-label="Navegação">
-      <a href="mesas.html">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Mesas
-      </a>
       <a href="chamados.html" class="active">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         Chamados
+      </a>
+      <a href="mesas.html">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Mesas
       </a>
       <a href="clock-in.html">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>

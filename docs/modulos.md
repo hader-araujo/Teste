@@ -179,7 +179,7 @@ Acesso: Cliente via QR Code no navegador.
 Acesso: Celular do garcom (PWA).
 
 ### Navegacao
-- **Bottom nav fixa com 3 tabs:** Mesas, Chamados, Turno.
+- **Bottom nav fixa com 3 tabs:** Chamados (principal), Mesas, Turno.
 - "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas a partir de uma mesa especifica — **nao** aparecem na bottom nav.
 
 ### Funcionalidades

@@ -80,7 +80,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 | **Lista de pedidos da mesa** | Itens com checkbox para marcar entregue. Status do preparo (cor). Hora do pedido |
 | **Botao novo pedido** | FAB (floating action button) fixo. `rounded-full bg-orange-600 text-white shadow-lg`. 56x56px |
 | **Notificacao** | Banner no topo deslizante. "Mesa 5 pedindo conta", "Pedido #42 pronto". Tap para ir direto |
-| **Bottom tabs** | 3 tabs: Mesas, Chamados, Turno. Icone + texto. Ativa em orange. "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas via tap na mesa, nao aparecem na bottom nav |
+| **Bottom tabs** | 3 tabs: Chamados (principal), Mesas, Turno. Icone + texto. Ativa em orange. "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas via tap na mesa, nao aparecem na bottom nav |
 
 **Tipografia:** mesma escala do cliente, mas com enfase em numeros grandes (numero da mesa, valores).
 
