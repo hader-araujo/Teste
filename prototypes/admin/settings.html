@@ -279,6 +279,33 @@
           </div>
         </div>
 
+        <!-- Escalação de Retirada -->
+        <div class="settings-section">
+          <h2>Escalação de Retirada</h2>
+          <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-bottom:1.25rem;">
+            Quando um item fica pronto e o garçom não retira, o sistema escala automaticamente em 2 níveis.
+          </p>
+          <div class="settings-row">
+            <div class="input-group">
+              <label>Re-lembrete ao garçom do setor (minutos)</label>
+              <input class="input" type="number" value="3" min="1" max="30" step="1" style="max-width:120px;">
+              <span style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem; display:block;">
+                Nível 1 — reenvia notificação ao garçom do setor a cada X minutos
+              </span>
+            </div>
+            <div class="input-group">
+              <label>Escalação para admin + todos os garçons (minutos)</label>
+              <input class="input" type="number" value="10" min="2" max="60" step="1" style="max-width:120px;">
+              <span style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem; display:block;">
+                Nível 2 — notifica admin e todos os garçons ativos após Y minutos sem retirada
+              </span>
+            </div>
+          </div>
+          <div style="margin-top:1rem; padding:0.875rem; background:var(--color-gray-50); border-radius:var(--radius-lg); font-size:0.8125rem; color:var(--color-text-secondary); border-left:3px solid var(--color-info);">
+            <strong style="color:var(--color-text-primary);">Como funciona:</strong> Ao marcar um item como "Pronto" no KDS, o garçom do setor é notificado. Se não retirar a tempo, o sistema reenvia a notificação (nível 1). Se o tempo de escalação passar, o admin é alertado e todos os garçons ativos podem entregar (nível 2). Cada ocorrência é registrada para relatório.
+          </div>
+        </div>
+
         <!-- Tema do Cardápio -->
         <div class="settings-section">
           <h2>Tema do Cardápio</h2>

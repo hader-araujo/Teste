@@ -60,14 +60,15 @@
                 <span style="font-size:0.875rem; color:var(--color-text-primary);">1x Picanha na Brasa <span style="font-size:0.75rem; color:var(--color-text-muted);">(÷3)</span></span>
                 <span class="badge badge-warning">Preparando</span>
               </div>
-              <!-- 2x Chopp — Pronto para retirar → botão Entregar -->
+              <!-- 2x Chopp — Pronto para retirar → botão Retirar (claim) → Entregar -->
               <div style="padding:0.5rem 0.75rem; background:var(--color-success-light, #F0FDF4); border:1px solid var(--color-success); border-radius:var(--radius-md);">
                 <div class="flex justify-between items-center">
                   <span style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">2x Chopp Pilsen</span>
                   <span class="badge badge-success">Pronto</span>
                 </div>
-                <button class="btn btn-success btn-sm btn-full" style="margin-top:0.5rem; min-height:40px; font-weight:600;" onclick="this.closest('div[style*=border]').style.opacity='0.5'; this.textContent='✓ Entregue'; this.disabled=true; this.style.background='var(--color-gray-300)'; this.style.cursor='default'; showToast('Chopp Pilsen marcado como entregue', 'success')">
-                  Marcar como Entregue
+                <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">📍 Balcão do bar</div>
+                <button class="btn btn-sm btn-full" style="margin-top:0.5rem; min-height:40px; font-weight:600; background:var(--color-info); color:white;" onclick="claimPickup(this)">
+                  Retirar
                 </button>
               </div>
             </div>
@@ -85,14 +86,15 @@
                 <span style="font-size:0.875rem; color:var(--color-text-primary);">1x Picanha na Brasa <span style="font-size:0.75rem; color:var(--color-text-muted);">(÷3)</span></span>
                 <span class="badge badge-warning">Preparando</span>
               </div>
-              <!-- 2x Chopp — Pronto para retirar → botão Entregar -->
+              <!-- 2x Chopp — Pronto para retirar → botão Retirar (claim) → Entregar -->
               <div style="padding:0.5rem 0.75rem; background:var(--color-success-light, #F0FDF4); border:1px solid var(--color-success); border-radius:var(--radius-md);">
                 <div class="flex justify-between items-center">
                   <span style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">2x Chopp Pilsen</span>
                   <span class="badge badge-success">Pronto</span>
                 </div>
-                <button class="btn btn-success btn-sm btn-full" style="margin-top:0.5rem; min-height:40px; font-weight:600;" onclick="this.closest('div[style*=border]').style.opacity='0.5'; this.textContent='✓ Entregue'; this.disabled=true; this.style.background='var(--color-gray-300)'; this.style.cursor='default'; showToast('Chopp Pilsen marcado como entregue', 'success')">
-                  Marcar como Entregue
+                <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">📍 Balcão do bar</div>
+                <button class="btn btn-sm btn-full" style="margin-top:0.5rem; min-height:40px; font-weight:600; background:var(--color-info); color:white;" onclick="claimPickup(this)">
+                  Retirar
                 </button>
               </div>
             </div>
@@ -114,7 +116,7 @@
               <span class="badge badge-warning">Preparando</span>
             </div>
 
-            <!-- Chopp — Pronto → botão Entregar -->
+            <!-- Chopp — Pronto → botão Retirar (claim) → Entregar -->
             <div style="padding:0.75rem; background:var(--color-success-light, #F0FDF4); border:1px solid var(--color-success); border-radius:var(--radius-md);">
               <div class="flex justify-between items-center">
                 <div>
@@ -123,8 +125,9 @@
                 </div>
                 <span class="badge badge-success">Pronto</span>
               </div>
-              <button class="btn btn-success btn-sm btn-full" style="margin-top:0.5rem; min-height:40px; font-weight:600;" onclick="this.closest('div[style*=border]').style.opacity='0.5'; this.textContent='✓ Entregue'; this.disabled=true; this.style.background='var(--color-gray-300)'; this.style.cursor='default'; showToast('Chopp Pilsen marcado como entregue', 'success')">
-                Marcar como Entregue
+              <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">📍 Balcão do bar</div>
+              <button class="btn btn-sm btn-full" style="margin-top:0.5rem; min-height:40px; font-weight:600; background:var(--color-info); color:white;" onclick="claimPickup(this)">
+                Retirar
               </button>
             </div>
 
@@ -144,6 +147,23 @@
 
   <script src="../js/app.js"></script>
   <script>
+    function claimPickup(btn) {
+      // Step 1: Claim (Retirar) → button changes to Entregar
+      btn.textContent = 'Marcar como Entregue';
+      btn.style.background = 'var(--color-success)';
+      btn.onclick = function() {
+        // Step 2: Deliver (Entregar) → done
+        var card = btn.closest('div[style*="border"]');
+        card.style.opacity = '0.5';
+        btn.textContent = '✓ Entregue';
+        btn.disabled = true;
+        btn.style.background = 'var(--color-gray-300)';
+        btn.style.cursor = 'default';
+        showToast('Item marcado como entregue', 'success');
+      };
+      showToast('Retirada assumida — item removido da tela dos outros garçons', 'info');
+    }
+
     function toggleServiceCharge(el) {
       el.classList.toggle('active');
       var isActive = el.classList.contains('active');
