@@ -41,7 +41,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 - **Funcionarios temporarios:** cadastro com flag `temporario`. Opcao de definir dias fixos da semana (ex: seg, qua, sex) ou deixar em branco para uso avulso.
 - **Tela de Escala (programacao):** calendario/lista por dia mostrando quem vai trabalhar nos proximos dias. Funcionarios permanentes + temporarios com dia pre-definido entram automaticamente. Permite desmarcar qualquer um para o dia e adicionar temporarios avulsos.
 - **Tela Equipe do Dia:** lista todos que vao trabalhar hoje (auto-preenchido pela escala). Toggle para desmarcar/marcar. Adicionar temporarios avulsos. **Atribuir garcons a setores** (um garcom pode ter mais de 1 setor).
-- **Configuracoes do estabelecimento** (em Settings): nome do estabelecimento e logo. O nome/logo substitui "OChefia" no header do cardapio do cliente, mas mantem "OChefia" em tamanho pequeno (branding). Se nao configurado, mostra apenas "OChefia".
+- **Configuracoes do estabelecimento** (em Settings): nome do estabelecimento e logo. O nome/logo substitui "OChefia" no header do cardapio do cliente, mas mantem "OChefia" em tamanho pequeno (branding). Se nao configurado, mostra apenas "OChefia". Inclui parametros de escalação de retirada (`pickupReminderInterval`, `pickupEscalationTimeout`) — ver seção "Escalação de Retirada" no Módulo KDS.
 - **Estoque:** movido para Fase 2. Nao implementar ate aviso explicito.
 
 ## Modulo Faturamento — Rota: `/admin/faturamento`
@@ -51,6 +51,7 @@ Acesso: Dono/Gerente. Tela separada do dashboard, dedicada a financeiro.
 - **Faturamento mensal:** receita acumulada do mes, grafico por dia, comparativo com mes anterior.
 - **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartao). (NFC-e/SAT em fase futura).
 - **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês.
+- **Relatório de escalações de retirada:** quantas vezes cada garçom teve itens escalados (nível 1: re-lembrete, nível 2: admin + todos os garçons). Filtro por dia/mês e por garçom. Permite ao admin identificar garçons com padrão de atraso na retirada.
 
 ---
 
@@ -62,8 +63,38 @@ Acesso: Equipe de producao via tablet ou monitor. **Cada Local de Preparo tem su
 - Alertas visuais e sonoros para pedido novo ou urgente.
 - Clique no prato para ficha tecnica (ingredientes, modo de preparo, foto).
 - Botao "Pronto":
-  - **Ponto de Entrega com `autoEntrega = false`:** notifica garcom(ns) do setor da mesa para retirada no Ponto de Entrega indicado.
-  - **Ponto de Entrega com `autoEntrega = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botoes "Pronto" e "Entregue" no proprio card.
+  - **Ponto de Entrega com `autoEntrega = false`:** notifica garçom(ns) do setor da mesa para retirada no Ponto de Entrega indicado. Card sai da fila do KDS (trabalho da cozinha encerrado).
+  - **Ponto de Entrega com `autoEntrega = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botões "Pronto" e "Entregue" no próprio card.
+- **Após marcar "Pronto", o item sai da fila do KDS.** O monitoramento de retirada é responsabilidade do sistema de escalação (ver abaixo) e do admin — não da cozinha.
+
+### Claim de Retirada (múltiplos garçons por setor)
+
+Quando há mais de 1 garçom no mesmo setor, o item pronto aparece na tela de **todos** eles. Para evitar que dois garçons busquem o mesmo pedido:
+
+1. **Item "Pronto" aparece na tela de todos os garçons do setor** com botão "Retirar".
+2. **Primeiro garçom que toca "Retirar"** assume a entrega (claim). O sistema registra `claimedByStaffId` no item.
+3. **Item some da tela dos outros garçons em tempo real** (via WebSocket `waiter:pickup-claimed`).
+4. Se o garçom que assumiu não marcar "Entregue", o sistema de escalação continua funcionando normalmente — mas agora com garçom responsável identificado.
+5. Na escalação nível 2 (admin + todos), o item reaparece para todos os garçons (override do claim original).
+
+### Escalação de Retirada (item pronto sem entrega)
+
+Quando um item é marcado como "Pronto" e o garçom não marca "Entregue", o sistema escala automaticamente:
+
+1. **Re-notificação ao garçom do setor** — a cada X minutos (configurável em Settings), o sistema reenvia push notification + alerta in-app para o(s) garçom(ns) do setor da mesa. Mensagem: "Item aguardando retirada há X min — [Ponto de Entrega]".
+2. **Escalação para admin + todos os garçons** — após Y minutos sem entrega (configurável em Settings), o sistema:
+   - Notifica o admin/gerente via push + alerta no dashboard (card destacado com cor vermelha).
+   - Notifica **todos os garçons ativos** (não só os do setor), para que qualquer um possa entregar.
+   - Mensagem: "URGENTE: item aguardando retirada há Y min — Mesa X — [Ponto de Entrega]".
+3. **Registro para auditoria** — cada ocorrência de escalação é registrada com: garçom responsável (do setor), item, mesa, tempo de espera, se foi escalado para nível 1 (re-notificação) ou nível 2 (admin + todos). O admin pode consultar relatório de escalações por garçom e por período na tela de faturamento/equipe.
+
+**Parâmetros configuráveis (tela Settings do admin):**
+| Parâmetro | Descrição | Default |
+|---|---|---|
+| `pickupReminderInterval` | Intervalo de re-notificação ao garçom do setor (minutos) | 3 |
+| `pickupEscalationTimeout` | Tempo para escalar ao admin + todos os garçons (minutos) | 10 |
+
+**Nota:** esses parâmetros se aplicam apenas a Pontos de Entrega com `autoEntrega = false`. Pontos com `autoEntrega = true` não passam por escalação — o operador do KDS é responsável pela entrega.
 
 ## Modulo Cliente (Cardapio Digital) — Rota: `/[slug]/mesa/[mesaId]`
 Acesso: Cliente via QR Code no navegador.
@@ -139,9 +170,9 @@ Acesso: Celular do garcom (PWA).
 - **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta".
 - **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido".
 - **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.
-- Notificacoes push: item pronto para retirada (com indicacao do Ponto de Entrega), chamado de mesa.
-- Historico de pedidos com divisao por pessoa.
-- Toggle taxa de servico por sessao.
+- Notificacoes push: item pronto para retirada (com indicação do Ponto de Entrega), chamado de mesa, re-lembretes de retirada pendente, e escalação urgente (quando qualquer garçom pode entregar).
+- Histórico de pedidos com divisão por pessoa.
+- Toggle taxa de serviço por sessão.
 
 ## Modulo Explorar (Fase 2 — NAO IMPLEMENTAR) — Rota: `/explorar`
 **Referencia arquitetural apenas.**

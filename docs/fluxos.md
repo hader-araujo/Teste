@@ -59,8 +59,9 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 3. Toca numa mesa → **Detalhe da mesa:**
    - Pessoas na mesa
    - Pedidos ativos com status de cada item
-   - Botao **"Novo Pedido"** → abre **Comanda**
-   - Botao **"Fechar conta"**
+   - Itens com status "Pronto" exibem botão **"Retirar"** — ao tocar, garçom assume a entrega (claim). Item some da tela dos outros garçons do setor em tempo real. Após buscar, marca **"Entregue"**
+   - Botão **"Novo Pedido"** → abre **Comanda**
+   - Botão **"Fechar conta"**
 4. **Comanda** (a partir do detalhe da mesa):
    - Seleciona pessoas ("Para quem?")
    - Busca produto ou navega por categorias

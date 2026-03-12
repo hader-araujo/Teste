@@ -16,7 +16,10 @@ export const SOCKET_EVENTS = {
   KDS_STATUS_UPDATE: 'kds:status-update',   // Local de Preparo mudou status (preparing/ready/delivered)
 
   // Servidor -> Garcom
-  WAITER_ORDER_READY: 'waiter:order-ready', // Item pronto pra retirar (inclui Ponto de Entrega)
+  WAITER_ORDER_READY: 'waiter:order-ready', // Item pronto pra retirar (inclui Ponto de Entrega) — enviado a todos do setor
+  WAITER_PICKUP_CLAIMED: 'waiter:pickup-claimed', // Garçom assumiu retirada — some da tela dos outros garçons do setor
+  WAITER_PICKUP_REMINDER: 'waiter:pickup-reminder', // Re-lembrete: item pronto há X min sem retirada (nível 1)
+  WAITER_PICKUP_ESCALATION: 'waiter:pickup-escalation', // URGENTE: item sem retirada há Y min — enviado a TODOS os garçons (nível 2, override do claim)
   WAITER_CALL: 'waiter:call',               // Cliente chamou
   WAITER_NEW_ORDER: 'waiter:new-order',     // Novo pedido em mesa do seu setor
 
@@ -33,6 +36,7 @@ export const SOCKET_EVENTS = {
   // Servidor -> Admin
   ADMIN_TABLE_UPDATE: 'admin:table-update',        // Status de mesa mudou
   ADMIN_METRICS_UPDATE: 'admin:metrics-update',    // Metricas atualizaram
+  ADMIN_PICKUP_ESCALATION: 'admin:pickup-escalation', // Item sem retirada escalado (nível 2) — alerta no dashboard
 
   // Estoque (Fase 2 — NAO IMPLEMENTAR)
   STOCK_ALERT_TRIGGERED: 'stock:alert-triggered',

@@ -55,18 +55,18 @@ prototypes/
 **Checklist:**
 - [x] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
 - [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
-- [ ] Telas do **admin** — login -> dashboard -> mesas -> cardápio CRUD (com tags e Ponto de Entrega ou "Garçom") -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> faturamento (diário, mensal, taxas garçom) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento).
-- [ ] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
-- [ ] Telas do **garçom** — ativação de turno (clock-in com senha) -> mesas agrupadas por setor -> chamados -> detalhe da mesa -> comanda.
+- [x] Telas do **admin** — login -> dashboard -> mesas -> cardápio CRUD (com tags e Ponto de Entrega ou "Garçom") -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
+- [x] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
+- [x] Telas do **garçom** — ativação de turno (clock-in com senha) -> mesas agrupadas por setor -> chamados -> detalhe da mesa (com botão "Retirar" em itens prontos) -> comanda.
 - [x] Navegacao funcional entre todas as telas (links, incluindo Super Admin).
-- [x] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS.
+- [x] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS, claim de retirada no garçom.
 - [x] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).
-- [x] Tela de **Settings** com selecao de tema + color picker + preview do cardapio.
+- [x] Tela de **Settings** com seleção de tema + color picker + preview do cardápio + parâmetros de escalação de retirada (`pickupReminderInterval`, `pickupEscalationTimeout`).
 - [x] Prototipos do cliente devem demonstrar pelo menos 2 temas diferentes (Classico + Escuro) para validar que o theming funciona.
-- [ ] Telas do **Super Admin** — login -> dashboard (KPIs: total estabelecimentos, ativos, suspensos, inadimplentes) -> listagem de estabelecimentos (com filtros de status e inadimplencia, paginacao) -> cadastro de novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) -> detalhe do estabelecimento (dados, status ativo/suspenso, modulos ativos, historico de cobranca) -> cobranca (valor do plano base, registro de pagamentos mensais, status pago/pendente/atrasado, indicadores de inadimplencia) -> modulos (listar modulos disponiveis com valor padrao, habilitar/desabilitar por estabelecimento, valor override) -> monitoramento (métricas de uso por estabelecimento, últimos acessos, pedidos/mês).
-- [ ] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Modulos, Monitoramento. Cobranca e acessada dentro do detalhe do estabelecimento (nao e item separado na sidebar).
-- [ ] Interacoes JS Super Admin: filtros na listagem, alterar status de estabelecimento, registrar pagamento, toggle de modulos, ordenação por métricas no monitoramento.
-- [ ] Responsivo Super Admin: desktop-first (mesma diretriz do admin).
+- [x] Telas do **Super Admin** — login -> dashboard (KPIs: total estabelecimentos, ativos, suspensos, inadimplentes) -> listagem de estabelecimentos (com filtros de status e inadimplencia, paginacao) -> cadastro de novo estabelecimento (nome, slug, CNPJ, responsavel, email, telefone) -> detalhe do estabelecimento (dados, status ativo/suspenso, modulos ativos, historico de cobranca) -> cobranca (valor do plano base, registro de pagamentos mensais, status pago/pendente/atrasado, indicadores de inadimplencia) -> modulos (listar modulos disponiveis com valor padrao, habilitar/desabilitar por estabelecimento, valor override) -> monitoramento (métricas de uso por estabelecimento, últimos acessos, pedidos/mês).
+- [x] Navegacao Super Admin: sidebar propria com branding OChefia (nao do restaurante). Menu: Dashboard, Estabelecimentos, Modulos, Monitoramento. Cobranca e acessada dentro do detalhe do estabelecimento (nao e item separado na sidebar).
+- [x] Interacoes JS Super Admin: filtros na listagem, alterar status de estabelecimento, registrar pagamento, toggle de modulos, ordenação por métricas no monitoramento.
+- [x] Responsivo Super Admin: desktop-first (mesma diretriz do admin).
 - [ ] Validacao visual aprovada pelo usuario antes de prosseguir para Sprint 0.
 
 ---
@@ -286,7 +286,7 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] Eventos server->KDS: kds:new-order, kds:status-update.
 - [ ] Eventos server->cliente: client:order-update, client:session-update.
 - [ ] Eventos de aprovacao: session:join-request, session:join-approved, session:join-rejected, session:join-remind.
-- [ ] Eventos server->garcom: waiter:order-ready, waiter:call, waiter:new-order.
+- [ ] Eventos server->garcom: waiter:order-ready, waiter:pickup-claimed, waiter:call, waiter:new-order.
 - [ ] Eventos server->admin: admin:table-update, admin:metrics-update.
 - [ ] KDS backend: fila de producao e transicoes de status.
 - [ ] Logica de reconexao: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
@@ -353,7 +353,8 @@ Frontend do KDS. Zero endpoints REST novos.
 - [ ] Frontend garcom: clock-in com senha.
 - [ ] Frontend garçom: lista de mesas dos setores atribuídos (agrupadas por setor).
 - [ ] Frontend garcom: chamados abertos.
-- [ ] Frontend garcom: detalhe da mesa (pedidos por pessoa).
+- [ ] Frontend garcom: detalhe da mesa (pedidos por pessoa). Itens com status "Pronto" exibem botão "Retirar" (claim).
+- [ ] **Claim de retirada:** `PATCH /orders/items/:id/claim` — garçom assume item pronto. Some da tela dos outros garçons via WebSocket (`waiter:pickup-claimed`). Registra `claimedByStaffId`.
 - [ ] Frontend garcom: comanda rapida.
 - [ ] Botao "O Chefia" no cliente: modal com motivo + mensagem + enviar.
 
@@ -368,28 +369,33 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] **Service Worker com cache do cardapio para suporte offline** (leitura do cardapio funciona sem internet).
 - [ ] Notificação: item pronto para retirada (com indicação do Ponto de Entrega).
 - [ ] Notificação: chamado de mesa.
-- [ ] Real-time admin: table update, metrics update via WebSocket.
+- [ ] **Escalação de retirada nível 1:** job que verifica itens com status "Pronto" sem "Entregue" há mais de `pickupReminderInterval` minutos. Reenvia push + alerta in-app ao(s) garçom(ns) do setor. Repete a cada intervalo até entrega ou escalação nível 2.
+- [ ] **Escalação de retirada nível 2:** item "Pronto" sem "Entregue" há mais de `pickupEscalationTimeout` minutos. Notifica admin (push + alerta dashboard) + todos os garçons ativos. Registra ocorrência para relatório.
+- [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin.
+- [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
 - [ ] Toggle taxa de serviço por sessão (garçom).
-- [ ] Pontos de Entrega com `autoEntrega = true`: operador recebe notificação própria (sem notificar garçom).
+- [ ] Pontos de Entrega com `autoEntrega = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
 - [ ] Service Worker com estratégia de cache para cardápio (suporte offline para leitura do cardápio).
 
 ---
 
 ## Sprint 11 — Faturamento + Dashboard
 
-**Endpoints (~6):**
+**Endpoints (~7):**
 - GET `/billing/daily` — Faturamento do dia.
 - GET `/billing/monthly` — Faturamento mensal.
 - GET `/billing/cashier` — Fechamento de caixa.
-- GET `/billing/waiter-fees` — Taxas de garcom por periodo.
-- GET `/dashboard/overview` — Metricas gerais em tempo real.
+- GET `/billing/waiter-fees` — Taxas de garçom por período.
+- GET `/billing/pickup-escalations` — Relatório de escalações de retirada por garçom.
+- GET `/dashboard/overview` — Métricas gerais em tempo real.
 - GET `/dashboard/popular-items` — Itens mais vendidos.
 
 **Checklist:**
 - [ ] Faturamento diario: receita, pedidos, ticket medio, comparativo.
 - [ ] Faturamento mensal: receita acumulada, grafico por dia, comparativo.
 - [ ] Fechamento de caixa: valores por forma de pagamento.
-- [ ] Taxas de garcom: valor devido a cada garcom no periodo.
+- [ ] Taxas de garçom: valor devido a cada garçom no período.
+- [ ] **Relatório de escalações de retirada:** por garçom e por período (dia/mês). Quantidade de escalações nível 1 e nível 2. Permite identificar padrão de atraso.
 - [ ] Dashboard: tempo médio por Local de Preparo, mesas ativas. **Métricas pré-calculadas em Redis** (atualizadas por evento, não calculadas a cada request).
 - [ ] Itens populares.
 - [ ] Metricas pre-calculadas em Redis com invalidacao por evento (nao calcular a cada request).
@@ -401,7 +407,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 Frontend puro. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Frontend admin: settings com nome/logo do estabelecimento.
+- [ ] Frontend admin: settings com nome/logo do estabelecimento, parâmetros de escalação de retirada (`pickupReminderInterval` default 3min, `pickupEscalationTimeout` default 10min).
 - [ ] Theming: selecao de tema pronto + color picker personalizado.
 - [ ] Temas prontos: Classico, Escuro, Rustico, Moderno, Tropical, Personalizado.
 - [ ] Preview em tempo real na tela de Settings.

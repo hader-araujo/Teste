@@ -112,6 +112,7 @@ Base URL: `/api/v1`
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |
 | PATCH | `/orders/items/:id/status` | Atualizar status de item individual |
+| PATCH | `/orders/items/:id/claim` | Garçom assume retirada do item pronto (body: `{ staffId }`). Registra `claimedByStaffId`, emite `waiter:pickup-claimed` para remover da tela dos outros garçons |
 | PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`) |
 
 ## Payments
@@ -151,6 +152,7 @@ Base URL: `/api/v1`
 | GET | `/billing/monthly` | Faturamento mensal (receita acumulada, grafico por dia, comparativo) |
 | GET | `/billing/cashier` | Fechamento de caixa (valores por forma de pagamento) |
 | GET | `/billing/waiter-fees` | Taxas de garcom por periodo (query: `from`, `to`) — valor devido a cada garcom |
+| GET | `/billing/pickup-escalations` | Relatório de escalações de retirada por garçom (query: `from`, `to`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período |
 
 ## Staff
 | Metodo | Rota | Descricao |
