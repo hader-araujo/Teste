@@ -13,9 +13,24 @@ const MOCK = {
     logo: null,
     address: 'Rua Augusta, 1234 — São Paulo, SP',
     serviceChargePercent: 10,
-    distributionMode: 'automatico', // 'todos' | 'automatico'
     theme: 'classico'
   },
+
+  preparationLocations: [
+    { id: 1, name: 'Cozinha Principal' },
+    { id: 2, name: 'Bar' }
+  ],
+
+  pickupPoints: [
+    { id: 1, name: 'Pass principal', preparationLocationId: 1, autoDelivery: false },
+    { id: 2, name: 'Balcão do bar', preparationLocationId: 2, autoDelivery: false },
+    { id: 3, name: 'Service bar', preparationLocationId: 2, autoDelivery: true }
+  ],
+
+  sectors: [
+    { id: 1, name: 'Salão Principal', tableIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], pickupPointMappings: [{ preparationLocationId: 1, pickupPointId: 1 }, { preparationLocationId: 2, pickupPointId: 2 }] },
+    { id: 2, name: 'Terraço', tableIds: [11, 12, 13, 14, 15], pickupPointMappings: [{ preparationLocationId: 1, pickupPointId: 1 }, { preparationLocationId: 2, pickupPointId: 3 }] }
+  ],
 
   categories: [
     { id: 1, name: 'Entradas', order: 1, productCount: 3 },
@@ -33,21 +48,21 @@ const MOCK = {
   ],
 
   products: [
-    { id: 1, name: 'Bolinho de Bacalhau (6un)', desc: 'Bolinhos crocantes de bacalhau com azeitonas, acompanha molho tártaro', price: 32.00, categoryId: 1, destination: 'cozinha', tags: [], available: true, image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=400&h=300&fit=crop' },
-    { id: 2, name: 'Torresmo Crocante', desc: 'Torresmo artesanal temperado com alho e limão, crocante por fora e macio por dentro', price: 28.00, categoryId: 1, destination: 'cozinha', tags: [], available: true, image: 'https://images.unsplash.com/photo-1619221882220-947b3d3c8861?w=400&h=300&fit=crop' },
-    { id: 3, name: 'Bruschetta de Tomate', desc: 'Pão italiano tostado com tomates frescos, manjericão e azeite extra virgem', price: 24.00, categoryId: 1, destination: 'cozinha', tags: [1], available: true, image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=400&h=300&fit=crop' },
-    { id: 4, name: 'Picanha na Brasa (400g)', desc: 'Picanha premium grelhada no ponto, acompanha arroz, farofa, vinagrete e mandioca frita', price: 89.90, categoryId: 2, destination: 'cozinha', tags: [4], available: true, image: 'https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=300&fit=crop' },
-    { id: 5, name: 'Filé à Parmegiana', desc: 'Filé mignon empanado com molho de tomate caseiro e queijo gratinado, acompanha arroz e fritas', price: 62.00, categoryId: 2, destination: 'cozinha', tags: [], available: true, image: 'https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=400&h=300&fit=crop' },
-    { id: 6, name: 'Salmão Grelhado', desc: 'Salmão fresco grelhado com ervas finas, acompanha purê de batata e legumes salteados', price: 78.00, categoryId: 2, destination: 'cozinha', tags: [2], available: true, image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop' },
-    { id: 7, name: 'Risoto de Cogumelos', desc: 'Risoto cremoso com mix de cogumelos frescos, parmesão e trufa', price: 56.00, categoryId: 2, destination: 'cozinha', tags: [1], available: true, image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=300&fit=crop' },
-    { id: 8, name: 'Smash Burger Duplo', desc: 'Dois smash patties de 90g, queijo cheddar, cebola caramelizada, picles e molho especial', price: 42.00, categoryId: 3, destination: 'cozinha', tags: [], available: true, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop' },
-    { id: 9, name: 'Burger Vegano', desc: 'Hambúrguer de grão-de-bico e beterraba com maionese vegana e salada fresca', price: 38.00, categoryId: 3, destination: 'cozinha', tags: [1], available: true, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=300&fit=crop' },
-    { id: 10, name: 'Chopp Pilsen 500ml', desc: 'Chopp artesanal Pilsen gelado, servido na temperatura ideal', price: 16.00, categoryId: 4, destination: 'bar', tags: [], available: true, image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400&h=300&fit=crop' },
-    { id: 11, name: 'Caipirinha de Limão', desc: 'Caipirinha tradicional com cachaça artesanal, limão tahiti e açúcar', price: 22.00, categoryId: 4, destination: 'bar', tags: [], available: true, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&h=300&fit=crop' },
-    { id: 12, name: 'Suco Natural de Laranja', desc: 'Suco de laranja espremido na hora, sem adição de açúcar', price: 12.00, categoryId: 4, destination: 'bar', tags: [1, 2], available: true, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop' },
-    { id: 13, name: 'Água Mineral 500ml', desc: 'Água mineral sem gás', price: 6.00, categoryId: 4, destination: 'garcom', tags: [], available: true, image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop' },
-    { id: 14, name: 'Petit Gâteau', desc: 'Bolinho de chocolate quente com centro cremoso, acompanha sorvete de creme', price: 34.00, categoryId: 5, destination: 'cozinha', tags: [4], available: true, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=300&fit=crop' },
-    { id: 15, name: 'Pudim de Leite', desc: 'Pudim de leite condensado com calda de caramelo, receita da casa', price: 18.00, categoryId: 5, destination: 'cozinha', tags: [], available: true, image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=300&fit=crop' }
+    { id: 1, name: 'Bolinho de Bacalhau (6un)', desc: 'Bolinhos crocantes de bacalhau com azeitonas, acompanha molho tártaro', price: 32.00, categoryId: 1, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=400&h=300&fit=crop' },
+    { id: 2, name: 'Torresmo Crocante', desc: 'Torresmo artesanal temperado com alho e limão, crocante por fora e macio por dentro', price: 28.00, categoryId: 1, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1619221882220-947b3d3c8861?w=400&h=300&fit=crop' },
+    { id: 3, name: 'Bruschetta de Tomate', desc: 'Pão italiano tostado com tomates frescos, manjericão e azeite extra virgem', price: 24.00, categoryId: 1, pickupPointId: 1, tags: [1], available: true, image: 'https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=400&h=300&fit=crop' },
+    { id: 4, name: 'Picanha na Brasa (400g)', desc: 'Picanha premium grelhada no ponto, acompanha arroz, farofa, vinagrete e mandioca frita', price: 89.90, categoryId: 2, pickupPointId: 1, tags: [4], available: true, image: 'https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=300&fit=crop' },
+    { id: 5, name: 'Filé à Parmegiana', desc: 'Filé mignon empanado com molho de tomate caseiro e queijo gratinado, acompanha arroz e fritas', price: 62.00, categoryId: 2, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1632778149955-e80f8ceca2e8?w=400&h=300&fit=crop' },
+    { id: 6, name: 'Salmão Grelhado', desc: 'Salmão fresco grelhado com ervas finas, acompanha purê de batata e legumes salteados', price: 78.00, categoryId: 2, pickupPointId: 1, tags: [2], available: true, image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop' },
+    { id: 7, name: 'Risoto de Cogumelos', desc: 'Risoto cremoso com mix de cogumelos frescos, parmesão e trufa', price: 56.00, categoryId: 2, pickupPointId: 1, tags: [1], available: true, image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=300&fit=crop' },
+    { id: 8, name: 'Smash Burger Duplo', desc: 'Dois smash patties de 90g, queijo cheddar, cebola caramelizada, picles e molho especial', price: 42.00, categoryId: 3, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop' },
+    { id: 9, name: 'Burger Vegano', desc: 'Hambúrguer de grão-de-bico e beterraba com maionese vegana e salada fresca', price: 38.00, categoryId: 3, pickupPointId: 1, tags: [1], available: true, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=300&fit=crop' },
+    { id: 10, name: 'Chopp Pilsen 500ml', desc: 'Chopp artesanal Pilsen gelado, servido na temperatura ideal', price: 16.00, categoryId: 4, pickupPointId: 2, tags: [], available: true, image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400&h=300&fit=crop' },
+    { id: 11, name: 'Caipirinha de Limão', desc: 'Caipirinha tradicional com cachaça artesanal, limão tahiti e açúcar', price: 22.00, categoryId: 4, pickupPointId: 2, tags: [], available: true, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&h=300&fit=crop' },
+    { id: 12, name: 'Suco Natural de Laranja', desc: 'Suco de laranja espremido na hora, sem adição de açúcar', price: 12.00, categoryId: 4, pickupPointId: 2, tags: [1, 2], available: true, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop' },
+    { id: 13, name: 'Água Mineral 500ml', desc: 'Água mineral sem gás', price: 6.00, categoryId: 4, pickupPointId: null, destination: 'waiter', tags: [], available: true, image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop' },
+    { id: 14, name: 'Petit Gâteau', desc: 'Bolinho de chocolate quente com centro cremoso, acompanha sorvete de creme', price: 34.00, categoryId: 5, pickupPointId: 1, tags: [4], available: true, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=300&fit=crop' },
+    { id: 15, name: 'Pudim de Leite', desc: 'Pudim de leite condensado com calda de caramelo, receita da casa', price: 18.00, categoryId: 5, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=300&fit=crop' }
   ],
 
   people: [
@@ -57,60 +72,60 @@ const MOCK = {
   ],
 
   tables: [
-    { id: 1, number: 1, status: 'ocupada', time: '45min', value: 156.00, people: 3, waiter: 'Carlos' },
-    { id: 2, number: 2, status: 'livre', time: null, value: 0, people: 0, waiter: null },
-    { id: 3, number: 3, status: 'ocupada', time: '1h12min', value: 284.50, people: 5, waiter: 'Carlos' },
-    { id: 4, number: 4, status: 'conta', time: '1h45min', value: 198.00, people: 2, waiter: 'Carlos' },
-    { id: 5, number: 5, status: 'ocupada', time: '23min', value: 78.00, people: 2, waiter: 'Carlos' },
-    { id: 6, number: 6, status: 'livre', time: null, value: 0, people: 0, waiter: null },
-    { id: 7, number: 7, status: 'ocupada', time: '35min', value: 124.00, people: 4, waiter: 'Carlos' },
-    { id: 8, number: 8, status: 'atrasada', time: '2h15min', value: 342.00, people: 6, waiter: 'Carlos' },
-    { id: 9, number: 9, status: 'livre', time: null, value: 0, people: 0, waiter: null },
-    { id: 10, number: 10, status: 'ocupada', time: '58min', value: 210.00, people: 3, waiter: 'Carlos' },
-    { id: 11, number: 11, status: 'livre', time: null, value: 0, people: 0, waiter: null },
-    { id: 12, number: 12, status: 'ocupada', time: '15min', value: 44.00, people: 2, waiter: 'Carlos' },
-    { id: 13, number: 13, status: 'livre', time: null, value: 0, people: 0, waiter: null },
-    { id: 14, number: 14, status: 'livre', time: null, value: 0, people: 0, waiter: null },
-    { id: 15, number: 15, status: 'ocupada', time: '1h30min', value: 276.00, people: 4, waiter: 'Carlos' }
+    { id: 1, number: 1, status: 'ocupada', time: '45min', value: 156.00, people: 3, waiter: 'Carlos', sectorId: 1 },
+    { id: 2, number: 2, status: 'livre', time: null, value: 0, people: 0, waiter: null, sectorId: 1 },
+    { id: 3, number: 3, status: 'ocupada', time: '1h12min', value: 284.50, people: 5, waiter: 'Carlos', sectorId: 1 },
+    { id: 4, number: 4, status: 'conta', time: '1h45min', value: 198.00, people: 2, waiter: 'Carlos', sectorId: 1 },
+    { id: 5, number: 5, status: 'ocupada', time: '23min', value: 78.00, people: 2, waiter: 'Carlos', sectorId: 1 },
+    { id: 6, number: 6, status: 'livre', time: null, value: 0, people: 0, waiter: null, sectorId: 1 },
+    { id: 7, number: 7, status: 'ocupada', time: '35min', value: 124.00, people: 4, waiter: 'Carlos', sectorId: 1 },
+    { id: 8, number: 8, status: 'atrasada', time: '2h15min', value: 342.00, people: 6, waiter: 'Carlos', sectorId: 1 },
+    { id: 9, number: 9, status: 'livre', time: null, value: 0, people: 0, waiter: null, sectorId: 1 },
+    { id: 10, number: 10, status: 'ocupada', time: '58min', value: 210.00, people: 3, waiter: 'Carlos', sectorId: 1 },
+    { id: 11, number: 11, status: 'livre', time: null, value: 0, people: 0, waiter: null, sectorId: 2 },
+    { id: 12, number: 12, status: 'ocupada', time: '15min', value: 44.00, people: 2, waiter: 'Carlos', sectorId: 2 },
+    { id: 13, number: 13, status: 'livre', time: null, value: 0, people: 0, waiter: null, sectorId: 2 },
+    { id: 14, number: 14, status: 'livre', time: null, value: 0, people: 0, waiter: null, sectorId: 2 },
+    { id: 15, number: 15, status: 'ocupada', time: '1h30min', value: 276.00, people: 4, waiter: 'Carlos', sectorId: 2 }
   ],
 
   staff: [
-    { id: 1, name: 'Dono', email: 'dono@ze-bar.com', role: 'OWNER', phone: '(11) 99999-0000', temporary: false, delivers: false, weekdays: [], pin: null },
-    { id: 2, name: 'Carlos Silva', email: 'carlos@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4321', temporary: false, delivers: false, weekdays: [], pin: '1234' },
-    { id: 3, name: 'Ana Santos', email: 'ana@ze-bar.com', role: 'KITCHEN', phone: '(11) 98765-4322', temporary: false, delivers: false, weekdays: [], pin: null },
-    { id: 4, name: 'Bruno Costa', email: 'bruno@ze-bar.com', role: 'BAR', phone: '(11) 98765-4323', temporary: false, delivers: true, weekdays: [], pin: null },
-    { id: 5, name: 'Fernanda Lima', email: 'fernanda@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4324', temporary: false, delivers: false, weekdays: [], pin: '5678' },
-    { id: 6, name: 'Lucas Temp', email: 'lucas@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4325', temporary: true, delivers: false, weekdays: ['seg', 'qua', 'sex'], pin: '0000' },
-    { id: 7, name: 'Juliana Oliveira', email: 'juliana@ze-bar.com', role: 'MANAGER', phone: '(11) 98765-4326', temporary: false, delivers: false, weekdays: [], pin: null }
+    { id: 1, name: 'Dono', email: 'dono@ze-bar.com', role: 'OWNER', phone: '(11) 99999-0000', temporary: false, weekdays: [], pin: null },
+    { id: 2, name: 'Carlos Silva', email: 'carlos@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4321', temporary: false, weekdays: [], pin: '1234' },
+    { id: 3, name: 'Ana Santos', email: 'ana@ze-bar.com', role: 'KITCHEN', phone: '(11) 98765-4322', temporary: false, weekdays: [], pin: null },
+    { id: 4, name: 'Bruno Costa', email: 'bruno@ze-bar.com', role: 'BAR', phone: '(11) 98765-4323', temporary: false, weekdays: [], pin: null },
+    { id: 5, name: 'Fernanda Lima', email: 'fernanda@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4324', temporary: false, weekdays: [], pin: '5678' },
+    { id: 6, name: 'Lucas Temp', email: 'lucas@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4325', temporary: true, weekdays: ['seg', 'qua', 'sex'], pin: '0000' },
+    { id: 7, name: 'Juliana Oliveira', email: 'juliana@ze-bar.com', role: 'MANAGER', phone: '(11) 98765-4326', temporary: false, weekdays: [], pin: null }
   ],
 
   orders: [
     {
       id: 1, number: '#42', tableNumber: 5, time: '19:32', status: 'preparando',
       items: [
-        { id: 1, name: 'Picanha na Brasa (400g)', qty: 1, price: 89.90, status: 'preparando', destination: 'cozinha', people: ['João', 'Maria', 'Pedro'], obs: 'Ponto mal passado' },
-        { id: 2, name: 'Chopp Pilsen 500ml', qty: 2, price: 16.00, status: 'pronto', destination: 'bar', people: ['João', 'Pedro'], obs: null }
+        { id: 1, name: 'Picanha na Brasa (400g)', qty: 1, price: 89.90, status: 'preparando', pickupPoint: 'Pass principal', people: ['João', 'Maria', 'Pedro'], obs: 'Ponto mal passado' },
+        { id: 2, name: 'Chopp Pilsen 500ml', qty: 2, price: 16.00, status: 'pronto', pickupPoint: 'Balcão do bar', people: ['João', 'Pedro'], obs: null }
       ]
     },
     {
       id: 2, number: '#43', tableNumber: 1, time: '19:45', status: 'na_fila',
       items: [
-        { id: 3, name: 'Smash Burger Duplo', qty: 2, price: 42.00, status: 'na_fila', destination: 'cozinha', people: ['João', 'Maria'], obs: 'Sem cebola' },
-        { id: 4, name: 'Caipirinha de Limão', qty: 1, price: 22.00, status: 'na_fila', destination: 'bar', people: ['Maria'], obs: null }
+        { id: 3, name: 'Smash Burger Duplo', qty: 2, price: 42.00, status: 'na_fila', pickupPoint: 'Pass principal', people: ['João', 'Maria'], obs: 'Sem cebola' },
+        { id: 4, name: 'Caipirinha de Limão', qty: 1, price: 22.00, status: 'na_fila', pickupPoint: 'Balcão do bar', people: ['Maria'], obs: null }
       ]
     },
     {
       id: 3, number: '#44', tableNumber: 3, time: '19:50', status: 'pronto',
       items: [
-        { id: 5, name: 'Filé à Parmegiana', qty: 1, price: 62.00, status: 'pronto', destination: 'cozinha', people: ['Pedro'], obs: null },
-        { id: 6, name: 'Suco Natural de Laranja', qty: 1, price: 12.00, status: 'entregue', destination: 'bar', people: ['Pedro'], obs: null }
+        { id: 5, name: 'Filé à Parmegiana', qty: 1, price: 62.00, status: 'pronto', pickupPoint: 'Pass principal', people: ['Pedro'], obs: null },
+        { id: 6, name: 'Suco Natural de Laranja', qty: 1, price: 12.00, status: 'entregue', pickupPoint: 'Balcão do bar', people: ['Pedro'], obs: null }
       ]
     },
     {
       id: 4, number: '#45', tableNumber: 7, time: '20:05', status: 'entregue',
       items: [
-        { id: 7, name: 'Bolinho de Bacalhau (6un)', qty: 1, price: 32.00, status: 'entregue', destination: 'cozinha', people: ['João', 'Maria'], obs: null },
-        { id: 8, name: 'Pudim de Leite', qty: 2, price: 18.00, status: 'entregue', destination: 'cozinha', people: ['João', 'Maria', 'Pedro'], obs: null }
+        { id: 7, name: 'Bolinho de Bacalhau (6un)', qty: 1, price: 32.00, status: 'entregue', pickupPoint: 'Pass principal', people: ['João', 'Maria'], obs: null },
+        { id: 8, name: 'Pudim de Leite', qty: 2, price: 18.00, status: 'entregue', pickupPoint: 'Pass principal', people: ['João', 'Maria', 'Pedro'], obs: null }
       ]
     }
   ],
@@ -133,6 +148,12 @@ const MOCK = {
       { date: '2026-03-14', label: 'Sex', staff: [2, 3, 4, 5, 6] }
     ]
   },
+
+  todayStaffSectors: [
+    { staffId: 2, sectorIds: [1] },      // Carlos -> Salão Principal
+    { staffId: 5, sectorIds: [2] },      // Fernanda -> Terraço
+    { staffId: 6, sectorIds: [1, 2] }    // Lucas -> ambos
+  ],
 
   kpiDashboard: {
     revenueToday: 4280.00,
@@ -730,22 +751,38 @@ function getRoleLabel(role) {
   return labels[role] || role;
 }
 
-function getDestinationLabel(dest) {
-  const labels = {
-    'cozinha': 'Cozinha',
-    'bar': 'Bar',
-    'garcom': 'Garçom'
-  };
-  return labels[dest] || dest;
+function getDestinationLabel(product) {
+  if (product.destination === 'waiter' || (product.pickupPointId === null && product.destination === 'waiter')) {
+    return 'Garçom';
+  }
+  if (product.pickupPointId) {
+    var pp = MOCK.pickupPoints.find(function(p) { return p.id === product.pickupPointId; });
+    return pp ? pp.name : 'Desconhecido';
+  }
+  // Fallback for order items with pickupPoint as string
+  if (product.pickupPoint) {
+    return product.pickupPoint;
+  }
+  return 'Desconhecido';
 }
 
-function getDestinationBadgeClass(dest) {
-  const classes = {
-    'cozinha': 'badge-warning',
-    'bar': 'badge-info',
-    'garcom': 'badge-success'
-  };
-  return classes[dest] || 'badge-gray';
+function getDestinationBadgeClass(product) {
+  if (product.destination === 'waiter' || (product.pickupPointId === null && product.destination === 'waiter')) {
+    return 'badge-success';
+  }
+  return 'badge-info';
+}
+
+function getPickupPointLabel(pickupPointId) {
+  var pp = MOCK.pickupPoints.find(function(p) { return p.id === pickupPointId; });
+  if (!pp) return 'Desconhecido';
+  var pl = MOCK.preparationLocations.find(function(l) { return l.id === pp.preparationLocationId; });
+  return pp.name + (pl ? ' (' + pl.name + ')' : '');
+}
+
+function getSectorName(sectorId) {
+  var sector = MOCK.sectors.find(function(s) { return s.id === sectorId; });
+  return sector ? sector.name : 'Desconhecido';
 }
 
 function getWeekdayLabel(day) {

@@ -25,16 +25,30 @@
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
             Dashboard
           </a>
-          <a href="mesas.html" class="sidebar-item">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Mesas
-          </a>
         </div>
         <div class="sidebar-group">
           <div class="sidebar-group-label">Cardápio</div>
           <a href="cardapio-admin.html" class="sidebar-item active">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>
             Cardápio
+          </a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            Operação
+          </div>
+          <a href="locais-preparo.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Locais de Preparo
+          </a>
+          <a href="setores.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+            Setores
+          </a>
+          <a href="mesas.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Mesas
           </a>
         </div>
         <div class="sidebar-group">
@@ -322,18 +336,18 @@
         </div>
 
         <div class="input-group">
-          <label>Destino de preparo</label>
-          <div style="display:flex; gap:1.5rem; margin-top:0.25rem;">
-            <label class="checkbox-group">
-              <input type="radio" name="prod-dest" value="cozinha" checked> Cozinha
-            </label>
-            <label class="checkbox-group">
-              <input type="radio" name="prod-dest" value="bar"> Bar
-            </label>
-            <label class="checkbox-group">
-              <input type="radio" name="prod-dest" value="garcom"> Garçom
-            </label>
-          </div>
+          <label for="prod-dest">Destino</label>
+          <select class="select" id="prod-dest">
+            <option value="">Selecione...</option>
+            <optgroup label="Cozinha Principal">
+              <option value="pp-1">Pass principal</option>
+            </optgroup>
+            <optgroup label="Bar">
+              <option value="pp-2">Balcão do bar</option>
+              <option value="pp-3">Service bar</option>
+            </optgroup>
+            <option value="waiter">Garçom (entrega direta)</option>
+          </select>
         </div>
 
         <div class="input-group">
@@ -417,11 +431,21 @@
         tdPrice.textContent = formatCurrency(product.price);
         tr.appendChild(tdPrice);
 
-        // Destino
+        // Destino (Ponto de Entrega ou Garçom)
         var tdDest = document.createElement('td');
         var destBadge = document.createElement('span');
-        destBadge.className = 'badge ' + getDestinationBadgeClass(product.destination);
-        destBadge.textContent = getDestinationLabel(product.destination);
+        var pickupPointNames = { 1: 'Pass principal', 2: 'Balcão do bar', 3: 'Service bar' };
+        var pickupPointId = product.pickupPointId || null;
+        if (pickupPointId && pickupPointNames[pickupPointId]) {
+          destBadge.className = 'badge badge-info';
+          destBadge.textContent = pickupPointNames[pickupPointId];
+        } else if (product.destination === 'waiter' || product.destination === 'garcom') {
+          destBadge.className = 'badge badge-success';
+          destBadge.textContent = 'Garçom';
+        } else {
+          destBadge.className = 'badge badge-info';
+          destBadge.textContent = pickupPointNames[pickupPointId] || 'Garçom';
+        }
         tdDest.appendChild(destBadge);
         tr.appendChild(tdDest);
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KDS Bar — OChefia</title>
+  <title>KDS — OChefia</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -11,17 +11,12 @@
 
     <!-- Header -->
     <header class="kds-header">
-      <h1>KDS — Bar</h1>
+      <h1 id="kds-title">KDS — Cozinha Principal</h1>
       <div style="display:flex; align-items:center; gap:1.5rem;">
-        <!-- Filter tabs -->
-        <nav style="display:flex; gap:0.5rem;" aria-label="Filtro por estação">
-          <button class="btn btn-sm" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full);">Todos</button>
-          <button class="btn btn-sm" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full);">Bar</button>
-        </nav>
-        <!-- KDS Navigation -->
-        <nav style="display:flex; gap:0.5rem;" aria-label="Navegação KDS">
-          <a href="cozinha.html" class="btn btn-sm" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full); text-decoration:none;">Cozinha</a>
-          <a href="bar.html" class="btn btn-sm" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full); text-decoration:none;">Bar</a>
+        <!-- Local de Preparo selector -->
+        <nav style="display:flex; gap:0.5rem;" aria-label="Local de Preparo">
+          <button class="btn btn-sm kds-location-btn active" data-location="cozinha-principal" onclick="switchKdsLocation(this)" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full);">Cozinha Principal</button>
+          <button class="btn btn-sm kds-location-btn" data-location="bar" onclick="switchKdsLocation(this)" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full);">Bar</button>
         </nav>
         <!-- Connection indicator -->
         <div class="kds-connection">
@@ -39,8 +34,117 @@
     <!-- Orders Grid -->
     <main class="kds-grid" aria-live="polite">
 
+      <!-- ===== COZINHA PRINCIPAL ===== -->
+
+      <!-- Pedido #42 — Mesa 5 — 3min (green, normal) -->
+      <article class="kds-card" data-order-id="42" data-start-minutes="3" data-location="cozinha-principal">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #42</span>
+            <span class="kds-table">Mesa 5</span>
+          </div>
+          <span class="kds-timer">3min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Picanha na Brasa', 'Picanha bovina (400g), sal grosso, alho, azeite', 'Grelhar em fogo alto por 5min cada lado. Ponto: conforme pedido do cliente.')">Picanha na Brasa</span>
+          </div>
+          <div class="kds-item-obs">Ponto mal passado</div>
+        </div>
+        <div class="kds-pickup-point">→ Pass principal</div>
+        <button class="kds-bump-btn" onclick="kdsBump('42')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #43 — Mesa 1 — 8min (green, normal) -->
+      <article class="kds-card" data-order-id="43" data-start-minutes="8" data-location="cozinha-principal">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #43</span>
+            <span class="kds-table">Mesa 1</span>
+          </div>
+          <span class="kds-timer">8min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">2x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Smash Burger', 'Blend de carnes (180g), queijo cheddar, cebola caramelizada, pão brioche', 'Amassar a carne na chapa quente. Dourar 2min cada lado. Montar com queijo derretido.')">Smash Burger</span>
+          </div>
+          <div class="kds-item-obs">Sem cebola</div>
+        </div>
+        <div class="kds-pickup-point">→ Pass principal</div>
+        <button class="kds-bump-btn" onclick="kdsBump('43')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #46 — Mesa 10 — 12min (yellow, warning) -->
+      <article class="kds-card status-warning" data-order-id="46" data-start-minutes="12" data-location="cozinha-principal">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #46</span>
+            <span class="kds-table">Mesa 10</span>
+          </div>
+          <span class="kds-timer warning">12min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Filé à Parmegiana', 'Filé mignon (300g), farinha de rosca, ovos, molho de tomate, mussarela, presunto', 'Empanar o filé e fritar. Cobrir com molho, presunto e mussarela. Gratinar no forno por 10min.')">Filé à Parmegiana</span>
+          </div>
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Risoto de Cogumelos', 'Arroz arbóreo, cogumelos shimeji e shiitake, caldo de legumes, parmesão, manteiga, cebola', 'Refogar cebola, adicionar arroz e ir colocando caldo aos poucos. Finalizar com manteiga e parmesão.')">Risoto de Cogumelos</span>
+          </div>
+        </div>
+        <div class="kds-pickup-point">→ Pass principal</div>
+        <button class="kds-bump-btn" onclick="kdsBump('46')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #47 — Mesa 3 — 18min (red, danger) -->
+      <article class="kds-card status-danger" data-order-id="47" data-start-minutes="18" data-location="cozinha-principal">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #47</span>
+            <span class="kds-table">Mesa 3</span>
+          </div>
+          <span class="kds-timer danger">18min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Bolinho de Bacalhau', 'Bacalhau desfiado, batata, salsa, ovo, cebola, azeite', 'Misturar ingredientes, moldar bolinhos. Fritar em óleo quente até dourar por igual.')">Bolinho de Bacalhau</span>
+          </div>
+          <div class="kds-item">
+            <span class="kds-item-qty">1x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Salmão Grelhado', 'Filé de salmão (250g), limão siciliano, ervas finas, azeite, alcaparras', 'Temperar e grelhar com a pele para baixo por 4min. Virar e finalizar por 2min.')">Salmão Grelhado</span>
+          </div>
+        </div>
+        <div class="kds-pickup-point">→ Pass principal</div>
+        <button class="kds-bump-btn" onclick="kdsBump('47')">PRONTO</button>
+      </article>
+
+      <!-- Pedido #48 — Mesa 7 — 5min (green, normal) -->
+      <article class="kds-card" data-order-id="48" data-start-minutes="5" data-location="cozinha-principal">
+        <div class="kds-card-header">
+          <div>
+            <span class="kds-order-number">Pedido #48</span>
+            <span class="kds-table">Mesa 7</span>
+          </div>
+          <span class="kds-timer">5min</span>
+        </div>
+        <div class="kds-items">
+          <div class="kds-item">
+            <span class="kds-item-qty">2x</span>
+            <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Burger Vegano', 'Hambúrguer de grão-de-bico, alface, tomate, cebola roxa, maionese vegana, pão integral', 'Grelhar o hambúrguer por 3min cada lado. Montar com vegetais frescos.')">Burger Vegano</span>
+          </div>
+        </div>
+        <div class="kds-pickup-point">→ Pass principal</div>
+        <button class="kds-bump-btn" onclick="kdsBump('48')">PRONTO</button>
+      </article>
+
+      <!-- ===== BAR ===== -->
+
       <!-- Pedido #42-B — Mesa 5 — 3min (green, normal) -->
-      <article class="kds-card" data-order-id="42-B" data-start-minutes="3">
+      <article class="kds-card" data-order-id="42-B" data-start-minutes="3" data-location="bar" style="display:none;">
         <div class="kds-card-header">
           <div>
             <span class="kds-order-number">Pedido #42-B</span>
@@ -54,11 +158,12 @@
             <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Chopp Pilsen', 'Chopp pilsen artesanal, 300ml, servido a 3°C', 'Abrir a torneira inclinando o copo a 45°. Completar com colarinho de 2 dedos.')">Chopp Pilsen</span>
           </div>
         </div>
+        <div class="kds-pickup-point">→ Balcão do bar</div>
         <button class="kds-bump-btn" onclick="kdsBump('42-B')">PRONTO</button>
       </article>
 
       <!-- Pedido #43-B — Mesa 1 — 8min (green, normal) -->
-      <article class="kds-card" data-order-id="43-B" data-start-minutes="8">
+      <article class="kds-card" data-order-id="43-B" data-start-minutes="8" data-location="bar" style="display:none;">
         <div class="kds-card-header">
           <div>
             <span class="kds-order-number">Pedido #43-B</span>
@@ -72,18 +177,19 @@
             <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Caipirinha de Limão', 'Cachaça artesanal (50ml), limão tahiti, açúcar, gelo', 'Cortar limão em pedaços, macerar com açúcar. Adicionar cachaça e gelo. Mexer bem.')">Caipirinha de Limão</span>
           </div>
         </div>
+        <div class="kds-pickup-point">→ Balcão do bar</div>
         <button class="kds-bump-btn" onclick="kdsBump('43-B')">PRONTO</button>
       </article>
 
-      <!-- Pedido #49-B — Mesa 12 — 2min (green, normal) — has "entrega" flag -->
-      <article class="kds-card" data-order-id="49-B" data-start-minutes="2">
+      <!-- Pedido #49-B — Mesa 12 — 2min (green, normal) — autoDelivery (Service bar) -->
+      <article class="kds-card" data-order-id="49-B" data-start-minutes="2" data-location="bar" style="display:none;">
         <div class="kds-card-header">
           <div>
             <span class="kds-order-number">Pedido #49-B</span>
             <span class="kds-table">Mesa 12</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
-            <span class="badge badge-info" style="font-size:0.6875rem;">Entrega</span>
+            <span class="badge badge-info" style="font-size:0.6875rem;">Auto-entrega</span>
             <span class="kds-timer">2min</span>
           </div>
         </div>
@@ -97,12 +203,13 @@
             <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFichaTecnica('Chopp Pilsen', 'Chopp pilsen artesanal, 300ml, servido a 3°C', 'Abrir a torneira inclinando o copo a 45°. Completar com colarinho de 2 dedos.')">Chopp Pilsen</span>
           </div>
         </div>
+        <div class="kds-pickup-point">→ Service bar <span style="color:var(--color-info); font-size:0.75rem; font-weight:500;">(auto-entrega)</span></div>
         <button class="kds-bump-btn" id="btn-pronto-49B" onclick="this.style.display='none'; document.getElementById('btn-entregue-49B').style.display='block'; showToast('Pedido #49-B pronto! Aguardando entrega.', 'success');">PRONTO</button>
         <button class="kds-bump-btn" id="btn-entregue-49B" style="display:none; background-color:var(--color-info);" onclick="kdsBump('49-B'); showToast('Pedido #49-B entregue!', 'success');">ENTREGUE</button>
       </article>
 
       <!-- Pedido #50-B — Mesa 8 — 14min (warning) -->
-      <article class="kds-card status-warning" data-order-id="50-B" data-start-minutes="14">
+      <article class="kds-card status-warning" data-order-id="50-B" data-start-minutes="14" data-location="bar" style="display:none;">
         <div class="kds-card-header">
           <div>
             <span class="kds-order-number">Pedido #50-B</span>
@@ -117,6 +224,7 @@
           </div>
           <div class="kds-item-obs">1 sem açúcar</div>
         </div>
+        <div class="kds-pickup-point">→ Balcão do bar</div>
         <button class="kds-bump-btn" onclick="kdsBump('50-B')">PRONTO</button>
       </article>
 
@@ -155,6 +263,41 @@
 
   <script src="../js/app.js"></script>
   <script>
+    // Location names for the title
+    var kdsLocationNames = {
+      'cozinha-principal': 'Cozinha Principal',
+      'bar': 'Bar'
+    };
+
+    function switchKdsLocation(btn) {
+      var location = btn.getAttribute('data-location');
+
+      // Update pill buttons
+      document.querySelectorAll('.kds-location-btn').forEach(function(b) {
+        b.classList.remove('active');
+        b.style.backgroundColor = 'var(--color-gray-700)';
+        b.style.color = 'var(--color-gray-300)';
+      });
+      btn.classList.add('active');
+      btn.style.backgroundColor = 'var(--color-primary)';
+      btn.style.color = 'white';
+
+      // Update title
+      document.getElementById('kds-title').textContent = 'KDS — ' + kdsLocationNames[location];
+
+      // Update page title
+      document.title = 'KDS ' + kdsLocationNames[location] + ' — OChefia';
+
+      // Show/hide order cards
+      document.querySelectorAll('.kds-card').forEach(function(card) {
+        if (card.getAttribute('data-location') === location) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
     function openFichaTecnica(nome, ingredientes, preparo) {
       document.getElementById('ficha-title').textContent = nome;
       document.getElementById('ficha-ingredientes').textContent = ingredientes;

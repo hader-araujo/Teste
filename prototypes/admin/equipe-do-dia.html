@@ -124,11 +124,16 @@
         <div class="sidebar-group">
           <div class="sidebar-group-label">Principal</div>
           <a href="dashboard.html" class="sidebar-item"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>Dashboard</a>
-          <a href="mesas.html" class="sidebar-item"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Mesas</a>
         </div>
         <div class="sidebar-group">
           <div class="sidebar-group-label">Cardápio</div>
           <a href="cardapio-admin.html" class="sidebar-item"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>Cardápio</a>
+        </div>
+        <div class="sidebar-group">
+          <div class="sidebar-group-label"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Operação</div>
+          <a href="locais-preparo.html" class="sidebar-item"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Locais de Preparo</a>
+          <a href="setores.html" class="sidebar-item"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>Setores</a>
+          <a href="mesas.html" class="sidebar-item"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Mesas</a>
         </div>
         <div class="sidebar-group">
           <div class="sidebar-group-label">Equipe</div>
@@ -222,11 +227,10 @@
           </div>
         </section>
 
-        <!-- Distribuição de Mesas -->
+        <!-- Atribuição de Setores -->
         <section>
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-            <h2 style="font-size:1.125rem; font-weight:600; color:var(--color-text-primary);">Distribuição de Mesas</h2>
-            <span class="badge badge-success" style="font-size:0.8125rem; padding:0.375rem 0.75rem;">Modo: Automático</span>
+            <h2 style="font-size:1.125rem; font-weight:600; color:var(--color-text-primary);">Atribuição de Setores</h2>
           </div>
           <div class="mesa-distribution-grid">
 
@@ -236,15 +240,11 @@
                 <div class="avatar">CS</div>
                 <div class="info">
                   <div class="name">Carlos Silva</div>
-                  <div class="count">5 mesas</div>
+                  <div class="count">1 setor</div>
                 </div>
               </div>
               <div class="waiter-card-body">
-                <span class="mesa-chip">Mesa 1</span>
-                <span class="mesa-chip">Mesa 3</span>
-                <span class="mesa-chip">Mesa 4</span>
-                <span class="mesa-chip">Mesa 5</span>
-                <span class="mesa-chip">Mesa 7</span>
+                <span class="mesa-chip">Salão Principal</span>
               </div>
             </div>
 
@@ -254,14 +254,11 @@
                 <div class="avatar">FL</div>
                 <div class="info">
                   <div class="name">Fernanda Lima</div>
-                  <div class="count">4 mesas</div>
+                  <div class="count">1 setor</div>
                 </div>
               </div>
               <div class="waiter-card-body">
-                <span class="mesa-chip">Mesa 8</span>
-                <span class="mesa-chip">Mesa 10</span>
-                <span class="mesa-chip">Mesa 12</span>
-                <span class="mesa-chip">Mesa 15</span>
+                <span class="mesa-chip">Terraço</span>
               </div>
             </div>
 
@@ -271,16 +268,12 @@
                 <div class="avatar">LT</div>
                 <div class="info">
                   <div class="name">Lucas Temp</div>
-                  <div class="count">6 mesas (reservas)</div>
+                  <div class="count">2 setores</div>
                 </div>
               </div>
               <div class="waiter-card-body">
-                <span class="mesa-chip">Mesa 2</span>
-                <span class="mesa-chip">Mesa 6</span>
-                <span class="mesa-chip">Mesa 9</span>
-                <span class="mesa-chip">Mesa 11</span>
-                <span class="mesa-chip">Mesa 13</span>
-                <span class="mesa-chip">Mesa 14</span>
+                <span class="mesa-chip">Salão Principal</span>
+                <span class="mesa-chip">Terraço</span>
               </div>
             </div>
 
