@@ -112,7 +112,7 @@ Base URL: `/api/v1`
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |
 | PATCH | `/orders/items/:id/status` | Atualizar status de item individual |
-| PATCH | `/orders/items/:id/claim` | Garçom assume retirada do item pronto (body: `{ staffId }`). Registra `claimedByStaffId`, emite `waiter:pickup-claimed` para remover da tela dos outros garçons |
+| PATCH | `/orders/:id/delivery-groups/:group/claim` | Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons |
 | PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`) |
 
 ## Payments

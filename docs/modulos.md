@@ -85,15 +85,22 @@ Acesso: Equipe de producao via tablet ou monitor. **Cada Local de Preparo tem su
   - **Ponto de Entrega com `autoEntrega = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botões "Pronto" e "Entregue" no próprio card.
 - **Após marcar "Pronto", o item sai da fila do KDS.** O monitoramento de retirada é responsabilidade do sistema de escalação (ver abaixo) e do admin — não da cozinha.
 
-### Claim de Retirada (múltiplos garçons por setor)
+### Notificação e Claim de Retirada
 
-Quando há mais de 1 garçom no mesmo setor, o item pronto aparece na tela de **todos** eles. Para evitar que dois garçons busquem o mesmo pedido:
+O garçom é notificado quando **todos os itens de um grupo de entrega** ficam prontos (não item a item). A notificação lista todos os **Pontos de Entrega** onde o garçom deve buscar. Exemplo:
 
-1. **Item "Pronto" aparece na tela de todos os garçons do setor** com botão "Retirar".
-2. **Primeiro garçom que toca "Retirar"** assume a entrega (claim). O sistema registra `claimedByStaffId` no item.
-3. **Item some da tela dos outros garçons em tempo real** (via WebSocket `waiter:pickup-claimed`).
-4. Se o garçom que assumiu não marcar "Entregue", o sistema de escalação continua funcionando normalmente — mas agora com garçom responsável identificado.
-5. Na escalação nível 2 (admin + todos), o item reaparece para todos os garçons (override do claim original).
+> "Pedido #42 pronto — Pass da Cozinha + Janela da Pizzaria — Mesa 5"
+
+O claim (assumir entrega) é por **grupo de entrega**, não por item individual. Isso garante que um garçom leva tudo junto e evita que outro pegue metade do pedido.
+
+**Fluxo completo:**
+1. Sistema detecta que todos os itens do grupo (Normal ou Imediato) estão "Pronto".
+2. **Notificação para todos os garçons do setor** com lista de Pontos de Entrega a visitar.
+3. **Primeiro garçom que toca "Retirar"** assume o grupo inteiro (claim). O sistema registra `claimedByStaffId` em todos os itens do grupo.
+4. **Grupo some da tela dos outros garçons em tempo real** (via WebSocket `waiter:pickup-claimed`).
+5. Garçom vai a cada Ponto de Entrega, pega os itens, entrega na mesa → marca **"Entregue"**.
+6. Se o garçom que assumiu não marcar "Entregue", o sistema de escalação continua funcionando normalmente — mas agora com garçom responsável identificado.
+7. Na escalação nível 2 (admin + todos), o grupo reaparece para todos os garçons (override do claim original).
 
 ### Escalação de Retirada (item pronto sem entrega)
 

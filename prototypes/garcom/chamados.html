@@ -12,7 +12,7 @@
     <!-- Header -->
     <header class="waiter-header">
       <h1>Chamados</h1>
-      <div class="waiter-badge" aria-label="3 chamados pendentes">3</div>
+      <div class="waiter-badge" aria-label="5 chamados pendentes">5</div>
     </header>
 
     <!-- Notification Banner -->
@@ -34,7 +34,7 @@
         justify-content: center; flex-shrink: 0; font-size: 1rem;
       ">!</div>
       <div style="flex:1; font-size: 0.8125rem; line-height: 1.4;">
-        <strong>Picanha na Brasa</strong> pronta para retirada — Pass da Cozinha · Mesa 5
+        <strong>URGENTE:</strong> Filé Mignon aguardando retirada há 18min — Pass da Cozinha · Mesa 8
       </div>
       <button onclick="document.getElementById('notif-banner').style.display='none'" style="
         background: rgba(255,255,255,0.2); border: none; color: white;
@@ -52,6 +52,56 @@
 
     <!-- Call List -->
     <main style="padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+
+      <!-- Escalação — Mesa 8 — Item atrasado (nível 2: todos os garçons) -->
+      <article class="card" style="border-left:4px solid var(--color-error); background:linear-gradient(135deg, #FEF2F2 0%, #FFF 100%); animation: pulseCard 2s infinite;">
+        <div class="card-body">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-2">
+              <span style="font-size:1.125rem; font-weight:700; color:var(--color-error);">Mesa 8</span>
+              <span class="badge badge-error">Retirada atrasada</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--color-error); font-weight:700;">18min</span>
+          </div>
+          <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-top:0.25rem;">
+            <strong>1x Filé Mignon</strong> aguardando retirada
+          </p>
+          <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">📍 Pass da Cozinha · Escalado para todos</div>
+          <div style="margin-top:0.75rem;">
+            <button class="btn btn-sm btn-full" style="min-height:40px; font-weight:600; background:var(--color-info); color:white;" onclick="this.textContent='Marcar como Entregue'; this.style.background='var(--color-success)'; this.onclick=function(){this.closest('article').style.opacity='0.4'; this.closest('article').style.animation='none'; showToast('Item entregue na Mesa 8', 'success')}; showToast('Retirada assumida — Mesa 8', 'info')">
+              Retirar e Entregar
+            </button>
+          </div>
+        </div>
+      </article>
+      <style>
+        @keyframes pulseCard {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+          50% { box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15); }
+        }
+      </style>
+
+      <!-- Retirada — Mesa 5 — Pedido pronto em 2 pontos de entrega -->
+      <article class="card" style="border-left:4px solid var(--color-success); background:var(--color-success-light, #F0FDF4);">
+        <div class="card-body">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-2">
+              <span style="font-size:1.125rem; font-weight:700; color:var(--color-text-primary);">Mesa 5</span>
+              <span class="badge badge-success">Pronto para retirada</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--color-text-muted); font-weight:600;">1min</span>
+          </div>
+          <p style="font-size:0.875rem; color:var(--color-text-secondary); margin-top:0.25rem;">
+            <strong>Pedido #42</strong> — 1x Picanha + 1x Pizza Margherita
+          </p>
+          <div style="font-size:0.75rem; color:var(--color-text-muted); margin-top:0.25rem;">📍 Pass da Cozinha + Janela da Pizzaria</div>
+          <div style="margin-top:0.75rem;">
+            <button class="btn btn-sm btn-full" style="min-height:40px; font-weight:600; background:var(--color-info); color:white;" onclick="this.textContent='Marcar como Entregue'; this.style.background='var(--color-success)'; this.onclick=function(){this.closest('article').style.opacity='0.4'; showToast('Grupo entregue na Mesa 5', 'success')}; showToast('Retirada assumida — grupo removido da tela dos outros garçons', 'info')">
+              Retirar Grupo
+            </button>
+          </div>
+        </div>
+      </article>
 
       <!-- Chamado — Mesa 5 — Chamar garçom -->
       <article class="card" style="border-left:4px solid var(--color-warning);">
