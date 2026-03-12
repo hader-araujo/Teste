@@ -23,11 +23,12 @@ prototypes/
 │   └── pagamento.html          <- QR Code Pix individual por pessoa
 ├── admin/
 │   ├── login.html              <- Tela de login
-│   ├── dashboard.html          <- Metricas, fila de pedidos, chamados
-│   ├── mesas.html              <- Mapa de mesas com status
+│   ├── dashboard.html          <- Métricas dinâmicas por Local de Preparo, pedidos recentes, chamados, seção alertas
+│   ├── mesas.html              <- Mapa de mesas com status + filtros (todas/com problema/ociosas) + delete de mesa
 │   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, Ponto de Entrega ou "Garçom", flag entrega imediata)
 │   ├── locais-preparo.html     <- CRUD de Locais de Preparo + Pontos de Entrega (com flag auto-entrega)
 │   ├── setores.html            <- CRUD de Setores + mesas vinculadas + mapeamento de Pontos de Entrega por Local de Preparo
+│   ├── desempenho.html         <- Desempenho da equipe: métricas por garçom e por Local de Preparo
 │   ├── faturamento.html        <- Faturamento diário, mensal e taxas de garçom
 │   ├── staff.html              <- Gestão de equipe + convites + flag temporário + senha garçom
 │   ├── escala.html             <- Programação de escala (calendário por dia, próximos dias)
@@ -55,7 +56,7 @@ prototypes/
 **Checklist:**
 - [x] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
 - [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
-- [x] Telas do **admin** — login -> dashboard -> mesas -> cardápio CRUD (com tags, Ponto de Entrega ou "Garçom", flag entrega imediata) -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
+- [x] Telas do **admin** — login -> dashboard (KPIs dinâmicos por Local de Preparo + seção alertas) -> mesas (filtros: todas/com problema/ociosas + delete de mesa) -> cardápio CRUD (com tags, Ponto de Entrega ou "Garçom", flag entrega imediata) -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> desempenho da equipe (métricas por garçom e por Local de Preparo) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
 - [x] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
 - [x] Telas do **garçom** — ativação de turno (clock-in com senha) -> mesas agrupadas por setor -> chamados -> detalhe da mesa (com botão "Retirar" em itens prontos) -> comanda.
 - [x] Navegacao funcional entre todas as telas (links, incluindo Super Admin).
@@ -128,7 +129,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - GET `/tables` — Listar mesas do restaurante.
 - POST `/tables` — Criar mesa (body inclui `sectorId` obrigatório).
 - PUT `/tables/:id` — Atualizar mesa.
-- DELETE `/tables/:id` — Remover mesa.
+- DELETE `/tables/:id` — Soft delete de mesa (só se fechada, histórico preservado, permite recriar com mesmo nome).
 - POST `/tables/:id/open` — Abrir sessão da mesa.
 - POST `/tables/:id/close` — Fechar sessão.
 - GET `/tables/:id/session` — Sessão ativa da mesa.
@@ -147,7 +148,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - PUT `/sectors/:id/pickup-point-mappings` — Definir mapeamento de pontos de entrega por local de preparo.
 
 **Checklist:**
-- [ ] CRUD de mesas + sessão (open/close). Mesa com `sectorId` obrigatório.
+- [ ] CRUD de mesas + sessão (open/close). Mesa com `sectorId` obrigatório. Delete = soft delete (só se sem sessão ativa; histórico preservado; permite recriar com mesmo nome/número).
 - [ ] CRUD de Locais de Preparo (nome). Criação gera 1 Ponto de Entrega default automaticamente.
 - [ ] CRUD de Pontos de Entrega (nome, `autoDelivery` flag, vinculado a Local de Preparo).
 - [ ] CRUD de Setores (nome). Setor default criado automaticamente com o restaurante.
@@ -381,24 +382,29 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 
 ## Sprint 11 — Faturamento + Dashboard
 
-**Endpoints (~7):**
+**Endpoints (~13):**
 - GET `/billing/daily` — Faturamento do dia.
 - GET `/billing/monthly` — Faturamento mensal.
 - GET `/billing/cashier` — Fechamento de caixa.
 - GET `/billing/waiter-fees` — Taxas de garçom por período.
-- GET `/billing/pickup-escalations` — Relatório de escalações de retirada por garçom.
-- GET `/dashboard/overview` — Métricas gerais em tempo real.
+- GET `/dashboard/overview` — Métricas gerais em tempo real (dinâmico por Local de Preparo).
 - GET `/dashboard/popular-items` — Itens mais vendidos.
+- GET `/dashboard/alerts` — Alertas: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas.
+- GET `/staff/:id/performance` — Métricas individuais do funcionário por período.
+- GET `/staff/performance/summary` — Resumo de desempenho de todos os funcionários.
+- GET `/preparation-locations/:id/performance` — Métricas do Local de Preparo por período.
+- GET `/staff/pickup-escalations` — Relatório de escalações de retirada por garçom.
 
 **Checklist:**
 - [ ] Faturamento diario: receita, pedidos, ticket medio, comparativo.
 - [ ] Faturamento mensal: receita acumulada, grafico por dia, comparativo.
 - [ ] Fechamento de caixa: valores por forma de pagamento.
 - [ ] Taxas de garçom: valor devido a cada garçom no período.
-- [ ] **Relatório de escalações de retirada:** por garçom e por período (dia/mês). Quantidade de escalações nível 1 e nível 2. Permite identificar padrão de atraso.
-- [ ] Dashboard: tempo médio por Local de Preparo, mesas ativas. **Métricas pré-calculadas em Redis** (atualizadas por evento, não calculadas a cada request).
+- [ ] Dashboard: tempo médio de preparo por Local de Preparo (**dinâmico**, baseado nos cadastrados — não fixo), tempo médio de entrega por garçom, mesas ativas. **Métricas pré-calculadas em Redis** (atualizadas por evento, não calculadas a cada request).
+- [ ] **Dashboard alertas:** seção de alertas em tempo real — pedidos atrasados (tempo > threshold), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos).
 - [ ] Itens populares.
 - [ ] Metricas pre-calculadas em Redis com invalidacao por evento (nao calcular a cada request).
+- [ ] **Tela "Desempenho da Equipe":** métricas por garçom (tempo médio de entrega Pronto→Entregue, pedidos atendidos, escalações nível 1 e 2, taxa de serviço acumulada) e por Local de Preparo (tempo médio de preparo Na fila→Pronto, pedidos produzidos, itens mais demorados). Filtro por período (dia/semana/mês). Inclui **relatório de escalações de retirada** (movido de Faturamento — é métrica operacional, não financeira).
 
 ---
 

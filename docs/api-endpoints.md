@@ -30,7 +30,7 @@ Base URL: `/api/v1`
 | GET | `/tables` | Listar mesas do restaurante |
 | POST | `/tables` | Criar mesa |
 | PUT | `/tables/:id` | Atualizar mesa |
-| DELETE | `/tables/:id` | Remover mesa |
+| DELETE | `/tables/:id` | Soft delete de mesa (só se não tiver sessão ativa). Histórico preservado para métricas. Permite recriar mesa com mesmo nome/número |
 | POST | `/tables/:id/open` | Abrir sessao da mesa |
 | POST | `/tables/:id/close` | Fechar sessao (encerrar conta) |
 | GET | `/tables/:id/session` | Sessao ativa da mesa |
@@ -142,8 +142,17 @@ Base URL: `/api/v1`
 ## Dashboard
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/dashboard/overview` | Métricas gerais em tempo real (tempo médio por Local de Preparo, mesas ativas) |
+| GET | `/dashboard/overview` | Métricas gerais em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas |
 | GET | `/dashboard/popular-items` | Itens mais vendidos |
+| GET | `/dashboard/alerts` | Alertas em tempo real: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos) |
+
+## Desempenho da Equipe
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/staff/:id/performance` | Métricas individuais do funcionário por período (query: `from`, `to`). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
+| GET | `/staff/performance/summary` | Resumo de desempenho de todos os funcionários no período (query: `from`, `to`). Ranking por métricas |
+| GET | `/preparation-locations/:id/performance` | Métricas do Local de Preparo por período (query: `from`, `to`). Tempo médio de preparo, pedidos, itens mais demorados |
+| GET | `/staff/pickup-escalations` | Relatório de escalações de retirada por garçom (query: `from`, `to`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período |
 
 ## Faturamento
 | Metodo | Rota | Descricao |
@@ -152,7 +161,6 @@ Base URL: `/api/v1`
 | GET | `/billing/monthly` | Faturamento mensal (receita acumulada, grafico por dia, comparativo) |
 | GET | `/billing/cashier` | Fechamento de caixa (valores por forma de pagamento) |
 | GET | `/billing/waiter-fees` | Taxas de garcom por periodo (query: `from`, `to`) — valor devido a cada garcom |
-| GET | `/billing/pickup-escalations` | Relatório de escalações de retirada por garçom (query: `from`, `to`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período |
 
 ## Staff
 | Metodo | Rota | Descricao |

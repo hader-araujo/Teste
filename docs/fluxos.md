@@ -80,8 +80,8 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Navegacao:** sidebar fixa com menu agrupado por secao.
 
 1. **Login** → email + senha
-2. **Dashboard** → metricas em tempo real (mesas ativas, tempo medio por categoria, fila de pedidos, chamados)
-3. **Mesas** → mapa visual com status por cor → abrir/fechar sessao
+2. **Dashboard** → métricas em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas, pedidos recentes + seção **Alertas** (pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas)
+3. **Mesas** → mapa visual com status por cor → filtros (Todas, Com problema, Ociosas) → abrir/fechar/deletar sessão. Deletar = soft delete (só mesa fechada, histórico preservado)
 4. **Cardapio** → CRUD de categorias, tags e produtos (com fotos, Ponto de Entrega ou "Garçom", preço)
 5. **Locais de Preparo** → CRUD de locais (ex: Cozinha, Bar, Pizzaria) + Pontos de Entrega por local (com flag auto-entrega)
 6. **Setores** → CRUD de setores + vincular mesas + mapeamento obrigatório de Ponto de Entrega por Local de Preparo
@@ -89,7 +89,8 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 8. **Equipe** → cadastrar funcionários (com flag temporário, dias fixos, senha garçom) → enviar convites
 9. **Escala** → calendário por dia → auto-preenchido + ajustes manuais
 10. **Equipe do Dia** → quem trabalha hoje + atribuição de setores por garçom
-11. **Settings** → nome/logo do estabelecimento, taxa de serviço, tema/cores do cardápio com preview
+11. **Desempenho da Equipe** → métricas por garçom (tempo médio entrega, pedidos atendidos, escalações) e por Local de Preparo (tempo médio preparo, pedidos, itens mais demorados). Filtro por período
+12. **Settings** → nome/logo do estabelecimento, taxa de serviço, tema/cores do cardápio com preview
 
 ---
 

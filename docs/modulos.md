@@ -45,8 +45,11 @@ Cada pedido gera até **3 grupos de entrega** independentes:
 ## Modulo Gerencial (Dashboard/Backoffice) — Rota: `/admin`
 Acesso: Dono/Gerente via computador ou tablet.
 
-- Mapa de mesas em tempo real (livres, ocupadas, aguardando limpeza, tempo de permanencia).
-- Metricas: tempo medio de atendimento dividido por **Local de Preparo** e por garcom, tempo de preparo por prato.
+- **Mapa de mesas em tempo real** (livres, ocupadas, aguardando limpeza, tempo de permanência). Filtros: "Todas", "Com problema", "Ociosas". Indicadores visuais de alerta: pedido atrasado, chamado sem resposta, tempo sem novo pedido. Botão deletar mesa (soft delete — só se não tiver sessão ativa; histórico preservado para métricas; permite recriar mesa com mesmo nome/número).
+- **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas).
+- **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
+  - **Por garçom:** tempo médio de entrega (Pronto → Entregue), quantidade de pedidos atendidos, escalações (nível 1 e 2), taxa de serviço acumulada. Filtro por período (dia/semana/mês).
+  - **Por Local de Preparo:** tempo médio de preparo (Na fila → Pronto), quantidade de pedidos, itens mais demorados. Filtro por período.
 - Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
 - **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Flag **`immediateDelivery`** (default `false`) para itens que podem ser entregues antes dos demais (ex: drinks). Ver secao "Estrutura Operacional" acima.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
@@ -67,7 +70,6 @@ Acesso: Dono/Gerente. Tela separada do dashboard, dedicada a financeiro.
 - **Faturamento mensal:** receita acumulada do mes, grafico por dia, comparativo com mes anterior.
 - **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartao). (NFC-e/SAT em fase futura).
 - **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês.
-- **Relatório de escalações de retirada:** quantas vezes cada garçom teve itens escalados (nível 1: re-lembrete, nível 2: admin + todos os garçons). Filtro por dia/mês e por garçom. Permite ao admin identificar garçons com padrão de atraso na retirada.
 
 ---
 
@@ -102,7 +104,7 @@ Quando um item é marcado como "Pronto" e o garçom não marca "Entregue", o sis
    - Notifica o admin/gerente via push + alerta no dashboard (card destacado com cor vermelha).
    - Notifica **todos os garçons ativos** (não só os do setor), para que qualquer um possa entregar.
    - Mensagem: "URGENTE: item aguardando retirada há Y min — Mesa X — [Ponto de Entrega]".
-3. **Registro para auditoria** — cada ocorrência de escalação é registrada com: garçom responsável (do setor), item, mesa, tempo de espera, se foi escalado para nível 1 (re-notificação) ou nível 2 (admin + todos). O admin pode consultar relatório de escalações por garçom e por período na tela de faturamento/equipe.
+3. **Registro para auditoria** — cada ocorrência de escalação é registrada com: garçom responsável (do setor), item, mesa, tempo de espera, se foi escalado para nível 1 (re-notificação) ou nível 2 (admin + todos). O admin pode consultar relatório de escalações por garçom e por período na tela de Desempenho da Equipe.
 
 **Parâmetros configuráveis (tela Settings do admin):**
 | Parâmetro | Descrição | Default |
