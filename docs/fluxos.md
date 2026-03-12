@@ -105,7 +105,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 5. **Alerta sonoro** quando chega pedido novo ou pedido fica atrasado
 6. Toca no prato → ficha técnica (ingredientes, modo de preparo, foto)
 7. Toca **"Pronto"** (botão grande no card):
-   - **Ponto de Entrega com `autoEntrega = false`:** notifica garçom(ns) do setor da mesa para retirada, indicando o Ponto de Entrega
+   - **Ponto de Entrega com `autoEntrega = false`:** card sai da fila. A notificação ao garçom depende do grupo de entrega: itens normais só notificam quando todos os normais do pedido ficarem prontos; itens `immediateDelivery` notificam quando todos os imediatos ficarem prontos. Indica o Ponto de Entrega na notificação
    - **Ponto de Entrega com `autoEntrega = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"
 
 ---

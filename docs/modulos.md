@@ -19,10 +19,26 @@ Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área E
 - **Taxa de servico e dividida igualmente entre garcons do mesmo setor.** Se um garcom precisa ficar exclusivo em uma mesa, essa mesa deve estar em um setor proprio.
 - **Mapeamento obrigatorio Setor ↔ Local de Preparo:** para cada setor, deve haver um vinculo com cada Local de Preparo, indicando **qual Ponto de Entrega** os garcons daquele setor usam para retirada. Isso permite que garcons de setores diferentes retirem em pontos diferentes do mesmo Local de Preparo.
 
-### Cadastro de Produto — Destino
+### Cadastro de Produto — Destino e Entrega Imediata
 No cadastro de produto, o campo "Destino" e obrigatorio e mostra:
 - **Todos os Pontos de Entrega cadastrados** (agrupados por Local de Preparo) — o pedido vai para o KDS do Local de Preparo vinculado.
 - **Opção fixa "Garçom"** — entrega direta pelo garcom, sem preparo, nao passa por KDS nenhum.
+
+Alem do destino, o produto possui a **flag `immediateDelivery`** (boolean, default `false`):
+- **`false` (padrão):** item normal. O garçom só é notificado quando **todos** os itens normais do mesmo pedido ficarem prontos, mesmo que venham de Locais de Preparo diferentes. Exemplo: Picanha (Cozinha) + Pizza (Pizzaria) — garçom espera ambos ficarem prontos e leva tudo junto.
+- **`true` (entrega imediata):** item que pode ser entregue antes dos demais (ex: drinks, sobremesas geladas). O garçom é notificado assim que **todos os itens com `immediateDelivery = true` do mesmo pedido** ficarem prontos, sem esperar pelos itens normais.
+
+### Grupos de Entrega (por pedido)
+Cada pedido gera até **3 grupos de entrega** independentes:
+
+| Grupo | Itens | Quando notifica garçom |
+|---|---|---|
+| **Normal** | Produtos com `immediateDelivery = false` | Quando **todos** ficarem prontos |
+| **Entrega imediata** | Produtos com `immediateDelivery = true` | Quando **todos os imediatos** ficarem prontos |
+| **Garçom direto** | Produtos com destino "Garçom" | Imediatamente (não passa por KDS) |
+
+- Pedidos diferentes (feitos em momentos diferentes) são **independentes** — não esperam entre si.
+- O agrupamento é por **pedido**, não por mesa.
 
 ---
 
@@ -32,7 +48,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 - Mapa de mesas em tempo real (livres, ocupadas, aguardando limpeza, tempo de permanencia).
 - Metricas: tempo medio de atendimento dividido por **Local de Preparo** e por garcom, tempo de preparo por prato.
 - Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
-- **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Ver secao "Estrutura Operacional" acima.
+- **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Flag **`immediateDelivery`** (default `false`) para itens que podem ser entregues antes dos demais (ex: drinks). Ver secao "Estrutura Operacional" acima.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
 - **CRUD de Locais de Preparo:** nome do local. Ao criar, 1 Ponto de Entrega default e gerado automaticamente.
 - **CRUD de Pontos de Entrega:** nome do ponto, Local de Preparo vinculado, flag `autoEntrega` (default `false`).
@@ -63,7 +79,7 @@ Acesso: Equipe de producao via tablet ou monitor. **Cada Local de Preparo tem su
 - Alertas visuais e sonoros para pedido novo ou urgente.
 - Clique no prato para ficha tecnica (ingredientes, modo de preparo, foto).
 - Botao "Pronto":
-  - **Ponto de Entrega com `autoEntrega = false`:** notifica garçom(ns) do setor da mesa para retirada no Ponto de Entrega indicado. Card sai da fila do KDS (trabalho da cozinha encerrado).
+  - **Ponto de Entrega com `autoEntrega = false`:** card sai da fila do KDS (trabalho da cozinha encerrado). A notificação ao garçom depende do **grupo de entrega** do item: itens normais só notificam quando todos os normais do mesmo pedido ficarem prontos; itens com `immediateDelivery` notificam quando todos os imediatos do pedido ficarem prontos. Ver "Grupos de Entrega" na seção Estrutura Operacional.
   - **Ponto de Entrega com `autoEntrega = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botões "Pronto" e "Entregue" no próprio card.
 - **Após marcar "Pronto", o item sai da fila do KDS.** O monitoramento de retirada é responsabilidade do sistema de escalação (ver abaixo) e do admin — não da cozinha.
 
@@ -132,7 +148,7 @@ Acesso: Cliente via QR Code no navegador.
 - Upselling: sugestoes automaticas de adicionais e acompanhamentos (referencia futura — sem endpoint/sprint definido na Fase 1).
 - **Pessoas na mesa (REGRA CRITICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao. **OBRIGATORIO:** um botao visivel no header de TODAS as telas do cliente (cardapio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Nao basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
 - **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados.
-- **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Pedidos mistos (produtos com Pontos de Entrega diferentes) geram **sub-pedidos** automaticos agrupados por **Local de Preparo** (+ um sub-pedido separado para itens com destino "Garçom"). Cada sub-pedido segue seu fluxo independente.
+- **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Cada pedido gera até 3 **grupos de entrega**: itens normais (garçom notificado quando todos ficarem prontos), itens com `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), e itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Ver "Grupos de Entrega" na seção Estrutura Operacional.
 - **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuicao de pessoas.
 
 ### Conta e Pagamento

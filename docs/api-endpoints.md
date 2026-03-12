@@ -94,7 +94,7 @@ Base URL: `/api/v1`
 | PUT | `/menu/tags/:id` | Atualizar tag |
 | DELETE | `/menu/tags/:id` | Remover tag |
 | GET | `/menu/products` | Listar produtos (admin) |
-| POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, e `tagIds[]`) |
+| POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, `immediateDelivery?: bool`, e `tagIds[]`) |
 | PUT | `/menu/products/:id` | Atualizar produto |
 | PATCH | `/menu/products/:id/availability` | Toggle disponibilidade |
 
@@ -107,7 +107,7 @@ Base URL: `/api/v1`
 ## Orders
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos (produtos com Pontos de Entrega de Locais de Preparo diferentes) geram sub-pedidos automaticos agrupados por Local de Preparo (+ sub-pedido separado para itens com destino "Garçom") |
+| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). O pedido gera até 3 grupos de entrega: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente |
 | GET | `/orders` | Listar pedidos (admin, filtros). **Paginacao:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |

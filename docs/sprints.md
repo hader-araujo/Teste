@@ -25,7 +25,7 @@ prototypes/
 │   ├── login.html              <- Tela de login
 │   ├── dashboard.html          <- Metricas, fila de pedidos, chamados
 │   ├── mesas.html              <- Mapa de mesas com status
-│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, Ponto de Entrega ou "Garçom")
+│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, Ponto de Entrega ou "Garçom", flag entrega imediata)
 │   ├── locais-preparo.html     <- CRUD de Locais de Preparo + Pontos de Entrega (com flag auto-entrega)
 │   ├── setores.html            <- CRUD de Setores + mesas vinculadas + mapeamento de Pontos de Entrega por Local de Preparo
 │   ├── faturamento.html        <- Faturamento diário, mensal e taxas de garçom
@@ -55,7 +55,7 @@ prototypes/
 **Checklist:**
 - [x] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
 - [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
-- [x] Telas do **admin** — login -> dashboard -> mesas -> cardápio CRUD (com tags e Ponto de Entrega ou "Garçom") -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
+- [x] Telas do **admin** — login -> dashboard -> mesas -> cardápio CRUD (com tags, Ponto de Entrega ou "Garçom", flag entrega imediata) -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
 - [x] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
 - [x] Telas do **garçom** — ativação de turno (clock-in com senha) -> mesas agrupadas por setor -> chamados -> detalhe da mesa (com botão "Retirar" em itens prontos) -> comanda.
 - [x] Navegacao funcional entre todas as telas (links, incluindo Super Admin).
@@ -176,7 +176,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - PUT `/menu/tags/:id` — Atualizar tag.
 - DELETE `/menu/tags/:id` — Remover tag.
 - GET `/menu/products` — Listar produtos (admin).
-- POST `/menu/products` — Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, e `tagIds[]`).
+- POST `/menu/products` — Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, `immediateDelivery?: bool`, e `tagIds[]`).
 - PUT `/menu/products/:id` — Atualizar produto.
 - PATCH `/menu/products/:id/availability` — Toggle disponibilidade.
 - POST `/upload/product-images` — Upload de imagens (multipart, max 5).
@@ -185,7 +185,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 **Checklist:**
 - [ ] CRUD de categorias.
 - [ ] CRUD de tags de produto (vegano, sem gluten, picante, etc).
-- [ ] CRUD de produtos com campo `pickupPointId` (Ponto de Entrega vinculado a Local de Preparo) ou `destination: 'waiter'` (entrega direta pelo garçom).
+- [ ] CRUD de produtos com campo `pickupPointId` (Ponto de Entrega vinculado a Local de Preparo) ou `destination: 'waiter'` (entrega direta pelo garçom). Flag `immediateDelivery` (boolean, default `false`) para itens que podem ser entregues antes dos demais (ex: drinks).
 - [ ] StorageService com interface (upload, delete, getUrl).
 - [ ] Implementacao Local (filesystem com volume Docker). `STORAGE_DRIVER=local`.
 - [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assincrona (Bull + Redis).
@@ -256,7 +256,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 
 **Checklist:**
 - [ ] Criacao de pedido com selecao de pessoas por item.
-- [ ] Sub-pedidos automáticos agrupados por Local de Preparo (+ sub-pedido separado para itens com destino "Garçom").
+- [ ] Grupos de entrega por pedido: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens roteados para o KDS do Local de Preparo correspondente.
 - [ ] Status: Na fila -> Preparando -> Pronto -> Entregue.
 - [ ] **Log de atividade de pedidos:** registrar todas as acoes (criacao de pedido, reatribuicao de pessoas) em formato estruturado. Renderizar como texto legivel no frontend (ex: "Picanha - José realizou o pedido / Para: José e Antônio").
 - [ ] **Aba "Historico" na tela de Conta:** exibe log de atividade completo, visivel para todos os membros da mesa.

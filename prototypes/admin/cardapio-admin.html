@@ -351,6 +351,16 @@
         </div>
 
         <div class="input-group">
+          <label style="display:flex; align-items:center; gap:0.75rem;">
+            <span>Entrega imediata</span>
+            <div class="toggle active" id="prod-immediate" onclick="this.classList.toggle('active')" style="transform:scale(0.85)">
+              <div class="toggle-handle"></div>
+            </div>
+          </label>
+          <p style="font-size:0.8rem; color:var(--neutral-medium); margin-top:0.25rem;">Item pode ser entregue antes dos demais do mesmo pedido (ex: drinks, porções frias)</p>
+        </div>
+
+        <div class="input-group">
           <label>Tags</label>
           <div style="display:flex; flex-wrap:wrap; gap:1rem; margin-top:0.25rem;">
             <label class="checkbox-group">
@@ -447,6 +457,13 @@
           destBadge.textContent = pickupPointNames[pickupPointId] || 'Garçom';
         }
         tdDest.appendChild(destBadge);
+        if (product.immediateDelivery) {
+          var immBadge = document.createElement('span');
+          immBadge.className = 'badge badge-warning';
+          immBadge.style.cssText = 'margin-left:0.25rem; font-size:0.625rem;';
+          immBadge.textContent = '⚡ Imediata';
+          tdDest.appendChild(immBadge);
+        }
         tr.appendChild(tdDest);
 
         // Tags
