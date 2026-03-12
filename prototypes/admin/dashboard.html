@@ -149,15 +149,44 @@
               </div>
 
               <!-- Chamado sem resposta -->
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-error);">
                 <div style="display:flex; align-items:center; gap:1rem;">
                   <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 8</div>
                   <div>
-                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Pedir conta (sem resposta há 12min)</div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Chamado "Pedir conta" sem resposta há 12min</div>
                   </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:1rem;">
-                  <span class="badge badge-warning">Sem resposta</span>
+                  <span class="badge badge-error">Chamado</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
+                </div>
+              </div>
+
+              <!-- Chamado recente -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 5</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Chamado "Chamar garçom" há 5min</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span class="badge badge-warning">Chamado</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
+                </div>
+              </div>
+
+              <!-- Chamado recente -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 3</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Chamado "Outro" há 2min</div>
+                    <div style="font-size:0.75rem; color:var(--color-text-secondary);">Falta um talher na mesa.</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span class="badge badge-warning">Chamado</span>
                   <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
                 </div>
               </div>
@@ -286,58 +315,6 @@
           </div>
         </div>
 
-        <!-- Chamados Abertos -->
-        <div class="card">
-          <div class="card-body-lg">
-            <h2 style="font-size:1.125rem; font-weight:600; margin-bottom:1rem;">Chamados Abertos</h2>
-            <div style="display:flex; flex-direction:column; gap:0.75rem;">
-
-              <!-- Chamado 1 -->
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
-                <div style="display:flex; align-items:center; gap:1rem;">
-                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 5</div>
-                  <div>
-                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Chamar garçom</div>
-                  </div>
-                </div>
-                <div style="display:flex; align-items:center; gap:1rem;">
-                  <span style="font-size:0.8125rem; color:var(--color-text-muted);">5min</span>
-                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
-                </div>
-              </div>
-
-              <!-- Chamado 2 -->
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-error);">
-                <div style="display:flex; align-items:center; gap:1rem;">
-                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 8</div>
-                  <div>
-                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Pedir conta</div>
-                  </div>
-                </div>
-                <div style="display:flex; align-items:center; gap:1rem;">
-                  <span style="font-size:0.8125rem; color:var(--color-error); font-weight:600;">12min</span>
-                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
-                </div>
-              </div>
-
-              <!-- Chamado 3 -->
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-info);">
-                <div style="display:flex; align-items:center; gap:1rem;">
-                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 3</div>
-                  <div>
-                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Outro</div>
-                    <div style="font-size:0.75rem; color:var(--color-text-secondary);">Falta um talher na mesa.</div>
-                  </div>
-                </div>
-                <div style="display:flex; align-items:center; gap:1rem;">
-                  <span style="font-size:0.8125rem; color:var(--color-text-muted);">2min</span>
-                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
 
       </div>
     </main>
