@@ -233,7 +233,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - [ ] Frontend cliente: cardapio com galeria, categorias, filtros.
 - [ ] Frontend cliente: detalhe do produto.
 - [ ] Cache stampede prevention: lock-based refresh ou stale-while-revalidate no cache do cardapio.
-- [ ] Endpoint `PATCH /session/:token/service-charge` para toggle de taxa de servico (backend — uso pelo garcom na Sprint 10).
+- [ ] Endpoint `PATCH /session/:token/service-charge` para toggle de taxa de serviço (backend — uso pelo garçom na Sprint 10). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos; com `personId` = toggle individual.
 - [ ] Sanitizacao de nomes de pessoas na mesa contra XSS.
 
 ---
@@ -373,7 +373,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] **Escalação de retirada nível 2:** item "Pronto" sem "Entregue" há mais de `pickupEscalationTimeout` minutos. Notifica admin (push + alerta dashboard) + todos os garçons ativos. Registra ocorrência para relatório.
 - [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin.
 - [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
-- [ ] Toggle taxa de serviço por sessão (garçom).
+- [ ] Toggle taxa de serviço por pessoa ou por mesa toda (garçom). Toggle geral como atalho + toggle individual por pessoa na tela de detalhe da mesa.
 - [ ] Pontos de Entrega com `autoEntrega = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
 - [ ] Service Worker com estratégia de cache para cardápio (suporte offline para leitura do cardápio).
 

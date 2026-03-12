@@ -51,7 +51,13 @@
           <!-- João -->
           <div style="margin-bottom:1.25rem;">
             <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
-              <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">João</span>
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">João</span>
+                <div class="flex items-center gap-1">
+                  <span style="font-size:0.6875rem; color:var(--color-text-muted);">Taxa 10%</span>
+                  <div class="toggle active" style="transform:scale(0.75);" onclick="togglePersonServiceCharge(this, 'João')" role="switch" aria-checked="true" aria-label="Taxa de serviço João"></div>
+                </div>
+              </div>
               <span style="font-weight:700; color:var(--color-primary);">R$ 61,97</span>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
@@ -77,7 +83,13 @@
           <!-- Pedro -->
           <div style="margin-bottom:1.25rem;">
             <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
-              <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">Pedro</span>
+              <div class="flex items-center gap-2">
+                <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">Pedro</span>
+                <div class="flex items-center gap-1">
+                  <span style="font-size:0.6875rem; color:var(--color-text-muted);">Taxa 10%</span>
+                  <div class="toggle active" style="transform:scale(0.75);" onclick="togglePersonServiceCharge(this, 'Pedro')" role="switch" aria-checked="true" aria-label="Taxa de serviço Pedro"></div>
+                </div>
+              </div>
               <span style="font-weight:700; color:var(--color-primary);">R$ 61,97</span>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
@@ -168,10 +180,58 @@
       el.classList.toggle('active');
       var isActive = el.classList.contains('active');
       el.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      // Toggle geral: aplica para todas as pessoas
+      var personToggles = document.querySelectorAll('[aria-label^="Taxa de serviço "]');
+      personToggles.forEach(function(toggle) {
+        if (isActive) {
+          toggle.classList.add('active');
+          toggle.setAttribute('aria-checked', 'true');
+        } else {
+          toggle.classList.remove('active');
+          toggle.setAttribute('aria-checked', 'false');
+        }
+      });
       if (isActive) {
-        showToast('Taxa de serviço habilitada', 'success');
+        showToast('Taxa de serviço habilitada para todos', 'success');
       } else {
-        showToast('Taxa de serviço desabilitada', 'warning');
+        showToast('Taxa de serviço desabilitada para todos', 'warning');
+      }
+    }
+
+    function togglePersonServiceCharge(el, name) {
+      el.classList.toggle('active');
+      var isActive = el.classList.contains('active');
+      el.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      // Verificar se todos estão iguais para atualizar o toggle geral
+      var personToggles = document.querySelectorAll('[aria-label^="Taxa de serviço "]');
+      var allActive = true;
+      var allInactive = true;
+      personToggles.forEach(function(toggle) {
+        if (toggle.classList.contains('active')) { allInactive = false; }
+        else { allActive = false; }
+      });
+      var generalToggle = document.getElementById('service-charge-toggle');
+      if (allActive) {
+        generalToggle.classList.add('active');
+        generalToggle.setAttribute('aria-checked', 'true');
+      } else if (allInactive) {
+        generalToggle.classList.remove('active');
+        generalToggle.setAttribute('aria-checked', 'false');
+      } else {
+        // Estado parcial — toggle geral fica visualmente "parcial"
+        generalToggle.classList.add('active');
+        generalToggle.style.opacity = '0.5';
+        generalToggle.setAttribute('aria-checked', 'mixed');
+      }
+      if (!allActive && !allInactive) {
+        generalToggle.style.opacity = '0.5';
+      } else {
+        generalToggle.style.opacity = '1';
+      }
+      if (isActive) {
+        showToast('Taxa de serviço habilitada para ' + name, 'success');
+      } else {
+        showToast('Taxa de serviço desabilitada para ' + name, 'warning');
       }
     }
   </script>

@@ -151,7 +151,7 @@ Acesso: Cliente via QR Code no navegador.
     Frango à Passarinho - José realizou o pedido
     Para: Pedro e Carlos
     ```
-  - Taxa de servico (%) configuravel.
+  - Taxa de serviço (%) configurável. Pode ser desabilitada por pessoa pelo garçom — na aba "Por Pessoa" da conta, pessoas com taxa desabilitada aparecem com indicação visual (ex: "sem taxa de serviço"). O valor da taxa é calculado individualmente por pessoa.
 - **Pagamento individual:** Pix com QR Code por pessoa.
 
 ### Botao "O Chefia"
@@ -172,7 +172,7 @@ Acesso: Celular do garcom (PWA).
 - **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.
 - Notificacoes push: item pronto para retirada (com indicação do Ponto de Entrega), chamado de mesa, re-lembretes de retirada pendente, e escalação urgente (quando qualquer garçom pode entregar).
 - Histórico de pedidos com divisão por pessoa.
-- Toggle taxa de serviço por sessão.
+- **Toggle taxa de serviço por pessoa ou por mesa toda.** Na tela de detalhe da mesa, toggle geral (atalho para todos) + toggle individual por pessoa. Se o garçom desliga o geral, todos desligam. Se religa, todos religam. Se mexe num individual, o geral indica estado parcial. A taxa de serviço só é calculada sobre os itens das pessoas com flag ativo.
 
 ## Modulo Explorar (Fase 2 — NAO IMPLEMENTAR) — Rota: `/explorar`
 **Referencia arquitetural apenas.**

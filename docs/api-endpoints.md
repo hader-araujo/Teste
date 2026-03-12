@@ -50,7 +50,7 @@ Base URL: `/api/v1`
 | GET | `/session/:token/people` | Listar pessoas cadastradas na sessao |
 | POST | `/session/:token/people` | Adicionar pessoa na mesa (body: `{ name }`) |
 | DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa |
-| PATCH | `/session/:token/service-charge` | Desabilitar/habilitar taxa de servico (garcom only) |
+| PATCH | `/session/:token/service-charge` | Toggle taxa de serviço (garçom only). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos. Com `personId` = toggle individual por pessoa |
 | GET | `/session/:token/bill` | Conta detalhada com divisao por pessoa + taxa de servico |
 | GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuicoes. Retorna lista de acoes em formato legivel (quem pediu, quem modificou, de/para). Visivel para todos os membros da mesa |
 | DELETE | `/session/:token/data` | LGPD: exclui dados pessoais da sessao (telefone, nomes). Pedidos/pagamentos sao anonimizados |
