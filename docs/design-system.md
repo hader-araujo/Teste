@@ -47,7 +47,7 @@ O OChefia nao tem um unico layout. Sao **quatro interfaces completamente distint
 | Aspecto | Diretriz |
 |---|---|
 | Layout | Desktop-first (responsivo para tablet/mobile). Sidebar + area de conteudo |
-| Navegacao | Sidebar com menu completo agrupado por secao (pedidos, cardapio, equipe, financeiro, config) |
+| Navegacao | Sidebar com menu completo agrupado por secao (pedidos, cardapio, operação [locais de preparo, setores, mesas], equipe, financeiro, config) |
 | Densidade | Media-alta. Graficos, tabelas, KPIs. Informacao densa mas bem hierarquizada |
 | Interacao | Formularios, filtros, date pickers, drag-and-drop (reordenar cardapio) |
 | Foco | Metricas de negocio, gestao de cardapio, configuracoes. Decisoes baseadas em dados |

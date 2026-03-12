@@ -55,6 +55,32 @@ Base URL: `/api/v1`
 | GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuicoes. Retorna lista de acoes em formato legivel (quem pediu, quem modificou, de/para). Visivel para todos os membros da mesa |
 | DELETE | `/session/:token/data` | LGPD: exclui dados pessoais da sessao (telefone, nomes). Pedidos/pagamentos sao anonimizados |
 
+## Locais de Preparo
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/preparation-locations` | Listar locais de preparo do restaurante |
+| POST | `/preparation-locations` | Criar local de preparo (gera 1 Ponto de Entrega default automaticamente) |
+| PUT | `/preparation-locations/:id` | Atualizar local de preparo |
+| DELETE | `/preparation-locations/:id` | Remover local de preparo (somente se nao tem produtos vinculados) |
+
+## Pontos de Entrega
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/preparation-locations/:id/pickup-points` | Listar pontos de entrega do local de preparo |
+| POST | `/preparation-locations/:id/pickup-points` | Criar ponto de entrega (body: `{ name, autoDelivery?: bool }`) |
+| PUT | `/pickup-points/:id` | Atualizar ponto de entrega |
+| DELETE | `/pickup-points/:id` | Remover ponto de entrega (somente se nao e o unico do local e nao tem produtos vinculados) |
+
+## Setores
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/sectors` | Listar setores do restaurante (inclui mesas vinculadas) |
+| POST | `/sectors` | Criar setor (body: `{ name }`) |
+| PUT | `/sectors/:id` | Atualizar setor (nome) |
+| DELETE | `/sectors/:id` | Remover setor (somente se nao tem mesas vinculadas) |
+| PUT | `/sectors/:id/pickup-point-mappings` | Definir mapeamento obrigatorio: para cada Local de Preparo, qual Ponto de Entrega (body: `{ mappings: [{ preparationLocationId, pickupPointId }] }`) |
+| GET | `/sectors/:id/pickup-point-mappings` | Listar mapeamentos do setor |
+
 ## Menu
 | Metodo | Rota | Descricao |
 |---|---|---|
@@ -68,7 +94,7 @@ Base URL: `/api/v1`
 | PUT | `/menu/tags/:id` | Atualizar tag |
 | DELETE | `/menu/tags/:id` | Remover tag |
 | GET | `/menu/products` | Listar produtos (admin) |
-| POST | `/menu/products` | Criar produto (inclui `destination: 'kitchen' \| 'bar' \| 'waiter'` e `tagIds[]`) |
+| POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, e `tagIds[]`) |
 | PUT | `/menu/products/:id` | Atualizar produto |
 | PATCH | `/menu/products/:id/availability` | Toggle disponibilidade |
 
@@ -81,7 +107,7 @@ Base URL: `/api/v1`
 ## Orders
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos (produtos com destinos diferentes) geram sub-pedidos automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) baseado no campo `destination` do produto |
+| POST | `/orders` | Criar pedido (via sessao token). Cada item inclui `personIds[]` (obrigatorio, pelo menos 1). Pedidos mistos (produtos com Pontos de Entrega de Locais de Preparo diferentes) geram sub-pedidos automaticos agrupados por Local de Preparo (+ sub-pedido separado para itens com destino "Garçom") |
 | GET | `/orders` | Listar pedidos (admin, filtros). **Paginacao:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
 | GET | `/orders/:id` | Detalhes do pedido |
 | PATCH | `/orders/:id/status` | Atualizar status (KDS/garcom) |
@@ -115,7 +141,7 @@ Base URL: `/api/v1`
 ## Dashboard
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/dashboard/overview` | Metricas gerais em tempo real (tempo medio por categoria: bar/cozinha/garcom, mesas ativas) |
+| GET | `/dashboard/overview` | Métricas gerais em tempo real (tempo médio por Local de Preparo, mesas ativas) |
 | GET | `/dashboard/popular-items` | Itens mais vendidos |
 
 ## Faturamento
@@ -130,7 +156,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/staff` | Listar funcionarios. **Paginacao:** query `page` e `limit` (default 50, max 100) |
-| POST | `/staff` | Criar funcionario (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `delivers?: bool` para BAR, `pin: string` senha numerica para garcom) |
+| POST | `/staff` | Criar funcionario (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` senha numerica para garcom) |
 | POST | `/staff/invite` | Enviar convite (log no console em dev) |
 | POST | `/staff/accept` | Aceitar convite e criar conta (publico) |
 | PUT | `/staff/:id` | Atualizar funcionario |
@@ -150,10 +176,10 @@ Base URL: `/api/v1`
 | GET | `/schedule` | Listar escala por periodo (query: `from`, `to`) |
 | GET | `/schedule/day/:date` | Equipe do dia (auto-preenchido + ajustes manuais) |
 | PUT | `/schedule/day/:date` | Definir equipe do dia (body: `{ staffIds[] }`) |
-| PATCH | `/schedule/day/:date/tables` | Distribuir mesas entre garcons do dia (body: `{ assignments: [{ staffId, tableIds[] }] }`) |
+| PATCH | `/schedule/day/:date/sectors` | Atribuir setores aos garcons do dia (body: `{ assignments: [{ staffId, sectorIds[] }] }`) |
 
-## Configuracoes de Distribuicao
-> **Nota:** Usa os mesmos endpoints `GET/PUT /restaurants/:id/settings` da secao Restaurant acima. O campo `tableDistributionMode` (`all` ou `auto`) faz parte das configuracoes do restaurante.
+## Tables — Setor
+> **Nota:** Cada mesa pertence a exatamente 1 setor. O campo `sectorId` e obrigatorio na criacao/atualizacao da mesa. Ver secao Setores para CRUD de setores.
 
 ## Super Admin — Estabelecimentos (role: SUPER_ADMIN)
 | Metodo | Rota | Descricao |

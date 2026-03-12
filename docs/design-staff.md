@@ -8,7 +8,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 
 ---
 
-## KDS (Cozinha/Bar) — Dark Mode Obrigatorio
+## KDS (por Local de Preparo) — Dark Mode Obrigatório
 
 ### Superficies e Cores
 
@@ -26,7 +26,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 | Timer (atencao) | `#CA8A04` | `yellow-600` |
 | Timer (atrasado) | `#DC2626` | `red-600` |
 | Botao "Pronto/Bump" | `#16A34A` fundo, texto branco | `bg-green-600 text-white` |
-| Separador de estacao (cozinha/bar) | `#374151` | `gray-700` |
+| Separador de seção (entre pedidos) | `#374151` | `gray-700` |
 
 ### Componentes
 
@@ -37,7 +37,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 | **Timer** | Contador de minutos desde que o pedido entrou. Muda de cor automaticamente: cinza (<10min), amarelo (10-15min), vermelho (>15min) |
 | **Botao Bump (pronto)** | Grande, ocupa toda a largura do card. `min-h-[56px]`. Verde. Um toque para marcar como pronto. Sem confirmacao |
 | **Alerta sonoro** | Novo pedido: beep curto. Pedido atrasado: beep repetido. Configuravel |
-| **Filtro por estacao** | Tabs no topo: "Todos", "Cozinha", "Bar". Cada estacao ve apenas seus itens (baseado no campo `destination` do produto) |
+| **Identificação do Local** | Header exibe o nome do Local de Preparo (ex: "Cozinha Principal", "Bar", "Pizzaria"). Cada Local de Preparo tem sua própria instância KDS — não há tabs de filtro entre locais |
 
 ### Tipografia especifica
 
@@ -75,7 +75,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 
 | Componente | Especificacao |
 |---|---|
-| **Mapa de mesas** | Grid com cards representando mesas. Cada card mostra: numero, status (cor da borda), tempo de ocupacao, valor parcial. Tap abre detalhe |
+| **Mapa de mesas** | Grid com cards representando mesas, agrupadas por setor. Cada card mostra: numero, status (cor da borda), tempo de ocupacao, valor parcial. Tap abre detalhe |
 | **Card de mesa** | `rounded-xl`, borda lateral grossa (4px) com cor do status. Numero da mesa grande no centro. Badge se tem chamado pendente |
 | **Lista de pedidos da mesa** | Itens com checkbox para marcar entregue. Status do preparo (cor). Hora do pedido |
 | **Botao novo pedido** | FAB (floating action button) fixo. `rounded-full bg-orange-600 text-white shadow-lg`. 56x56px |

@@ -9,16 +9,16 @@ export const SOCKET_EVENTS = {
   CALL_REQUEST: 'call:request',             // Cliente apertou "O Chefia"
   PAYMENT_INITIATED: 'payment:initiated',   // Cliente iniciou pagamento
 
-  // Servidor -> KDS
-  KDS_NEW_ORDER: 'kds:new-order',           // Novo pedido na fila
+  // Servidor -> KDS (por Local de Preparo)
+  KDS_NEW_ORDER: 'kds:new-order',           // Novo pedido na fila do Local de Preparo
 
   // KDS -> Servidor
-  KDS_STATUS_UPDATE: 'kds:status-update',   // Cozinha mudou status (preparing/ready)
+  KDS_STATUS_UPDATE: 'kds:status-update',   // Local de Preparo mudou status (preparing/ready/delivered)
 
   // Servidor -> Garcom
-  WAITER_ORDER_READY: 'waiter:order-ready', // Prato pronto pra retirar
+  WAITER_ORDER_READY: 'waiter:order-ready', // Item pronto pra retirar (inclui Ponto de Entrega)
   WAITER_CALL: 'waiter:call',               // Cliente chamou
-  WAITER_NEW_ORDER: 'waiter:new-order',     // Novo pedido na mesa dele
+  WAITER_NEW_ORDER: 'waiter:new-order',     // Novo pedido em mesa do seu setor
 
   // Servidor -> Cliente
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
@@ -45,10 +45,10 @@ export const SOCKET_EVENTS = {
 | Room | Formato | Quem entra |
 |---|---|---|
 | Restaurante geral | `restaurant:{id}` | Todos do restaurante |
-| KDS geral | `restaurant:{id}:kds` | Cozinha e bar |
-| KDS cozinha | `restaurant:{id}:kds:kitchen` | Role KITCHEN |
-| KDS bar | `restaurant:{id}:kds:bar` | Role BAR |
-| Garcom | `restaurant:{id}:waiter` | Role WAITER |
+| KDS geral | `restaurant:{id}:kds` | Todos os Locais de Preparo |
+| KDS por Local de Preparo | `restaurant:{id}:kds:{prepLocationId}` | Staff do Local de Preparo específico |
+| Garcom geral | `restaurant:{id}:waiter` | Todos os garçons ativos |
+| Garcom por setor | `restaurant:{id}:waiter:sector:{sectorId}` | Garçons atribuídos ao setor |
 | Admin | `restaurant:{id}:admin` | OWNER/MANAGER |
 | Sessao cliente | `session:{token}` | Cliente da mesa |
 

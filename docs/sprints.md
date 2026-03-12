@@ -25,18 +25,19 @@ prototypes/
 │   ├── login.html              <- Tela de login
 │   ├── dashboard.html          <- Metricas, fila de pedidos, chamados
 │   ├── mesas.html              <- Mapa de mesas com status
-│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, destino: cozinha/bar/garcom)
-│   ├── faturamento.html        <- Faturamento diario, mensal e taxas de garcom
-│   ├── staff.html              <- Gestao de equipe + convites + flag temporario + flag entrega (BAR)
-│   ├── escala.html             <- Programacao de escala (calendario por dia, proximos dias)
-│   ├── equipe-do-dia.html      <- Equipe trabalhando hoje + distribuicao de mesas por garcom
-│   └── settings.html           <- Configuracoes (nome/logo do estabelecimento, taxa de servico, tema/cores com preview, modo de distribuicao de mesas)
+│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, Ponto de Entrega ou "Garçom")
+│   ├── locais-preparo.html     <- CRUD de Locais de Preparo + Pontos de Entrega (com flag auto-entrega)
+│   ├── setores.html            <- CRUD de Setores + mesas vinculadas + mapeamento de Pontos de Entrega por Local de Preparo
+│   ├── faturamento.html        <- Faturamento diário, mensal e taxas de garçom
+│   ├── staff.html              <- Gestão de equipe + convites + flag temporário + senha garçom
+│   ├── escala.html             <- Programação de escala (calendário por dia, próximos dias)
+│   ├── equipe-do-dia.html      <- Equipe trabalhando hoje + atribuição de setores por garçom
+│   └── settings.html           <- Configurações (nome/logo do estabelecimento, taxa de serviço, tema/cores com preview)
 ├── kds/
-│   ├── cozinha.html            <- Fila de producao (dark mode, temporizadores, cores)
-│   └── bar.html                <- Fila de producao do bar
+│   └── kds.html                <- Fila de produção por Local de Preparo (dark mode, temporizadores, cores)
 ├── garcom/
 │   ├── clock-in.html           <- Ativacao de turno (senha do garcom)
-│   ├── mesas.html              <- Lista de mesas atribuidas
+│   ├── mesas.html              <- Lista de mesas dos setores atribuídos
 │   ├── chamados.html           <- Chamados abertos + notificacoes
 │   ├── mesa-detalhe.html       <- Pedidos da mesa com divisao por pessoa
 │   └── comanda.html            <- Lancar pedido rapido
@@ -54,9 +55,9 @@ prototypes/
 **Checklist:**
 - [x] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
 - [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardapio -> produto -> carrinho (com selecao de pessoas) -> pedidos -> conta -> pagamento.
-- [x] Telas do **admin** — login -> dashboard -> mesas -> cardapio CRUD (com tags e destino: cozinha/bar/garcom) -> faturamento (diario, mensal, taxas garcom) -> staff (com temporario + flag entrega BAR + senha garcom) -> escala -> equipe do dia (com distribuicao de mesas) -> settings (com nome/logo do estabelecimento e modo de distribuicao).
-- [x] Telas do **KDS** — cozinha e bar com fila, cores de status, temporizadores.
-- [x] Telas do **garcom** — ativacao de turno (clock-in com senha) -> mesas -> chamados -> detalhe da mesa -> comanda.
+- [ ] Telas do **admin** — login -> dashboard -> mesas -> cardápio CRUD (com tags e Ponto de Entrega ou "Garçom") -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> faturamento (diário, mensal, taxas garçom) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento).
+- [ ] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
+- [ ] Telas do **garçom** — ativação de turno (clock-in com senha) -> mesas agrupadas por setor -> chamados -> detalhe da mesa -> comanda.
 - [x] Navegacao funcional entre todas as telas (links, incluindo Super Admin).
 - [x] Interacoes JS: adicionar ao carrinho, selecionar pessoas, trocar abas, mudar status no KDS.
 - [x] Responsivo: cliente e garcom em mobile (375px), admin e KDS em desktop/tablet (1024px+).
@@ -121,22 +122,40 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 
 ---
 
-## Sprint 2 — Tables + Component Library + Layout Admin
+## Sprint 2 — Tables + Setores + Locais de Preparo + Component Library + Layout Admin
 
-**Endpoints (~7):**
+**Endpoints (~20):**
 - GET `/tables` — Listar mesas do restaurante.
-- POST `/tables` — Criar mesa.
+- POST `/tables` — Criar mesa (body inclui `sectorId` obrigatório).
 - PUT `/tables/:id` — Atualizar mesa.
 - DELETE `/tables/:id` — Remover mesa.
-- POST `/tables/:id/open` — Abrir sessao da mesa.
-- POST `/tables/:id/close` — Fechar sessao.
-- GET `/tables/:id/session` — Sessao ativa da mesa.
+- POST `/tables/:id/open` — Abrir sessão da mesa.
+- POST `/tables/:id/close` — Fechar sessão.
+- GET `/tables/:id/session` — Sessão ativa da mesa.
+- GET `/preparation-locations` — Listar locais de preparo.
+- POST `/preparation-locations` — Criar local de preparo (gera 1 Ponto de Entrega default).
+- PUT `/preparation-locations/:id` — Atualizar local de preparo.
+- DELETE `/preparation-locations/:id` — Remover local de preparo.
+- GET `/preparation-locations/:id/pickup-points` — Listar pontos de entrega.
+- POST `/preparation-locations/:id/pickup-points` — Criar ponto de entrega.
+- PUT `/pickup-points/:id` — Atualizar ponto de entrega.
+- DELETE `/pickup-points/:id` — Remover ponto de entrega.
+- GET `/sectors` — Listar setores.
+- POST `/sectors` — Criar setor.
+- PUT `/sectors/:id` — Atualizar setor.
+- DELETE `/sectors/:id` — Remover setor.
+- PUT `/sectors/:id/pickup-point-mappings` — Definir mapeamento de pontos de entrega por local de preparo.
 
 **Checklist:**
-- [ ] CRUD de mesas + sessao (open/close).
+- [ ] CRUD de mesas + sessão (open/close). Mesa com `sectorId` obrigatório.
+- [ ] CRUD de Locais de Preparo (nome). Criação gera 1 Ponto de Entrega default automaticamente.
+- [ ] CRUD de Pontos de Entrega (nome, `autoDelivery` flag, vinculado a Local de Preparo).
+- [ ] CRUD de Setores (nome). Setor default criado automaticamente com o restaurante.
+- [ ] Mapeamento obrigatório Setor ↔ Local de Preparo: para cada setor, qual Ponto de Entrega usar por Local de Preparo.
+- [ ] Seed com dados de teste: 2 Locais de Preparo ("Cozinha Principal", "Bar"), 1 Setor default ("Salão"), mesas vinculadas.
 - [ ] Biblioteca de componentes base (Button, Input, Badge, Modal, Toggle, Skeleton, Spinner).
 - [ ] Toast notifications (sonner).
-- [ ] AdminSidebar fixa com navegacao, avatar e role.
+- [ ] AdminSidebar fixa com navegação, avatar e role.
 - [ ] Layout admin com sidebar + mobile top bar.
 - [ ] Tela de login frontend (Next.js).
 - [ ] Skeleton loading nos componentes base.
@@ -157,7 +176,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 - PUT `/menu/tags/:id` — Atualizar tag.
 - DELETE `/menu/tags/:id` — Remover tag.
 - GET `/menu/products` — Listar produtos (admin).
-- POST `/menu/products` — Criar produto (inclui `destination` e `tagIds[]`).
+- POST `/menu/products` — Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, e `tagIds[]`).
 - PUT `/menu/products/:id` — Atualizar produto.
 - PATCH `/menu/products/:id/availability` — Toggle disponibilidade.
 - POST `/upload/product-images` — Upload de imagens (multipart, max 5).
@@ -166,7 +185,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 **Checklist:**
 - [ ] CRUD de categorias.
 - [ ] CRUD de tags de produto (vegano, sem gluten, picante, etc).
-- [ ] CRUD de produtos com campo `destination` (kitchen/bar/waiter).
+- [ ] CRUD de produtos com campo `pickupPointId` (Ponto de Entrega vinculado a Local de Preparo) ou `destination: 'waiter'` (entrega direta pelo garçom).
 - [ ] StorageService com interface (upload, delete, getUrl).
 - [ ] Implementacao Local (filesystem com volume Docker). `STORAGE_DRIVER=local`.
 - [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assincrona (Bull + Redis).
@@ -237,7 +256,7 @@ Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && 
 
 **Checklist:**
 - [ ] Criacao de pedido com selecao de pessoas por item.
-- [ ] Sub-pedidos automaticos por destino (cozinha/bar/garcom) com sufixo.
+- [ ] Sub-pedidos automáticos agrupados por Local de Preparo (+ sub-pedido separado para itens com destino "Garçom").
 - [ ] Status: Na fila -> Preparando -> Pronto -> Entregue.
 - [ ] **Log de atividade de pedidos:** registrar todas as acoes (criacao de pedido, reatribuicao de pessoas) em formato estruturado. Renderizar como texto legivel no frontend (ex: "Picanha - José realizou o pedido / Para: José e Antônio").
 - [ ] **Aba "Historico" na tela de Conta:** exibe log de atividade completo, visivel para todos os membros da mesa.
@@ -261,8 +280,8 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 **Checklist:**
 - [ ] WebSocket gateway (Socket.IO).
 - [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparacao para scaling horizontal na Fase 2).
-- [ ] Rooms: restaurant, kds, kds:kitchen, kds:bar, waiter, admin, session.
-- [ ] Roteamento de pedidos por destino do produto.
+- [ ] Rooms: restaurant, kds (geral), kds:{prepLocationId} (por Local de Preparo), waiter (geral), waiter:sector:{sectorId} (por setor), admin, session.
+- [ ] Roteamento de pedidos por Ponto de Entrega → Local de Preparo do produto. Produtos com destino "Garçom" vão direto para o garçom do setor.
 - [ ] Eventos client->server: order:created, call:request, payment:initiated.
 - [ ] Eventos server->KDS: kds:new-order, kds:status-update.
 - [ ] Eventos server->cliente: client:order-update, client:session-update.
@@ -282,16 +301,15 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 Frontend do KDS. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Frontend KDS cozinha (dark mode, temporizadores, cores de status).
-- [ ] Frontend KDS bar (mesma base, fila separada).
-- [ ] Cores: Verde (no prazo), Amarelo (atencao), Vermelho (atrasado).
+- [ ] Frontend KDS genérico — uma tela por Local de Preparo (dark mode, temporizadores, cores de status).
+- [ ] Header exibe nome do Local de Preparo. Seleção de Local de Preparo ao abrir o KDS.
+- [ ] Cores: Verde (no prazo), Amarelo (atenção), Vermelho (atrasado).
 - [ ] Alertas visuais e sonoros para pedido novo/urgente.
-- [ ] Clique no prato para ficha tecnica (ingredientes, modo de preparo, foto).
-- [ ] Botao "Pronto" com logica:
-  - Cozinha: notifica garcom para retirada.
-  - Bar sem flag entrega: notifica garcom para retirada.
-  - Bar com flag entrega: status Pronto -> Entregue no KDS.
-- [ ] Indicador de conexao WebSocket.
+- [ ] Clique no prato para ficha técnica (ingredientes, modo de preparo, foto).
+- [ ] Botão "Pronto" com lógica:
+  - Ponto de Entrega com `autoEntrega = false`: notifica garçom(ns) do setor para retirada.
+  - Ponto de Entrega com `autoEntrega = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
+- [ ] Indicador de conexão WebSocket.
 
 ---
 
@@ -299,22 +317,21 @@ Frontend do KDS. Zero endpoints REST novos.
 
 **Endpoints (~10):**
 - GET `/staff` — Listar funcionarios.
-- POST `/staff` — Criar funcionario (temporary, fixedWeekdays, delivers, pin).
+- POST `/staff` — Criar funcionário (temporary, fixedWeekdays, pin).
 - POST `/staff/invite` — Enviar convite.
 - POST `/staff/accept` — Aceitar convite.
-- PUT `/staff/:id` — Atualizar funcionario.
-- DELETE `/staff/:id` — Desativar funcionario.
-- GET `/schedule` — Listar escala por periodo.
+- PUT `/staff/:id` — Atualizar funcionário.
+- DELETE `/staff/:id` — Desativar funcionário.
+- GET `/schedule` — Listar escala por período.
 - GET `/schedule/day/:date` — Equipe do dia.
 - PUT `/schedule/day/:date` — Definir equipe do dia.
-- PATCH `/schedule/day/:date/tables` — Distribuir mesas entre garcons.
+- PATCH `/schedule/day/:date/sectors` — Atribuir setores aos garçons do dia.
 
 **Checklist:**
-- [ ] CRUD de funcionarios com flag temporario, dias fixos, flag entrega BAR, senha garcom.
+- [ ] CRUD de funcionários com flag temporário, dias fixos, senha garçom.
 - [ ] Sistema de convites (log no console em dev).
-- [ ] Tela escala: calendario por dia, auto-preenchimento, ajustes manuais.
-- [ ] Tela equipe do dia: equipe ativa + distribuicao de mesas por garcom.
-- [ ] Config modo distribuicao (todos vs. automatico) em Settings.
+- [ ] Tela escala: calendário por dia, auto-preenchimento, ajustes manuais.
+- [ ] Tela equipe do dia: equipe ativa + atribuição de setores por garçom (um garçom pode ter mais de 1 setor).
 
 ---
 
@@ -334,7 +351,7 @@ Frontend do KDS. Zero endpoints REST novos.
 - [ ] Clock-in/out com senha do garcom. Registro de tempo de servico. Rate limit: 5 tentativas por staffId em 15min, lockout de 15min.
 - [ ] Sistema de chamados com tipo (chamar garcom, pedir conta, outro).
 - [ ] Frontend garcom: clock-in com senha.
-- [ ] Frontend garcom: lista de mesas atribuidas.
+- [ ] Frontend garçom: lista de mesas dos setores atribuídos (agrupadas por setor).
 - [ ] Frontend garcom: chamados abertos.
 - [ ] Frontend garcom: detalhe da mesa (pedidos por pessoa).
 - [ ] Frontend garcom: comanda rapida.
@@ -349,13 +366,12 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 **Checklist:**
 - [ ] Push notifications via Service Worker + Web Push API.
 - [ ] **Service Worker com cache do cardapio para suporte offline** (leitura do cardapio funciona sem internet).
-- [ ] Notificacao: prato pronto para retirada.
-- [ ] Notificacao: chamado de mesa.
-- [ ] Notificacao: bebida pronta (para retirada no bar).
+- [ ] Notificação: item pronto para retirada (com indicação do Ponto de Entrega).
+- [ ] Notificação: chamado de mesa.
 - [ ] Real-time admin: table update, metrics update via WebSocket.
-- [ ] Toggle taxa de servico por sessao (garcom).
-- [ ] Funcionario BAR com flag "tambem entrega" recebe notificacao propria.
-- [ ] Service Worker com estrategia de cache para cardapio (suporte offline para leitura do cardapio).
+- [ ] Toggle taxa de serviço por sessão (garçom).
+- [ ] Pontos de Entrega com `autoEntrega = true`: operador recebe notificação própria (sem notificar garçom).
+- [ ] Service Worker com estratégia de cache para cardápio (suporte offline para leitura do cardápio).
 
 ---
 
@@ -374,7 +390,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] Faturamento mensal: receita acumulada, grafico por dia, comparativo.
 - [ ] Fechamento de caixa: valores por forma de pagamento.
 - [ ] Taxas de garcom: valor devido a cada garcom no periodo.
-- [ ] Dashboard: tempo medio bar/cozinha/garcom, mesas ativas. **Metricas pre-calculadas em Redis** (atualizadas por evento, nao calculadas a cada request).
+- [ ] Dashboard: tempo médio por Local de Preparo, mesas ativas. **Métricas pré-calculadas em Redis** (atualizadas por evento, não calculadas a cada request).
 - [ ] Itens populares.
 - [ ] Metricas pre-calculadas em Redis com invalidacao por evento (nao calcular a cada request).
 

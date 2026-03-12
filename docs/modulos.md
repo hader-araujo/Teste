@@ -1,21 +1,47 @@
 # Modulos Funcionais
 
+## Estrutura Operacional do Restaurante
+
+Antes de descrever os modulos, e importante entender as entidades que organizam a operacao fisica do restaurante:
+
+### Local de Preparo
+Onde os itens sao produzidos. Cada restaurante cadastra seus proprios locais de preparo com nomes livres (ex: "Cozinha Principal", "Pizzaria", "Bar", "Cozinha Fria", "Churrasqueira"). **Cada Local de Preparo corresponde a uma tela KDS independente.**
+
+### Ponto de Entrega
+Onde o garcom retira o item pronto. Cada Local de Preparo tem **1 ou mais Pontos de Entrega** (criado automaticamente com 1 default ao cadastrar o Local de Preparo). Exemplos: "Pass principal", "Balcão do bar", "Service bar", "Janela da pizzaria".
+
+- **Flag `autoEntrega`** (boolean, default `false`): se `true`, o operador do Local de Preparo entrega o item diretamente na mesa — garcom **nao** e notificado para retirada. Se `false`, garcom e notificado para buscar no Ponto de Entrega.
+
+### Setor
+Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área Externa"). **Toda mesa pertence a exatamente 1 setor.** Ao criar o restaurante, um setor default e criado automaticamente.
+
+- **Garcons sao atribuidos a setores** (nao a mesas individuais). Um garcom pode atender mais de 1 setor.
+- **Taxa de servico e dividida igualmente entre garcons do mesmo setor.** Se um garcom precisa ficar exclusivo em uma mesa, essa mesa deve estar em um setor proprio.
+- **Mapeamento obrigatorio Setor ↔ Local de Preparo:** para cada setor, deve haver um vinculo com cada Local de Preparo, indicando **qual Ponto de Entrega** os garcons daquele setor usam para retirada. Isso permite que garcons de setores diferentes retirem em pontos diferentes do mesmo Local de Preparo.
+
+### Cadastro de Produto — Destino
+No cadastro de produto, o campo "Destino" e obrigatorio e mostra:
+- **Todos os Pontos de Entrega cadastrados** (agrupados por Local de Preparo) — o pedido vai para o KDS do Local de Preparo vinculado.
+- **Opção fixa "Garçom"** — entrega direta pelo garcom, sem preparo, nao passa por KDS nenhum.
+
+---
+
 ## Modulo Gerencial (Dashboard/Backoffice) — Rota: `/admin`
 Acesso: Dono/Gerente via computador ou tablet.
 
 - Mapa de mesas em tempo real (livres, ocupadas, aguardando limpeza, tempo de permanencia).
-- Metricas: tempo medio de atendimento dividido por categoria (**bar**, **cozinha**, **garcom**), tempo de preparo por prato.
+- Metricas: tempo medio de atendimento dividido por **Local de Preparo** e por garcom, tempo de preparo por prato.
 - Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
-- **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando para onde o pedido vai: **cozinha**, **bar** ou **garcom** (entrega direta, sem preparo). Substitui a logica anterior de "bebida pronta" — agora qualquer produto pode ter qualquer destino.
+- **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Ver secao "Estrutura Operacional" acima.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
+- **CRUD de Locais de Preparo:** nome do local. Ao criar, 1 Ponto de Entrega default e gerado automaticamente.
+- **CRUD de Pontos de Entrega:** nome do ponto, Local de Preparo vinculado, flag `autoEntrega` (default `false`).
+- **CRUD de Setores:** nome do setor, mesas vinculadas. Mapeamento obrigatorio de Ponto de Entrega por Local de Preparo.
 - Gestao de funcionarios: cadastro de garcons, cozinheiros, gerentes com permissoes por role.
 - **Funcionarios temporarios:** cadastro com flag `temporario`. Opcao de definir dias fixos da semana (ex: seg, qua, sex) ou deixar em branco para uso avulso.
 - **Tela de Escala (programacao):** calendario/lista por dia mostrando quem vai trabalhar nos proximos dias. Funcionarios permanentes + temporarios com dia pre-definido entram automaticamente. Permite desmarcar qualquer um para o dia e adicionar temporarios avulsos.
-- **Tela Equipe do Dia:** lista todos que vao trabalhar hoje (auto-preenchido pela escala). Toggle para desmarcar/marcar. Adicionar temporarios avulsos. Distribuir mesas entre garcons ativos do dia.
+- **Tela Equipe do Dia:** lista todos que vao trabalhar hoje (auto-preenchido pela escala). Toggle para desmarcar/marcar. Adicionar temporarios avulsos. **Atribuir garcons a setores** (um garcom pode ter mais de 1 setor).
 - **Configuracoes do estabelecimento** (em Settings): nome do estabelecimento e logo. O nome/logo substitui "OChefia" no header do cardapio do cliente, mas mantem "OChefia" em tamanho pequeno (branding). Se nao configurado, mostra apenas "OChefia".
-- **Configuracao de distribuicao de mesas/gorjeta** (em Settings):
-  1. **Todos:** pedidos chegam para todos os garcons, taxa de servico dividida igualmente.
-  2. **Automatico:** sistema divide mesas igualmente entre garcons do dia (ex: 15 mesas / 3 garcons = 5 cada).
 - **Estoque:** movido para Fase 2. Nao implementar ate aviso explicito.
 
 ## Modulo Faturamento — Rota: `/admin/faturamento`
@@ -24,21 +50,20 @@ Acesso: Dono/Gerente. Tela separada do dashboard, dedicada a financeiro.
 - **Faturamento diario:** receita do dia, quantidade de pedidos, ticket medio, comparativo com dia anterior.
 - **Faturamento mensal:** receita acumulada do mes, grafico por dia, comparativo com mes anterior.
 - **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartao). (NFC-e/SAT em fase futura).
-- **Taxas de garcom:** valores a pagar para cada garcom no periodo. Calculado automaticamente com base na taxa de servico das mesas atendidas. Nao e salario — e apenas a parte da taxa de servico devida a cada garcom. Filtro por dia e por mes.
+- **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês.
 
 ---
 
 ## Modulo KDS (Kitchen Display System) — Rota: `/kds`
-Acesso: Cozinha e Bar via tablet ou monitor.
+Acesso: Equipe de producao via tablet ou monitor. **Cada Local de Preparo tem sua propria tela KDS.**
 
-- Roteamento automatico baseado no campo **destino** do produto: `cozinha` -> KDS cozinha; `bar` -> KDS bar; `garcom` -> direto para garcom (nao passa pelo KDS).
+- Roteamento automatico baseado no **Ponto de Entrega** do produto: o pedido vai para o KDS do **Local de Preparo** vinculado ao Ponto de Entrega. Produtos com destino "Garçom" nao passam pelo KDS.
 - Fila de producao com temporizadores e cores (Verde: no prazo, Amarelo: atencao, Vermelho: atrasado).
 - Alertas visuais e sonoros para pedido novo ou urgente.
 - Clique no prato para ficha tecnica (ingredientes, modo de preparo, foto).
 - Botao "Pronto":
-  - **Cozinha:** notifica garcom para retirada.
-  - **Bar (sem flag de entrega):** notifica garcom para retirada.
-  - **Bar (com flag de entrega):** pedido continua com o barman, que tem os status `Pronto` e `Entregue` no proprio KDS.
+  - **Ponto de Entrega com `autoEntrega = false`:** notifica garcom(ns) do setor da mesa para retirada no Ponto de Entrega indicado.
+  - **Ponto de Entrega com `autoEntrega = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botoes "Pronto" e "Entregue" no proprio card.
 
 ## Modulo Cliente (Cardapio Digital) — Rota: `/[slug]/mesa/[mesaId]`
 Acesso: Cliente via QR Code no navegador.
@@ -76,7 +101,7 @@ Acesso: Cliente via QR Code no navegador.
 - Upselling: sugestoes automaticas de adicionais e acompanhamentos (referencia futura — sem endpoint/sprint definido na Fase 1).
 - **Pessoas na mesa (REGRA CRITICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao. **OBRIGATORIO:** um botao visivel no header de TODAS as telas do cliente (cardapio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Nao basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
 - **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados.
-- **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Pedidos mistos (produtos com destinos diferentes) geram **sub-pedidos** automaticos com sufixo (`_cozinha`, `_bar`, `_garcom`) baseado no campo **destino** de cada produto. Cada sub-pedido segue seu fluxo independente.
+- **Pedidos em tempo real:** cada envio = pedido separado. Status: `Na fila` -> `Preparando` -> `Pronto` -> `Entregue`. WebSocket. Pedidos mistos (produtos com Pontos de Entrega diferentes) geram **sub-pedidos** automaticos agrupados por **Local de Preparo** (+ um sub-pedido separado para itens com destino "Garçom"). Cada sub-pedido segue seu fluxo independente.
 - **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuicao de pessoas.
 
 ### Conta e Pagamento
@@ -110,14 +135,13 @@ Acesso: Celular do garcom (PWA).
 
 ### Funcionalidades
 - **Ativacao de turno (clock-in):** garcom precisa informar que comecou a trabalhar no dia. Requer **senha do garcom** (definida no cadastro do funcionario). Ao ativar, salva hora de inicio. Ao encerrar, salva hora de fim. Registro de tempo de servico por dia.
-- **Lista de mesas atribuidas** com status (mesas definidas na Equipe do Dia). Tap na mesa abre o detalhe.
+- **Lista de mesas dos setores atribuidos** com status (setores definidos na Equipe do Dia). Tap na mesa abre o detalhe.
 - **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta".
 - **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido".
-- **Chamados:** lista de chamados abertos de clientes (independente de mesa).
-- Notificacoes push: prato pronto, chamado de mesa, bebida pronta (para retirada no bar ou cozinha).
+- **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.
+- Notificacoes push: item pronto para retirada (com indicacao do Ponto de Entrega), chamado de mesa.
 - Historico de pedidos com divisao por pessoa.
 - Toggle taxa de servico por sessao.
-- **Funcionario BAR com flag "tambem entrega":** recebe notificacao de seus proprios pedidos prontos e faz a entrega diretamente, sem passar por outro garcom.
 
 ## Modulo Explorar (Fase 2 — NAO IMPLEMENTAR) — Rota: `/explorar`
 **Referencia arquitetural apenas.**

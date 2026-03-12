@@ -55,7 +55,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Navegacao:** bottom nav fixa com 3 tabs: **Mesas, Chamados, Turno**. Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
 
 1. **Turno** → seleciona nome → informa senha → "Iniciar Turno" → turno ativo
-2. **Mesas** → ve lista de mesas atribuidas com status (livre, ocupada, pedindo conta, atrasado)
+2. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
 3. Toca numa mesa → **Detalhe da mesa:**
    - Pessoas na mesa
    - Pedidos ativos com status de cada item
@@ -67,8 +67,8 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
    - Toca "+" para adicionar itens
    - Barra fixa com contagem + total → "Enviar Pedido"
    - Apos enviar, volta para detalhe da mesa
-5. **Chamados** (tab fixa) → ve chamados abertos de clientes → "Visto" / "Resolvido"
-6. Recebe **notificacoes push**: prato pronto, chamado de mesa, bebida pronta
+5. **Chamados** (tab fixa) → ve chamados abertos de clientes dos seus setores → "Visto" / "Resolvido"
+6. Recebe **notificacoes push**: item pronto para retirada (com indicacao do **Ponto de Entrega**), chamado de mesa
 7. **Turno** → "Encerrar Turno" quando termina o expediente
 
 ---
@@ -81,30 +81,31 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 1. **Login** → email + senha
 2. **Dashboard** → metricas em tempo real (mesas ativas, tempo medio por categoria, fila de pedidos, chamados)
 3. **Mesas** → mapa visual com status por cor → abrir/fechar sessao
-4. **Cardapio** → CRUD de categorias, tags e produtos (com fotos, destino cozinha/bar/garcom, preco)
-5. **Faturamento** → diario (receita, pedidos, ticket medio) | mensal (grafico por dia) | caixa (por forma de pagamento) | taxas de garcom
-6. **Equipe** → cadastrar funcionarios (com flag temporario, dias fixos, flag entrega BAR, senha garcom) → enviar convites
-7. **Escala** → calendario por dia → auto-preenchido + ajustes manuais
-8. **Equipe do Dia** → quem trabalha hoje + distribuicao de mesas por garcom
-9. **Settings** → nome/logo do estabelecimento, taxa de servico, tema/cores do cardapio com preview, modo de distribuicao de mesas
+4. **Cardapio** → CRUD de categorias, tags e produtos (com fotos, Ponto de Entrega ou "Garçom", preço)
+5. **Locais de Preparo** → CRUD de locais (ex: Cozinha, Bar, Pizzaria) + Pontos de Entrega por local (com flag auto-entrega)
+6. **Setores** → CRUD de setores + vincular mesas + mapeamento obrigatório de Ponto de Entrega por Local de Preparo
+7. **Faturamento** → diário (receita, pedidos, ticket médio) | mensal (gráfico por dia) | caixa (por forma de pagamento) | taxas de garçom
+8. **Equipe** → cadastrar funcionários (com flag temporário, dias fixos, senha garçom) → enviar convites
+9. **Escala** → calendário por dia → auto-preenchido + ajustes manuais
+10. **Equipe do Dia** → quem trabalha hoje + atribuição de setores por garçom
+11. **Settings** → nome/logo do estabelecimento, taxa de serviço, tema/cores do cardápio com preview
 
 ---
 
-## KDS (Cozinha / Bar)
+## KDS (por Local de Preparo)
 
 **Dispositivo:** tablet ou monitor (landscape).
-**Navegacao:** tela unica com filtro por estacao. Sem navegacao complexa — foco total na fila.
+**Navegação:** tela única por Local de Preparo. Sem navegação complexa — foco total na fila. Cada Local de Preparo (ex: Cozinha, Pizzaria, Bar) tem sua própria instância KDS.
 
-1. Tela abre direto na **fila de producao** (dark mode)
+1. Tela abre direto na **fila de produção** (dark mode)
 2. Pedidos aparecem como cards em grid (3-5 colunas)
-3. Cada card mostra: numero do pedido, mesa, itens, timer, observacoes
-4. **Cores de borda mudam com o tempo:** verde (no prazo) → amarelo (atencao >10min) → vermelho (atrasado >15min)
+3. Cada card mostra: número do pedido, mesa, itens, timer, observações
+4. **Cores de borda mudam com o tempo:** verde (no prazo) → amarelo (atenção >10min) → vermelho (atrasado >15min)
 5. **Alerta sonoro** quando chega pedido novo ou pedido fica atrasado
-6. Toca no prato → ficha tecnica (ingredientes, modo de preparo, foto)
-7. Toca **"Pronto"** (botao grande no card):
-   - **Cozinha:** notifica garcom para retirada
-   - **Bar (sem flag entrega):** notifica garcom para retirada
-   - **Bar (com flag entrega):** barman tem botoes "Pronto" e "Entregue" no proprio KDS
+6. Toca no prato → ficha técnica (ingredientes, modo de preparo, foto)
+7. Toca **"Pronto"** (botão grande no card):
+   - **Ponto de Entrega com `autoEntrega = false`:** notifica garçom(ns) do setor da mesa para retirada, indicando o Ponto de Entrega
+   - **Ponto de Entrega com `autoEntrega = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"
 
 ---
 

@@ -102,7 +102,7 @@ Na Fase 1, essas metricas sao calculadas no Redis e exibidas no dashboard admin/
 |---|---|---|
 | `OrdersCreated` | Por restaurante | Volume de pedidos por periodo |
 | `PaymentsConfirmed` | Por restaurante | Taxa de conversao de pagamento |
-| `AveragePreparationTime` | Por restaurante + destino | Tempo medio cozinha/bar |
+| `AveragePreparationTime` | Por restaurante + Local de Preparo | Tempo médio por Local de Preparo |
 | `ActiveSessions` | Por restaurante | Mesas ocupadas em tempo real |
 | `OTPSendFailures` | Global | Saude da integracao WhatsApp |
 | `PixWebhookFailures` | Global | Saude da integracao Pix |
@@ -176,7 +176,7 @@ Na Fase 1, essas metricas sao exibidas no dashboard admin e super admin do propr
 
 ### Dashboard Operacional
 - Pedidos por hora (grafico de linha)
-- Tempo medio de preparo por destino (cozinha/bar)
+- Tempo médio de preparo por Local de Preparo
 - Sessoes ativas por restaurante
 - Taxa de erro por endpoint (top 5)
 - Latencia P50/P95/P99
