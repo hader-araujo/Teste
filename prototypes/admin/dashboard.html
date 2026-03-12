@@ -65,6 +65,10 @@
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
             Equipe do Dia
           </a>
+          <a href="desempenho.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Desempenho
+          </a>
         </div>
         <div class="sidebar-group">
           <div class="sidebar-group-label">Financeiro</div>
@@ -110,17 +114,8 @@
       <div class="admin-page-body">
 
         <!-- KPI Grid -->
-        <div class="kpi-grid mb-6">
-          <div class="kpi-card">
-            <div class="kpi-label">Tempo Médio — Cozinha</div>
-            <div class="kpi-value">18min</div>
-            <div class="kpi-change positive">-2min vs ontem</div>
-          </div>
-          <div class="kpi-card kpi-info">
-            <div class="kpi-label">Tempo Médio — Bar</div>
-            <div class="kpi-value">7min</div>
-            <div class="kpi-change positive">-1min vs ontem</div>
-          </div>
+        <div class="kpi-grid mb-6" id="kpi-grid">
+          <!-- KPIs dinâmicos de Locais de Preparo serão injetados via JS -->
           <div class="kpi-card kpi-success">
             <div class="kpi-label">Tempo Médio — Garçom</div>
             <div class="kpi-value">4min</div>
@@ -130,6 +125,72 @@
             <div class="kpi-label">Mesas Ativas</div>
             <div class="kpi-value">8/15</div>
             <div class="kpi-change positive">53% ocupação</div>
+          </div>
+        </div>
+
+        <!-- Alertas -->
+        <div class="card mb-6">
+          <div class="card-body-lg">
+            <h2 style="font-size:1.125rem; font-weight:600; margin-bottom:1rem;">Alertas</h2>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+
+              <!-- Pedido atrasado -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-error);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 5</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Picanha na Brasa aguardando há 22min</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span class="badge badge-error">Atrasado</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Notificação enviada ao garçom!', 'success')">Notificar</button>
+                </div>
+              </div>
+
+              <!-- Chamado sem resposta -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 8</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Pedir conta (sem resposta há 12min)</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span class="badge badge-warning">Sem resposta</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Chamado atendido!', 'success')">Atender</button>
+                </div>
+              </div>
+
+              <!-- Escalação ativa -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-error);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 3</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Caipirinha pronta há 11min sem retirada</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span class="badge badge-error">Escalação</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Todos os garçons notificados!', 'success')">Escalar</button>
+                </div>
+              </div>
+
+              <!-- Mesa ociosa -->
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg); border-left:4px solid var(--color-warning);">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <div style="font-weight:700; font-size:1rem; color:var(--color-text-primary);">Mesa 12</div>
+                  <div>
+                    <div style="font-size:0.875rem; font-weight:500; color:var(--color-text-primary);">Sem novo pedido há 45min</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:1rem;">
+                  <span class="badge badge-warning">Ociosa</span>
+                  <button class="btn btn-sm btn-secondary" onclick="showToast('Garçom notificado!', 'success')">Verificar</button>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
 
@@ -256,5 +317,51 @@
   </div>
 
   <script src="../js/app.js"></script>
+  <script>
+    // Dados mock de tempo médio por Local de Preparo
+    const prepLocationStats = {
+      1: { avgTime: '18min', change: '-2min vs ontem', positive: true },
+      2: { avgTime: '7min', change: '-1min vs ontem', positive: true }
+    };
+
+    // Estilos alternados para os KPI cards de Locais de Preparo
+    const kpiStyles = ['', 'kpi-info', 'kpi-error', 'kpi-success'];
+
+    // Gerar KPI cards dinâmicos baseados em MOCK.preparationLocations
+    (function renderPrepLocationKPIs() {
+      const grid = document.getElementById('kpi-grid');
+      const staticCards = grid.querySelectorAll('.kpi-card');
+
+      // Inserir antes dos cards estáticos (Garçom e Mesas Ativas)
+      const fragment = document.createDocumentFragment();
+      MOCK.preparationLocations.forEach(function(loc, index) {
+        const stats = prepLocationStats[loc.id] || { avgTime: '—', change: 'sem dados', positive: true };
+        const styleClass = kpiStyles[index % kpiStyles.length];
+
+        const card = document.createElement('div');
+        card.className = 'kpi-card' + (styleClass ? ' ' + styleClass : '');
+
+        const label = document.createElement('div');
+        label.className = 'kpi-label';
+        label.textContent = 'Tempo Médio — ' + loc.name;
+
+        const value = document.createElement('div');
+        value.className = 'kpi-value';
+        value.textContent = stats.avgTime;
+
+        const change = document.createElement('div');
+        change.className = 'kpi-change ' + (stats.positive ? 'positive' : 'negative');
+        change.textContent = stats.change;
+
+        card.appendChild(label);
+        card.appendChild(value);
+        card.appendChild(change);
+        fragment.appendChild(card);
+      });
+
+      // Inserir antes do primeiro card estático
+      grid.insertBefore(fragment, staticCards[0]);
+    })();
+  </script>
 </body>
 </html>

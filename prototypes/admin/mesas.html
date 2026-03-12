@@ -65,6 +65,10 @@
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
             Equipe do Dia
           </a>
+          <a href="desempenho.html" class="sidebar-item">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
+            Desempenho
+          </a>
         </div>
         <div class="sidebar-group">
           <div class="sidebar-group-label">Financeiro</div>
@@ -109,6 +113,13 @@
 
       <!-- Page Body -->
       <div class="admin-page-body">
+
+        <!-- Filter Tabs -->
+        <div class="tabs" style="margin-bottom:1.25rem;">
+          <button class="tab active" data-mesa-filter="todas" onclick="filterMesas('todas', this)">Todas</button>
+          <button class="tab" data-mesa-filter="problema" onclick="filterMesas('problema', this)">Com problema</button>
+          <button class="tab" data-mesa-filter="ociosas" onclick="filterMesas('ociosas', this)">Ociosas</button>
+        </div>
 
         <!-- Legenda de cores -->
         <div style="display:flex; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem;">
@@ -164,6 +175,57 @@
 
   <script src="../js/app.js"></script>
   <script>
+    // Extended mock data: alerts and lastOrderTime per table (inline, does not modify app.js)
+    var mesaExtras = {
+      1:  { alerts: [], lastOrderTime: 12 },
+      3:  { alerts: [], lastOrderTime: 8 },
+      5:  { alerts: [{ type: 'pedido_atrasado', message: 'Pedido atrasado há 18min' }], lastOrderTime: 18 },
+      7:  { alerts: [], lastOrderTime: 5 },
+      8:  { alerts: [{ type: 'chamado_sem_resposta', message: 'Chamado sem resposta há 12min' }], lastOrderTime: 25 },
+      10: { alerts: [], lastOrderTime: 15 },
+      12: { alerts: [{ type: 'ociosa', message: 'Sem pedido há 42min' }], lastOrderTime: 42 },
+      15: { alerts: [], lastOrderTime: 10 },
+      4:  { alerts: [], lastOrderTime: 20 }
+    };
+
+    // Current active filter
+    var currentFilter = 'todas';
+
+    function getTableExtras(table) {
+      var extras = mesaExtras[table.number];
+      if (!extras) return { alerts: [], lastOrderTime: 0 };
+      return extras;
+    }
+
+    function tableHasProblems(table) {
+      var extras = getTableExtras(table);
+      return table.status === 'atrasada' || (extras.alerts && extras.alerts.length > 0);
+    }
+
+    function tableIsOciosa(table) {
+      if (table.status === 'livre') return false;
+      var extras = getTableExtras(table);
+      return extras.lastOrderTime >= 30;
+    }
+
+    function filterMesas(filter, btnEl) {
+      currentFilter = filter;
+      // Update active tab
+      var tabs = document.querySelectorAll('.tabs [data-mesa-filter]');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      if (btnEl) btnEl.classList.add('active');
+      renderMesas();
+    }
+
+    function getFilteredTables() {
+      return MOCK.tables.filter(function(table) {
+        if (currentFilter === 'todas') return true;
+        if (currentFilter === 'problema') return tableHasProblems(table);
+        if (currentFilter === 'ociosas') return tableIsOciosa(table);
+        return true;
+      });
+    }
+
     function createMesaCard(table) {
       var statusLabel = getTableStatusLabel(table.status);
       var badgeClasses = {
@@ -173,13 +235,26 @@
         atrasada: 'badge-error'
       };
       var badgeClass = badgeClasses[table.status] || 'badge-gray';
+      var extras = getTableExtras(table);
+      var hasAlerts = extras.alerts && extras.alerts.length > 0;
+      var isOciosa = tableIsOciosa(table);
 
       var card = document.createElement('div');
       card.className = 'mesa-card ' + table.status;
+      card.style.position = 'relative';
+
+      // Alert indicator (top-right warning icon)
+      if (hasAlerts || table.status === 'atrasada' || isOciosa) {
+        var alertIcon = document.createElement('div');
+        alertIcon.style.cssText = 'position:absolute; top:0.5rem; right:0.5rem; font-size:1.125rem; line-height:1; cursor:default;';
+        alertIcon.textContent = '⚠️';
+        alertIcon.title = hasAlerts ? extras.alerts[0].message : (isOciosa ? 'Sem pedido há ' + extras.lastOrderTime + 'min' : 'Mesa com atraso');
+        card.appendChild(alertIcon);
+      }
 
       // Header row: number + status badge
       var header = document.createElement('div');
-      header.style.cssText = 'display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0.75rem;';
+      header.style.cssText = 'display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:0.75rem; padding-right:' + ((hasAlerts || table.status === 'atrasada' || isOciosa) ? '1.75rem' : '0') + ';';
 
       var numberEl = document.createElement('div');
       numberEl.className = 'mesa-number';
@@ -272,7 +347,22 @@
         card.appendChild(emptyText);
       }
 
-      // Action button
+      // Alert message below details
+      if (hasAlerts) {
+        extras.alerts.forEach(function(alert) {
+          var alertMsg = document.createElement('div');
+          alertMsg.style.cssText = 'margin-top:0.5rem; padding:0.375rem 0.5rem; background:var(--color-error-light, #FEF2F2); border-radius:0.375rem; font-size:0.75rem; color:var(--color-error); display:flex; align-items:center; gap:0.25rem;';
+          alertMsg.textContent = alert.message;
+          card.appendChild(alertMsg);
+        });
+      } else if (isOciosa && table.status !== 'livre') {
+        var alertMsg = document.createElement('div');
+        alertMsg.style.cssText = 'margin-top:0.5rem; padding:0.375rem 0.5rem; background:var(--color-warning-light, #FFFBEB); border-radius:0.375rem; font-size:0.75rem; color:var(--color-warning); display:flex; align-items:center; gap:0.25rem;';
+        alertMsg.textContent = 'Sem pedido há ' + extras.lastOrderTime + 'min';
+        card.appendChild(alertMsg);
+      }
+
+      // Action buttons
       var btnWrap = document.createElement('div');
       btnWrap.style.cssText = 'margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--color-border-light);';
 
@@ -298,6 +388,48 @@
       }
       btn.style.cssText = 'width:100%;';
       btnWrap.appendChild(btn);
+
+      // Delete button (only for 'livre' tables)
+      if (table.status === 'livre') {
+        var deleteBtn = document.createElement('button');
+        deleteBtn.style.cssText = 'width:100%; margin-top:0.5rem; display:flex; align-items:center; justify-content:center; gap:0.375rem; padding:0.375rem 0.75rem; font-size:0.75rem; color:var(--color-error); background:none; border:1px solid var(--color-error); border-radius:0.5rem; cursor:pointer; transition:background 0.15s, color 0.15s;';
+        deleteBtn.onmouseenter = function() { this.style.background = 'var(--color-error)'; this.style.color = '#fff'; };
+        deleteBtn.onmouseleave = function() { this.style.background = 'none'; this.style.color = 'var(--color-error)'; };
+
+        var trashSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        trashSvg.setAttribute('viewBox', '0 0 24 24');
+        trashSvg.setAttribute('width', '14');
+        trashSvg.setAttribute('height', '14');
+        trashSvg.setAttribute('fill', 'none');
+        trashSvg.setAttribute('stroke', 'currentColor');
+        trashSvg.setAttribute('stroke-width', '2');
+        var trashPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        trashPath1.setAttribute('points', '3,6 5,6 21,6');
+        var trashPath2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        trashPath2.setAttribute('d', 'M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2');
+        trashSvg.appendChild(trashPath1);
+        trashSvg.appendChild(trashPath2);
+        deleteBtn.appendChild(trashSvg);
+
+        var delText = document.createElement('span');
+        delText.textContent = 'Remover mesa';
+        deleteBtn.appendChild(delText);
+
+        deleteBtn.onclick = (function(tbl) {
+          return function(e) {
+            e.stopPropagation();
+            if (confirm('Tem certeza que deseja remover a Mesa ' + tbl.number + '?')) {
+              var idx = MOCK.tables.indexOf(tbl);
+              if (idx > -1) MOCK.tables.splice(idx, 1);
+              renderMesas();
+              showToast('Mesa ' + tbl.number + ' removida com sucesso!', 'success');
+            }
+          };
+        })(table);
+
+        btnWrap.appendChild(deleteBtn);
+      }
+
       card.appendChild(btnWrap);
 
       return card;
@@ -308,7 +440,16 @@
       if (!grid) return;
       grid.textContent = '';
 
-      MOCK.tables.forEach(function(table) {
+      var filtered = getFilteredTables();
+      if (filtered.length === 0) {
+        var empty = document.createElement('div');
+        empty.style.cssText = 'grid-column:1/-1; text-align:center; padding:3rem 1rem; color:var(--color-text-muted); font-size:0.875rem;';
+        empty.textContent = currentFilter === 'problema' ? 'Nenhuma mesa com problema no momento.' : (currentFilter === 'ociosas' ? 'Nenhuma mesa ociosa no momento.' : 'Nenhuma mesa cadastrada.');
+        grid.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(function(table) {
         grid.appendChild(createMesaCard(table));
       });
     }
