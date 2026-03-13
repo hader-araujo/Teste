@@ -16,7 +16,7 @@ export const SOCKET_EVENTS = {
   KDS_STATUS_UPDATE: 'kds:status-update',   // Local de Preparo mudou status (preparing/ready/delivered)
 
   // Servidor -> Garcom
-  WAITER_ORDER_READY: 'waiter:order-ready', // Item pronto pra retirar (inclui Ponto de Entrega) — enviado a todos do setor
+  WAITER_ORDER_READY: 'waiter:order-ready', // Grupo de entrega pronto pra retirar (inclui Pontos de Entrega). Emitido **por grupo de entrega**, não por pedido. Se um pedido tem grupo Normal e Imediato que ficam prontos em momentos diferentes, são 2 eventos separados. Payload inclui `deliveryGroup: 'normal' | 'immediate'` e lista de `pickupPoints[]` — enviado a todos do setor
   WAITER_PICKUP_CLAIMED: 'waiter:pickup-claimed', // Garçom assumiu retirada — some da tela dos outros garçons do setor
   WAITER_PICKUP_REMINDER: 'waiter:pickup-reminder', // Re-lembrete: item pronto há X min sem retirada (nível 1)
   WAITER_PICKUP_ESCALATION: 'waiter:pickup-escalation', // URGENTE: item sem retirada há Y min — enviado a TODOS os garçons (nível 2, override do claim)
@@ -26,6 +26,8 @@ export const SOCKET_EVENTS = {
   // Servidor -> Cliente
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
   CLIENT_SESSION_UPDATE: 'client:session-update',  // Conta atualizada
+  CLIENT_PAYMENT_CONFIRMED: 'client:payment-confirmed', // Pagamento confirmado (webhook Pix ou registro manual CASH/CARD por staff). Payload: { personId, amount, method: 'PIX' | 'CASH' | 'CARD_DEBIT' | 'CARD_CREDIT', confirmedAt }. Room: session:{token}
+  CLIENT_SESSION_CLOSED: 'client:session-closed',  // Sessão fechada pelo garçom/admin. Payload: { sessionToken, closedByStaffId, closedAt }. Room: session:{token}
 
   // Aprovacao de entrada na mesa
   SESSION_JOIN_REQUEST: 'session:join-request',     // Novo entrante quer entrar na mesa (notifica membros aprovados)
@@ -91,3 +93,7 @@ export const SOCKET_EVENTS = {
 - Se o servidor estiver sobrecarregado, usar `socket.volatile.emit()` para eventos nao-criticos (metrics-update) — descarta se nao conseguir enviar.
 - Eventos criticos (order-update, payment-update) devem usar `emit()` normal com garantia de entrega.
 - Rate limit de eventos do cliente para o servidor: maximo 10 eventos por segundo por socket. Desconectar sockets que excedem (possivel abuso).
+
+## Push Notifications e WebSocket
+
+Push notifications e WebSocket **coexistem**. WebSocket é usado para alertas in-app (quando o app está aberto/ativo). Push notifications (via Service Worker + Web Push API) são usadas quando o app está fechado ou em background. Eventos críticos (pedido pronto, chamado, escalação) disparam **ambos** simultaneamente.

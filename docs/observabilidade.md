@@ -96,7 +96,7 @@ const devTransport = new winston.transports.Console({
 
 ## Metricas Customizadas de Negocio
 
-Na Fase 1, essas metricas sao calculadas no Redis e exibidas no dashboard admin/super admin. Na Fase 2 (AWS), publicadas via CloudWatch `putMetricData` ou extraidas de logs via Metric Filters.
+Na Fase 1, essas metricas sao calculadas no Redis e exibidas no dashboard admin/super admin. As métricas são **atualizadas por evento** (event-driven) no Redis — não calculadas a cada request. "Dinâmico" (quando usado no contexto de Locais de Preparo) refere-se ao fato de que os Locais de Preparo são cadastráveis pelo restaurante (não fixos como "Cozinha/Bar"). Na Fase 2 (AWS), publicadas via CloudWatch `putMetricData` ou extraidas de logs via Metric Filters.
 
 | Metrica | Dimensao | Uso |
 |---|---|---|
@@ -106,7 +106,7 @@ Na Fase 1, essas metricas sao calculadas no Redis e exibidas no dashboard admin/
 | `ActiveSessions` | Por restaurante | Mesas ocupadas em tempo real |
 | `OTPSendFailures` | Global | Saude da integracao WhatsApp |
 | `PixWebhookFailures` | Global | Saude da integracao Pix |
-| `CartAbandonment` | Por restaurante | Carrinhos criados vs pedidos confirmados. Métrica calculada no Redis a partir de eventos `order:created` — não requer endpoint dedicado. Exibida no dashboard do admin/super admin |
+| `CartAbandonment` | Por restaurante | **Fase 2 apenas.** Na Fase 1, o carrinho é armazenado em localStorage apenas — sem persistência no backend, impossível rastrear abandono. Será implementada na Fase 2, quando houver persistência de carrinho no servidor |
 
 Essas metricas alimentam o dashboard do Super Admin e geram alarmes automaticos.
 
@@ -184,7 +184,7 @@ Na Fase 1, essas metricas sao exibidas no dashboard admin e super admin do propr
 ### Dashboard de Negocio
 - Receita diaria acumulada
 - Taxa de conversao: sessoes abertas vs pedidos feitos
-- Cart abandonment rate
+- Cart abandonment rate (Fase 2 — requer persistência de carrinho no backend)
 - Pagamentos confirmados vs pendentes
 - OTP success rate
 - Restaurantes mais ativos (top 10)

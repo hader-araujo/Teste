@@ -11,6 +11,7 @@
 - **Token da sessao deve ser criptograficamente seguro:** UUID v4 (128 bits) ou `crypto.randomBytes(32).toString('hex')`. Nunca sequencial ou previsivel.
 - Token expira automaticamente quando a sessao e fechada. Tokens de sessoes fechadas nao podem ser reutilizados.
 - Sem login do cliente no MVP. Validado por IP + cookie como camada extra.
+- **Unicidade de telefone:** um telefone verificado só pode estar vinculado a uma sessão ativa por vez. Tentativa de entrar em outra mesa com sessão ativa retorna erro `SESSION_008`.
 
 ## Aprovacao de Entrada na Mesa
 - **QR Code fixo por mesa.** Qualquer pessoa pode escanear, mas entrar na sessao requer aprovacao.
@@ -26,12 +27,16 @@
 - Nenhuma acao automatica usa o numero alem do armazenamento.
 - **Rate limit especifico para OTP:** maximo 3 envios por sessao, cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp.
 - **OTP expira em 5 minutos.** Maximo 5 tentativas de verificacao por OTP.
+- **Falha no envio:** se o envio via fila falhar (WhatsApp API indisponível, Redis fora), a tentativa **não é contabilizada** no rate limit. O sistema exibe mensagem "Não foi possível enviar. Tente novamente em 60s" sem consumir uma das 3 tentativas.
 
 ## Autenticacao Staff
 - JWT com access token (15min) + refresh token (7 dias).
 - Refresh token em httpOnly cookie com `SameSite=Strict` (protecao CSRF).
 - Access token **nunca** armazenado em cookie — apenas em memoria (variavel JS). Enviado via header `Authorization: Bearer`.
 - **Rate limit no `/auth/refresh`:** maximo 10 requests por IP em 15 minutos. Previne abuso com refresh token vazado.
+
+## Autenticação do KDS
+- O KDS requer autenticação de funcionário com role `KITCHEN` ou `BAR` (mesmo padrão de auth dos demais staff — JWT). Não opera como tela aberta.
 
 ## CSRF (Cross-Site Request Forgery)
 - Refresh token em httpOnly cookie exige protecao CSRF adicional alem de `SameSite=Strict`.
@@ -43,6 +48,12 @@
 ## PIN do Garcom (Clock-in)
 - **Rate limit no endpoint `/shifts/clock-in`:** maximo 5 tentativas por staffId em 15 minutos. Apos exceder, lockout de 15 minutos.
 - Tentativas falhas devem ser logadas com `level: warn` para auditoria.
+
+## Rate Limits — Endpoints do Cliente
+- Rate limits são por **cliente** (telefone verificado), não por sessão/mesa. Justificativa: mesas grandes (30+ pessoas) precisam de rate limit individual para não bloquear pedidos simultâneos legítimos.
+- `POST /orders`: máximo 3 requests por minuto por cliente.
+- `POST /calls`: máximo 2 requests por minuto por cliente.
+- `POST /session/:token/people`: máximo 5 requests por minuto por cliente.
 
 ## Super Admin (equipe OChefia)
 - Role `SUPER_ADMIN` com acesso ao painel `/superadmin`.
@@ -56,6 +67,7 @@
 - Sem validacao, qualquer pessoa pode simular confirmacao de pagamento com POST falso — **risco financeiro direto**.
 - Implementar verificacao de IP de origem (whitelist do provedor) como camada extra.
 - Logar todas as chamadas ao webhook (validas e invalidas) com `level: info/warn`.
+- A validação de assinatura deve ser **síncrona** (antes de enfileirar no Bull). Retornar HTTP 400 imediatamente se assinatura inválida. Implementar **idempotency** via campo `externalId` do provedor: se o `externalId` já foi processado, retornar HTTP 200 sem re-processar.
 
 ## Upload de Imagens — Validacao de Conteudo
 - Validar MIME type real do arquivo com biblioteca `file-type` (nao confiar apenas na extensao).
@@ -119,7 +131,10 @@
 - Audit logs sao imutaveis — nunca deletar ou alterar.
 
 ## LGPD — Compliance
-- **Endpoint obrigatorio (exclusao):** `DELETE /session/:token/data` — exclui todos os dados pessoais da sessao (telefone, nome das pessoas). Pedidos/pagamentos sao anonimizados (mantidos para faturamento, mas sem dados pessoais).
+- **Endpoint obrigatório (exclusão):** `DELETE /session/:token/data` — exclui todos os dados pessoais da sessão (telefone, nome das pessoas). Pedidos/pagamentos são anonimizados (mantidos para faturamento, mas sem dados pessoais). Controle de acesso:
+  - Requer telefone verificado (mesmo telefone da sessão).
+  - Só pode ser chamado após sessão fechada (não permite exclusão com pedidos em andamento).
+  - Admin/Super Admin pode forçar exclusão via painel (para atender solicitação formal LGPD).
 - **Endpoint obrigatorio (acesso):** `GET /session/:token/data` — retorna todos os dados pessoais da sessao (telefone, nomes). Requer telefone verificado. Direito de acesso (LGPD Art. 18).
 - **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados.
-- **Retencao:** dados pessoais de sessoes fechadas devem ser anonimizados apos 90 dias automaticamente (job agendado).
+- **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 25 (Segurança Avançada + LGPD).

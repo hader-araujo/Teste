@@ -10,7 +10,15 @@ O Staff se subdivide em 3 contextos com variacoes:
 
 ## KDS (por Local de Preparo) — Dark Mode Obrigatório
 
-### Superficies e Cores
+### Autenticação e Acesso
+
+O KDS requer autenticação de funcionário (role KITCHEN ou BAR). Ao acessar, o funcionário faz login e seleciona o Local de Preparo.
+
+### Tela de Seleção de Local de Preparo
+
+Após o login, o funcionário é direcionado à tela de seleção de Local de Preparo. Tela simples com fundo `gray-900` exibindo os Locais de Preparo disponíveis como cards/botões grandes (estilo similar aos cards de pedido, com `rounded-xl`, fundo `gray-800`, texto `gray-50`, `min-h-[80px]`). Cada card exibe o nome do local (ex: "Cozinha Principal", "Bar", "Pizzaria"). O operador toca em um card para entrar na visualização KDS daquele local. Cada instância do KDS exibe apenas um Local de Preparo — não há abas ou botões para alternar entre locais dentro da tela do KDS. Para trocar de local, o operador deve voltar à tela de seleção.
+
+### Superfícies e Cores
 
 | Elemento | Valor | Tailwind |
 |---|---|---|
@@ -37,7 +45,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 | **Timer** | Contador de minutos desde que o pedido entrou. Muda de cor automaticamente: cinza (<10min), amarelo (10-15min), vermelho (>15min) |
 | **Botao Bump (pronto)** | Grande, ocupa toda a largura do card. `min-h-[56px]`. Verde. Um toque para marcar como pronto. Sem confirmacao |
 | **Alerta sonoro** | Novo pedido: beep curto. Pedido atrasado: beep repetido. Configuravel |
-| **Identificação do Local** | Header exibe o nome do Local de Preparo (ex: "Cozinha Principal", "Bar", "Pizzaria"). Cada Local de Preparo tem sua própria instância KDS — não há tabs de filtro entre locais |
+| **Identificação do Local** | Header exibe o nome do Local de Preparo (ex: "Cozinha Principal", "Bar", "Pizzaria"). Cada instância do KDS exibe apenas um Local de Preparo — não há abas ou botões para alternar entre locais |
 
 ### Tipografia especifica
 
