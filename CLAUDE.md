@@ -1,61 +1,44 @@
 # CLAUDE.md — OChefia
 
-SaaS de gestao para bares/restaurantes no Brasil. Monorepo TypeScript: NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Router + Tailwind (frontend), Socket.IO (real-time), Redis (cache), Turborepo + pnpm.
+SaaS de gestão para bares/restaurantes no Brasil. Monorepo TypeScript: NestJS + Prisma + PostgreSQL (backend), Next.js 14 App Router + Tailwind (frontend), Socket.IO (real-time), Redis (cache), Turborepo + pnpm.
 
 ---
 
-## REGRA OBRIGATORIA: TDD (Test-Driven Development)
+## REGRAS OBRIGATÓRIAS
 
-**ESTA REGRA E INVIOLAVEL.**
-
-Ciclo **sempre**: RED (teste falhando) -> GREEN (codigo minimo) -> REFACTOR.
-
-- **Proibido** criar/modificar codigo de producao sem teste escrito ANTES.
-- **Proibido** commitar sem testes passando.
-- Bug encontrado? Teste que reproduz primeiro, depois corrigir.
-- Testes nao sao opcionais, nao sao "para depois". Sao a **primeira coisa**.
+1. **TDD inviolável.** RED → GREEN → REFACTOR. Teste primeiro, código depois. Sem exceções. Ver `.claude/rules/testing.md`.
+2. **Consultar `docs/` antes de implementar.** Identificar docs relevantes → ler com Read → só então implementar.
+3. **Planejar antes de executar tarefas complexas.** Para features novas ou refatorações grandes: apresentar plano (arquivos a criar/modificar, ordem, testes a escrever) e aguardar aprovação. O plano antecede o TDD — primeiro decide O QUE fazer, depois executa com TDD.
 
 ---
 
-## Visao Geral
+## Visão Geral
 
-**OChefia** e um SaaS para gestao de bares e restaurantes no Brasil. Cardapio digital via QR Code, autoatendimento, KDS, modulo garcom e dashboard gerencial — tudo em tempo real, sem hardware especializado.
+**OChefia** é um SaaS para gestão de bares e restaurantes no Brasil. Cardápio digital via QR Code, autoatendimento, KDS, módulo garçom e dashboard gerencial — tudo em tempo real, sem hardware especializado.
 
-**Fase 1 (MVP):** QR Code -> PWA -> pedido -> conta -> pagamento. Sem download, sem cadastro. Sessao vinculada a mesa.
+**Fase 1 (MVP):** QR Code → PWA → pedido → conta → pagamento. Sem download, sem cadastro. Sessão vinculada a mesa.
 
-**Fase 2 — NAO IMPLEMENTAR ATE AVISO EXPLICITO.** App nativo com cadastro, historico, explorar, reserva, fidelidade. Apenas referencia arquitetural.
+**Fase 2 — NÃO IMPLEMENTAR ATÉ AVISO EXPLÍCITO.**
 
 ---
 
-## Estado Atual do Repositorio
+## Estado Atual do Repositório
 
-**Sprint P — Prototipos HTML.** O repositorio contem apenas `CLAUDE.md`, `docs/` e `prototypes/`. A estrutura de codigo (apps/, packages/, docker) ainda nao foi criada — sera criada na Sprint 0. Ver `docs/sprints.md`.
+**Sprint P — Protótipos HTML.** O repositório contém apenas `CLAUDE.md`, `docs/` e `prototypes/`. A estrutura de código (apps/, packages/, docker) ainda não foi criada — será criada na Sprint 0. Ver `docs/sprints.md`.
 
 ---
 
 ## Quick Start
 
-> **ATENCAO:** Os comandos abaixo so funcionam apos Sprint 0 criar a estrutura do monorepo.
+> **ATENÇÃO:** Os comandos abaixo só funcionam após Sprint 0 criar a estrutura do monorepo.
 
 ```bash
-# Node 20 obrigatorio
 source ~/.nvm/nvm.sh && nvm use 20
-
-# Instalar dependencias
 pnpm install
-
-# Docker (PostgreSQL 5433, Redis 6380 — portas padrao ocupadas)
 docker compose up -d postgres redis
-
-# Build shared primeiro (dependencia dos apps)
 pnpm --filter @ochefia/shared build
-
-# Dev
 pnpm --filter @ochefia/api dev     # Backend porta 3001
 pnpm --filter @ochefia/web dev     # Frontend porta 3000
-
-# Testes
-pnpm --filter @ochefia/api test    # Jest watch
 pnpm test                          # Tudo via Turborepo
 ```
 
@@ -64,16 +47,16 @@ pnpm test                          # Tudo via Turborepo
 ## Gotchas
 
 - **Node 20 via nvm**: Sempre `source ~/.nvm/nvm.sh && nvm use 20` antes de rodar comandos.
-- **Portas nao-padrao**: PostgreSQL em **5433**, Redis em **6380** (as portas padrao estao ocupadas no host).
+- **Portas não-padrão**: PostgreSQL em **5433**, Redis em **6380** (as portas padrão estão ocupadas no host).
 - **Shared deve ser buildado primeiro**: `pnpm --filter @ochefia/shared build` antes de buildar api ou web.
-- **tsconfig da API nao tem paths para @ochefia/shared**: Depende do workspace symlink + shared compilado.
+- **tsconfig da API não tem paths para @ochefia/shared**: Depende do workspace symlink + shared compilado.
 - **Seed**: Executar de `apps/api/` com `npx ts-node -r tsconfig-paths/register prisma/seed.ts`. Dados de teste no CLAUDE.local.md.
 
 ---
 
 ## Estrutura do Monorepo
 
-> **Nota:** Esta e a estrutura planejada. Sera criada na Sprint 0.
+> **Nota:** Estrutura planejada. Será criada na Sprint 0.
 
 ```
 ochefia/
@@ -88,101 +71,44 @@ ochefia/
 └── pnpm-workspace.yaml
 ```
 
-**Containers (4 no total):** `ochefia-api` (3001), `ochefia-web` (3000), `ochefia-postgres` (5433), `ochefia-redis` (6380). Logs rodam dentro do container da API (Winston stdout), nao sao container separado. Imagens em filesystem local (volume Docker). Filas via Bull + Redis. Sem AWS na Fase 1 — ver `docs/deploy.md`.
+**Containers (4 no total):** `ochefia-api` (3001), `ochefia-web` (3000), `ochefia-postgres` (5433), `ochefia-redis` (6380).
 
 ---
 
-## Decisoes Arquiteturais
+## Decisões Arquiteturais
 
-- **Multi-tenancy** via `restaurantId` em todas as queries. Ver @docs/seguranca.md
-- **Sessao do cliente** vinculada a mesa via `sessionToken`, sem cadastro. Verificacao via OTP WhatsApp.
-- **Socket.IO rooms** por `restaurantId` para real-time (KDS, garcom, dashboard).
-- **QR Code** gera URL permanente `/{slug}/mesa/{tableId}`. Sessao criada no primeiro acesso.
-- **Pix simulado** na Fase 1. Webhook recebe confirmacao. Ver @docs/api-endpoints.md
-
----
-
-## Não Faça
-
-- **Não usar `npm`** — sempre `pnpm`. O projeto usa pnpm workspaces.
-- **Não usar `any`** em TypeScript. Sem exceções.
-- **Não usar `export default`** (salvo páginas Next.js).
-- **Não usar `git add .`** — adicionar arquivos específicos por nome.
-- **Não implementar Fase 2** (AWS, estoque, explorar, NFC-e) até aviso explícito.
-- **Não criar arquivos fora da estrutura definida** — respeitar a organização do monorepo.
-- **Não commitar `.env`, secrets ou credentials** — nunca.
-- **Não escrever texto em português sem acentuação** — "Adição" nunca "Adicao".
-- **Não pular testes** — TDD é inviolável. Teste primeiro, código depois.
+- **Multi-tenancy** via `restaurantId` em todas as queries.
+- **Sessão do cliente** vinculada a mesa via `sessionToken`, sem cadastro. Verificação via OTP WhatsApp.
+- **Socket.IO rooms** por `restaurantId` para real-time (KDS, garçom, dashboard).
+- **QR Code** gera URL permanente `/{slug}/mesa/{tableId}`. Sessão criada no primeiro acesso.
+- **Pagamento** Pix (simulado na Fase 1) + dinheiro + cartão (registro manual).
 
 ---
 
-## Convencoes de Codigo
+## Convenções de Código
 
-### Geral
-- TypeScript estrito. Nunca usar `any`.
-- Variaveis/funcoes: **camelCase**. Arquivos: **kebab-case**. Classes: **PascalCase**. Enums: **UPPER_CASE**.
-- Exportacoes nomeadas — nunca `export default` (salvo paginas Next.js).
-
-### Backend (NestJS — `apps/api`)
-- Logica de negocio no **Service**. Controller apenas recebe, valida com DTO e delega.
-- Nunca importar Service de outro modulo diretamente — usar exports/imports NestJS.
-- Inputs validados com `class-validator` + `ValidationPipe` global.
-- Endpoints documentados com Swagger. Protegidos com `JwtAuthGuard` + `@Roles()`.
-- Estrutura por modulo: `*.module.ts`, `*.controller.ts`, `*.controller.spec.ts`, `*.service.ts`, `*.service.spec.ts`, `dto/`.
-
-### Frontend (Next.js — `apps/web`)
-- Server Components por padrao. `'use client'` so quando necessario.
-- Tailwind CSS exclusivo. Componentes >150 linhas devem ser quebrados.
-- Props tipadas com `interface`. Named exports.
-- Organizacao: `components/ui/`, `components/admin/`, `components/kds/`, `components/garcom/`, `components/cliente/`.
-- **Toda a interface (labels, botoes, mensagens, placeholders) deve ser 100% em pt-BR com acentuacao correta.** Codigo (variaveis, funcoes, classes) permanece em ingles.
-- **Acentuacao obrigatoria:** Todo texto em portugues visivel ao usuario (UI, prototipos, mensagens de erro, placeholders, toasts) DEVE usar acentuacao correta (ã, é, ç, ô, í, ú, etc). Nunca escrever "Adicao" em vez de "Adição", "voce" em vez de "você", "pedido esta pronto" em vez de "pedido está pronto". Isso se aplica a prototipos HTML, componentes React, mensagens de toast, e qualquer texto renderizado na tela.
-
-### Shared (`packages/shared`)
-- TypeScript puro. Zero dependencias de framework. Tudo exportado pelo `index.ts`.
-
-### Banco (Prisma)
-- Tabelas: **snake_case plural** via `@@map`. Campos: **camelCase**. Enums: **UPPER_CASE**.
-- Alteracoes via `prisma migrate dev`. Schema em `apps/api/prisma/schema.prisma`.
-
-### Testes
-| Tipo | Ferramenta | Local |
-|---|---|---|
-| Unitario | Jest | `apps/api/src/**/*.spec.ts`, `packages/shared/src/**/*.spec.ts` |
-| Integracao | Jest + Supertest | `apps/api/test/**/*.e2e-spec.ts` |
-| E2E | Playwright | `apps/web/e2e/**/*.spec.ts` |
-| Contrato | Jest | `apps/api/test/contracts/**/*.spec.ts` |
+Detalhes completos em `.claude/rules/`:
+- `.claude/rules/coding.md` — convenções gerais TypeScript, naming, exports
+- `.claude/rules/testing.md` — TDD, tipos de teste, pré-commit
+- `.claude/rules/backend.md` — NestJS, Prisma, shared
+- `.claude/rules/frontend.md` — Next.js, Tailwind, idioma pt-BR
+- `.claude/rules/git.md` — commits, prefixos, mensagens em português
 
 ---
 
-## Antes de cada commit
+## Docs sob demanda (ler ANTES de implementar a feature relevante)
 
-1. `pnpm test` — todos os testes devem passar.
-2. `pnpm lint` — zero warnings/errors.
-3. Commits atomicos: 1 feature ou 1 fix por commit.
-4. Se tem mudancas de 2 tarefas, separar em commits distintos.
+See @docs/sprints.md for índice do roadmap. Detalhes de cada sprint em `docs/sprints/sprint-XX.md`.
 
----
-
-## REGRA OBRIGATORIA: Consultar docs/ antes de implementar
-
-**A especificacao completa do projeto esta nos arquivos `docs/`.** Este CLAUDE.md contem apenas convencoes e regras gerais. Os detalhes de negocio, endpoints, design, modulos e sprints estao em `docs/`.
-
-**ANTES de implementar qualquer tarefa**, voce DEVE:
-1. Identificar quais arquivos de `docs/` sao relevantes para a tarefa.
-2. Ler esses arquivos com a ferramenta Read.
-3. So entao comecar a implementacao.
-
-**Docs importados automaticamente (sempre no contexto):**
-
-See @docs/sprints.md for roadmap completo de sprints com checklists
-See @docs/design-system.md for cores, tipografia, componentes, theming
-See @docs/modulos.md for descricao funcional de todos os modulos
-See @docs/fluxos.md for fluxos de navegacao passo a passo de cada perfil (cliente, garcom, admin, KDS, super admin)
-See @docs/seguranca.md for seguranca, multi-tenancy, LGPD, audit log, webhook Pix, rate limits, upload
-
-**Docs adicionais (ler sob demanda antes de implementar a feature relevante):**
-- `docs/api-endpoints.md` — endpoints REST (ler ao implementar endpoints)
-- `docs/websocket-events.md` — eventos Socket.IO (ler ao implementar real-time)
-- `docs/deploy.md` — deploy Docker/AWS (ler ao configurar infra)
-- `docs/observabilidade.md` — logs, Winston, Correlation ID, metricas de negocio
+- `docs/modulos.md` — descrição funcional de todos os módulos
+- `docs/fluxos.md` — fluxos de navegação passo a passo de cada perfil
+- `docs/design-system.md` — cores, tipografia, componentes, theming
+- `docs/seguranca.md` — segurança, multi-tenancy, LGPD, rate limits, upload
+- `docs/api-endpoints.md` — endpoints REST
+- `docs/websocket-events.md` — eventos Socket.IO
+- `docs/deploy.md` — deploy Docker/AWS
+- `docs/observabilidade.md` — logs, Winston, Correlation ID, métricas
+- `docs/design-cliente.md` — specs da interface do cliente
+- `docs/design-staff.md` — specs do KDS e garçom
+- `docs/design-admin.md` — specs do dashboard admin
+- `docs/design-superadmin.md` — specs do backoffice super admin
