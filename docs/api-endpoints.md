@@ -53,6 +53,7 @@ Base URL: `/api/v1`
 | PATCH | `/session/:token/service-charge` | Toggle taxa de serviço (garçom only). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos. Com `personId` = toggle individual por pessoa |
 | GET | `/session/:token/bill` | Conta detalhada com divisao por pessoa + taxa de servico |
 | GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuicoes. Retorna lista de acoes em formato legivel (quem pediu, quem modificou, de/para). Visivel para todos os membros da mesa |
+| GET | `/session/:token/data` | LGPD: retornar todos os dados pessoais da sessao (telefone, nomes). Direito de acesso via telefone verificado |
 | DELETE | `/session/:token/data` | LGPD: exclui dados pessoais da sessao (telefone, nomes). Pedidos/pagamentos sao anonimizados |
 
 ## Locais de Preparo

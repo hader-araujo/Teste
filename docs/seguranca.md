@@ -119,7 +119,7 @@
 - Audit logs sao imutaveis — nunca deletar ou alterar.
 
 ## LGPD — Compliance
-- **Endpoint obrigatorio:** `DELETE /session/:token/data` — exclui todos os dados pessoais da sessao (telefone, nome das pessoas). Pedidos/pagamentos sao anonimizados (mantidos para faturamento, mas sem dados pessoais).
+- **Endpoint obrigatorio (exclusao):** `DELETE /session/:token/data` — exclui todos os dados pessoais da sessao (telefone, nome das pessoas). Pedidos/pagamentos sao anonimizados (mantidos para faturamento, mas sem dados pessoais).
+- **Endpoint obrigatorio (acesso):** `GET /session/:token/data` — retorna todos os dados pessoais da sessao (telefone, nomes). Requer telefone verificado. Direito de acesso (LGPD Art. 18).
 - **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados.
 - **Retencao:** dados pessoais de sessoes fechadas devem ser anonimizados apos 90 dias automaticamente (job agendado).
-- **Acesso:** cliente pode solicitar seus dados via telefone verificado.

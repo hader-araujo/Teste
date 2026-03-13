@@ -55,7 +55,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Navegacao:** bottom nav fixa com 3 tabs: **Chamados, Mesas, Turno**. Chamados e a tela principal (primeira tab). Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
 
 1. **Turno** → seleciona nome → informa senha → "Iniciar Turno" → turno ativo
-2. **Chamados** (tab principal) → ve chamados abertos + itens prontos para retirada dos seus setores → "Resolvido" / "Retirar". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
+2. **Chamados** (tab principal) → ve chamados abertos + grupos prontos para retirada dos seus setores → "Resolvido" / "Retirar Grupo". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
 3. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
 4. Toca numa mesa **livre** → **Abrir mesa:**
    - Quantas pessoas na mesa
@@ -64,7 +64,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 5. Toca numa mesa **ocupada** → **Detalhe da mesa:**
    - Pessoas na mesa
    - Pedidos ativos com status de cada item
-   - Itens com status "Pronto" exibem botão **"Retirar"** — ao tocar, garçom assume a entrega (claim). Item some da tela dos outros garçons do setor em tempo real. Após buscar, marca **"Entregue"**
+   - Grupos com todos os itens "Pronto" exibem botão **"Retirar Grupo"** — ao tocar, garçom assume o grupo de entrega inteiro (claim via `PATCH /orders/:id/delivery-groups/:group/claim`). Grupo some da tela dos outros garçons do setor em tempo real. Após buscar todos os itens nos Pontos de Entrega, marca **"Entregue"**
    - Botão **"Novo Pedido"** → abre **Comanda**
    - Botão **"Fechar conta"**
 5. **Comanda** (a partir do detalhe da mesa):
