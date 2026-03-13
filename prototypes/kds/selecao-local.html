@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selecionar Local — KDS — OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      background-color: var(--color-gray-900);
+      color: var(--color-gray-200);
+      min-height: 100vh;
+      margin: 0;
+    }
+    .kds-select-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background-color: var(--color-gray-800);
+      border-bottom: 1px solid var(--color-gray-700);
+    }
+    .kds-select-header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-gray-50);
+      margin: 0;
+    }
+    .kds-select-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--color-gray-400);
+    }
+    .kds-select-user .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--color-gray-700);
+      color: var(--color-gray-300);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+    .kds-select-user .user-name {
+      font-weight: 600;
+      color: var(--color-gray-200);
+    }
+    .kds-select-user .user-role {
+      font-size: 0.8125rem;
+      color: var(--color-gray-500);
+    }
+    .kds-select-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    .kds-select-body h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-gray-50);
+      margin-bottom: 0.5rem;
+    }
+    .kds-select-body p {
+      font-size: 1rem;
+      color: var(--color-gray-400);
+      margin-bottom: 2.5rem;
+    }
+    .kds-location-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .kds-location-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2.5rem 2rem;
+      background-color: var(--color-gray-800);
+      border: 2px solid var(--color-gray-700);
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .kds-location-card:hover {
+      border-color: var(--color-primary);
+      background-color: var(--color-gray-750, #2D3748);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .kds-location-card .location-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: var(--color-gray-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .kds-location-card:hover .location-icon {
+      background-color: var(--color-primary);
+    }
+    .kds-location-card .location-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-gray-50);
+    }
+    .kds-location-card .location-info {
+      font-size: 0.875rem;
+      color: var(--color-gray-400);
+    }
+    .kds-select-footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--color-gray-600);
+      font-size: 0.8125rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="kds-select-header">
+    <h1>KDS — Selecionar Local de Preparo</h1>
+    <div class="kds-select-user">
+      <div>
+        <div class="user-name">João</div>
+        <div class="user-role">Cozinheiro</div>
+      </div>
+      <div class="user-avatar">J</div>
+    </div>
+  </header>
+
+  <!-- Body -->
+  <main class="kds-select-body">
+    <h2>Selecione o local de preparo</h2>
+    <p>Escolha o local que deseja visualizar no KDS</p>
+
+    <div class="kds-location-grid">
+
+      <!-- Cozinha Principal -->
+      <a href="kds.html?location=cozinha-principal" class="kds-location-card">
+        <div class="location-icon">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--color-gray-300);">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/>
+            <path d="M7 2v20"/>
+            <path d="M21 15V2a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3v7"/>
+          </svg>
+        </div>
+        <div class="location-name">Cozinha Principal</div>
+        <div class="location-info">5 pedidos na fila</div>
+      </a>
+
+      <!-- Bar -->
+      <a href="kds.html?location=bar" class="kds-location-card">
+        <div class="location-icon">
+          <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--color-gray-300);">
+            <path d="M8 2h8l-4 9v11"/>
+            <path d="M4 2h16"/>
+            <path d="M6 22h12"/>
+          </svg>
+        </div>
+        <div class="location-name">Bar</div>
+        <div class="location-info">4 pedidos na fila</div>
+      </a>
+
+    </div>
+  </main>
+
+  <footer class="kds-select-footer">
+    OChefia KDS — Selecione um local para iniciar
+  </footer>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

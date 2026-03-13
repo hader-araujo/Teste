@@ -13,11 +13,6 @@
     <header class="kds-header">
       <h1 id="kds-title">KDS — Cozinha Principal</h1>
       <div style="display:flex; align-items:center; gap:1.5rem;">
-        <!-- Local de Preparo selector -->
-        <nav style="display:flex; gap:0.5rem;" aria-label="Local de Preparo">
-          <button class="btn btn-sm kds-location-btn active" data-location="cozinha-principal" onclick="switchKdsLocation(this)" style="background-color:var(--color-primary); color:white; border-radius:var(--radius-full);">Cozinha Principal</button>
-          <button class="btn btn-sm kds-location-btn" data-location="bar" onclick="switchKdsLocation(this)" style="background-color:var(--color-gray-700); color:var(--color-gray-300); border-radius:var(--radius-full);">Bar</button>
-        </nav>
         <!-- Connection indicator -->
         <div class="kds-connection">
           <span class="dot"></span>
@@ -263,40 +258,24 @@
 
   <script src="../js/app.js"></script>
   <script>
-    // Location names for the title
+    // Read location from URL param (e.g. ?location=bar)
+    var urlParams = new URLSearchParams(window.location.search);
+    var currentLocation = urlParams.get('location') || 'cozinha-principal';
     var kdsLocationNames = {
       'cozinha-principal': 'Cozinha Principal',
       'bar': 'Bar'
     };
 
-    function switchKdsLocation(btn) {
-      var location = btn.getAttribute('data-location');
-
-      // Update pill buttons
-      document.querySelectorAll('.kds-location-btn').forEach(function(b) {
-        b.classList.remove('active');
-        b.style.backgroundColor = 'var(--color-gray-700)';
-        b.style.color = 'var(--color-gray-300)';
-      });
-      btn.classList.add('active');
-      btn.style.backgroundColor = 'var(--color-primary)';
-      btn.style.color = 'white';
-
-      // Update title
-      document.getElementById('kds-title').textContent = 'KDS — ' + kdsLocationNames[location];
-
-      // Update page title
-      document.title = 'KDS ' + kdsLocationNames[location] + ' — OChefia';
-
-      // Show/hide order cards
-      document.querySelectorAll('.kds-card').forEach(function(card) {
-        if (card.getAttribute('data-location') === location) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-    }
+    // Set title and filter cards based on URL param
+    document.getElementById('kds-title').textContent = 'KDS — ' + (kdsLocationNames[currentLocation] || currentLocation);
+    document.title = 'KDS ' + (kdsLocationNames[currentLocation] || currentLocation) + ' — OChefia';
+    document.querySelectorAll('.kds-card').forEach(function(card) {
+      if (card.getAttribute('data-location') === currentLocation) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
 
     function openFichaTecnica(nome, ingredientes, preparo) {
       document.getElementById('ficha-title').textContent = nome;
@@ -329,21 +308,85 @@
     }
     setInterval(updateKdsTimers, 60000); // Update every 60 seconds
 
+    // Audio context for KDS alerts
+    var kdsSoundEnabled = true;
+    var kdsAudioCtx = null;
+
+    function getKdsAudioCtx() {
+      if (!kdsAudioCtx) {
+        kdsAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return kdsAudioCtx;
+    }
+
+    function playKdsBeep(frequency, duration, repeat) {
+      if (!kdsSoundEnabled) return;
+      try {
+        var ctx = getKdsAudioCtx();
+        repeat = repeat || 1;
+        for (var i = 0; i < repeat; i++) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = frequency;
+          osc.type = 'sine';
+          gain.gain.value = 0.3;
+          var startTime = ctx.currentTime + (i * (duration + 0.1));
+          osc.start(startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+          osc.stop(startTime + duration);
+        }
+      } catch (e) {
+        // AudioContext não suportado — silencioso
+      }
+    }
+
+    function playNewOrderSound() {
+      playKdsBeep(880, 0.15, 2); // Dois beeps curtos agudos
+    }
+
+    function playUrgentSound() {
+      playKdsBeep(440, 0.3, 3); // Três beeps graves mais longos
+    }
+
+    // Play new order sound on page load to demo (simulates new order arriving)
+    setTimeout(function() {
+      if (kdsSoundEnabled) playNewOrderSound();
+    }, 2000);
+
+    // Check for delayed orders and play urgent sound periodically
+    setInterval(function() {
+      if (!kdsSoundEnabled) return;
+      var hasUrgent = false;
+      document.querySelectorAll('.kds-card:not(.status-done)').forEach(function(card) {
+        if (card.style.display === 'none') return;
+        var timerEl = card.querySelector('.kds-timer');
+        if (timerEl && timerEl.classList.contains('danger')) {
+          hasUrgent = true;
+        }
+      });
+      if (hasUrgent) playUrgentSound();
+    }, 30000); // Verifica a cada 30s
+
     function toggleKdsSound(btn) {
       var icon = btn.querySelector('.kds-sound-icon');
       var label = btn.querySelector('.kds-sound-label');
       if (label.textContent === 'Som ativo') {
+        kdsSoundEnabled = false;
         icon.textContent = '🔕';
         label.textContent = 'Som desativado';
         btn.title = 'Som desativado';
         btn.style.backgroundColor = 'var(--color-gray-600)';
         showToast('Som de notificações desativado', 'warning');
       } else {
+        kdsSoundEnabled = true;
         icon.textContent = '🔔';
         label.textContent = 'Som ativo';
         btn.title = 'Som ativo';
         btn.style.backgroundColor = 'var(--color-gray-700)';
         showToast('Som de notificações ativado', 'success');
+        playNewOrderSound(); // Feedback: toca som ao reativar
       }
     }
   </script>

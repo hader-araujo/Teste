@@ -241,11 +241,63 @@
       });
     }
 
+    // Read-only mode detection (via ?readonly=true or referrer from index)
+    var isReadOnly = new URLSearchParams(window.location.search).get('readonly') === 'true';
+
+    function applyReadOnlyMode() {
+      if (!isReadOnly) return;
+
+      // Hide people button in header
+      var peopleBtn = document.querySelector('.header-actions button[aria-label="Pessoas na mesa"]');
+      if (peopleBtn) peopleBtn.style.display = 'none';
+
+      // Hide floating cart
+      var floatingCart = document.querySelector('.floating-cart');
+      if (floatingCart) floatingCart.style.display = 'none';
+
+      // Disable bottom nav links except Cardápio
+      document.querySelectorAll('.bottom-nav a').forEach(function(link) {
+        if (!link.classList.contains('active')) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            showToast('Entre na mesa para acessar esta funcionalidade', 'warning');
+          });
+          link.style.opacity = '0.4';
+          link.style.pointerEvents = 'auto';
+        }
+      });
+
+      // Show read-only banner
+      var banner = document.createElement('div');
+      banner.style.cssText = 'padding:8px 16px; background:var(--color-info, #2563EB); color:white; text-align:center; font-size:0.8125rem; font-weight:500;';
+      banner.textContent = 'Modo visualização — entre na mesa para fazer pedidos';
+      var header = document.querySelector('.client-header');
+      if (header) header.parentNode.insertBefore(banner, header.nextSibling);
+    }
+
+    // Override renderProducts to disable add buttons in read-only
+    var originalRenderProducts = renderProducts;
+    renderProducts = function() {
+      originalRenderProducts();
+      if (isReadOnly) {
+        document.querySelectorAll('.add-btn').forEach(function(btn) {
+          btn.style.opacity = '0.3';
+          btn.style.pointerEvents = 'none';
+        });
+        // Override card clicks to go to produto.html?readonly=true
+        document.querySelectorAll('.product-card').forEach(function(card) {
+          var oldHref = 'produto.html?id=' + card.dataset.productId;
+          card.onclick = function() { window.location.href = oldHref + '&readonly=true'; };
+        });
+      }
+    };
+
     // Init
     renderCategories();
     renderTagFilters();
     renderProducts();
     renderPeople();
+    applyReadOnlyMode();
   </script>
 </body>
 </html>
