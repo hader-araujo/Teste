@@ -21,7 +21,7 @@ export const SOCKET_EVENTS = {
   WAITER_PICKUP_REMINDER: 'waiter:pickup-reminder', // Re-lembrete: item pronto há X min sem retirada (nível 1)
   WAITER_PICKUP_ESCALATION: 'waiter:pickup-escalation', // URGENTE: item sem retirada há Y min — enviado a TODOS os garçons (nível 2, override do claim)
   WAITER_CALL: 'waiter:call',               // Cliente chamou
-  WAITER_NEW_ORDER: 'waiter:new-order',     // Novo pedido em mesa do seu setor
+  WAITER_NEW_ORDER: 'waiter:new-order',     // Emitido na criação do pedido (POST /orders) para garçons do setor da mesa. Inclui: orderId, tableId, tableName, items[]. Para itens destino "Garçom" (entrega direta), o garçom recebe este evento E já pode entregar imediatamente
 
   // Servidor -> Cliente
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
@@ -49,12 +49,18 @@ export const SOCKET_EVENTS = {
 | Room | Formato | Quem entra |
 |---|---|---|
 | Restaurante geral | `restaurant:{id}` | Todos do restaurante |
-| KDS geral | `restaurant:{id}:kds` | Todos os Locais de Preparo |
+| KDS geral | `restaurant:{id}:kds` | Todos os Locais de Preparo — usado para eventos cross-KDS (ex: admin monitorando todos os Locais de Preparo simultaneamente) |
 | KDS por Local de Preparo | `restaurant:{id}:kds:{prepLocationId}` | Staff do Local de Preparo específico |
 | Garcom geral | `restaurant:{id}:waiter` | Todos os garçons ativos |
 | Garcom por setor | `restaurant:{id}:waiter:sector:{sectorId}` | Garçons atribuídos ao setor |
 | Admin | `restaurant:{id}:admin` | OWNER/MANAGER |
 | Sessao cliente | `session:{token}` | Cliente da mesa |
+
+## Deduplicação de Eventos
+
+- Um garçom pode estar em múltiplos setores (múltiplas rooms `waiter:sector:{sectorId}`). Eventos emitidos para a room geral `waiter` (ex: escalação nível 2) podem coexistir com eventos já recebidos por room de setor.
+- **Regra:** o servidor deve emitir cada evento **uma única vez por socket**, usando o socket ID para deduplicar. Implementar via `Set` de socketIds já notificados antes de emitir para múltiplas rooms.
+- Eventos de escalação nível 2 (`waiter:pickup-escalation`) são emitidos apenas para a room `waiter` geral — **não** duplicar para rooms de setor.
 
 ## Redis Adapter (preparacao para scaling)
 
@@ -65,7 +71,7 @@ export const SOCKET_EVENTS = {
 
 - Cliente deve implementar reconexao automatica com backoff exponencial (Socket.IO faz por padrao).
 - **Indicador de conexao obrigatorio** em todas as telas que dependem de WebSocket (KDS, garcom, cliente pedidos).
-- Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP como fallback para atualizacoes criticas (status de pedido, pronto para retirada).
+- Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP a cada 10 segundos como fallback para atualizacoes criticas: `GET /session/:token` (cliente), `GET /orders?status=ready` (garçom), `GET /tables` (admin).
 - Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.
 
 ## Performance e Gerenciamento de Memoria

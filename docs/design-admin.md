@@ -33,7 +33,7 @@ Specs detalhadas da interface admin. Para visão geral, paleta base e princípio
 
 | Componente | Especificacao |
 |---|---|
-| **Sidebar** | Largura 256px (colapsavel para 64px icone-only em mobile). Logo OChefia no topo. Grupos: Visao Geral, Pedidos, Cardapio, Equipe, Financeiro, Configuracoes. Icone + texto. Divider entre grupos |
+| **Sidebar** | Largura 256px (colapsavel para 64px icone-only em mobile). Logo do restaurante no topo (ou nome, se sem logo). Grupos: Visão Geral (Dashboard), Cardápio, Operação (Mesas, Locais de Preparo, Setores), Equipe (Funcionários, Escala, Equipe do Dia, Desempenho), Financeiro (Faturamento), Configurações. Ícone + texto. Divider entre grupos |
 | **KPI Card** | `rounded-xl shadow-sm border border-gray-100`. Borda-top de 4px colorida (orange para receita, green para positivos, red para negativos). Icone + label em cinza, valor grande em preto, sparkline ou variacao percentual embaixo |
 | **Tabela** | Header cinza claro (`gray-50`), linhas alternadas. Hover em `orange-50`. Paginacao, busca e filtros acima da tabela. Acoes por linha (icones ou dropdown "...") |
 | **Grafico** | Cards `rounded-xl` com titulo, periodo (date picker), e o grafico. Tooltips nos pontos. Legenda embaixo. Usar recharts ou chart.js |

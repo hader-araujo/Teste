@@ -77,7 +77,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 |---|---|
 | **Mapa de mesas** | Grid com cards representando mesas, agrupadas por setor. Cada card mostra: numero, status (cor da borda), tempo de ocupacao, valor parcial. Tap abre detalhe |
 | **Card de mesa** | `rounded-xl`, borda lateral grossa (4px) com cor do status. Numero da mesa grande no centro. Badge se tem chamado pendente |
-| **Lista de pedidos da mesa** | Itens com checkbox para marcar entregue. Status do preparo (cor). Hora do pedido |
+| **Lista de pedidos da mesa** | Pedidos agrupados por grupo de entrega (Normal, Imediato, Garçom direto). Itens com status do preparo (cor). Grupos com todos os itens "Pronto" exibem botão **"Retirar Grupo"** (claim). Após claim, botão "Marcar Entregue" no grupo. Hora do pedido |
 | **Botao novo pedido** | FAB (floating action button) fixo. `rounded-full bg-orange-600 text-white shadow-lg`. 56x56px |
 | **Notificacao** | Banner no topo deslizante. "Mesa 5 pedindo conta", "Pedido #42 pronto". Tap para ir direto |
 | **Bottom tabs** | 3 tabs: Chamados (principal), Mesas, Turno. Icone + texto. Ativa em orange. "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas via tap na mesa, nao aparecem na bottom nav |

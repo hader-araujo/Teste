@@ -84,7 +84,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Navegacao:** sidebar fixa com menu agrupado por secao.
 
 1. **Login** → email + senha
-2. **Dashboard** → métricas em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas, pedidos recentes + seção **Alertas** unificada (pedidos atrasados, chamados abertos, escalações ativas, mesas ociosas, mesas sem setor, setores sem garçom)
+2. **Dashboard** → métricas em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas, pedidos recentes + seção **Alertas** unificada (pedidos atrasados, chamados abertos, escalações ativas, mesas ociosas, setores sem garçom)
 3. **Mesas** → mapa visual com status por cor → filtros (Todas, Com problema, Ociosas) → abrir/fechar/deletar sessão. Deletar = soft delete (só mesa fechada, histórico preservado)
 4. **Cardapio** → CRUD de categorias, tags e produtos (com fotos, Ponto de Entrega ou "Garçom", preço)
 5. **Locais de Preparo** → CRUD de locais (ex: Cozinha, Bar, Pizzaria) + Pontos de Entrega por local (com flag auto-entrega)
@@ -110,8 +110,8 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 5. **Alerta sonoro** quando chega pedido novo ou pedido fica atrasado
 6. Toca no prato → ficha técnica (ingredientes, modo de preparo, foto)
 7. Toca **"Pronto"** (botão grande no card):
-   - **Ponto de Entrega com `autoEntrega = false`:** card sai da fila. A notificação ao garçom depende do grupo de entrega: itens normais só notificam quando todos os normais do pedido ficarem prontos; itens `immediateDelivery` notificam quando todos os imediatos ficarem prontos. Indica o Ponto de Entrega na notificação
-   - **Ponto de Entrega com `autoEntrega = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"
+   - **Ponto de Entrega com `autoDelivery = false`:** card sai da fila. A notificação ao garçom depende do grupo de entrega: itens normais só notificam quando todos os normais do pedido ficarem prontos; itens `immediateDelivery` notificam quando todos os imediatos ficarem prontos. Indica o Ponto de Entrega na notificação
+   - **Ponto de Entrega com `autoDelivery = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"
 
 ---
 

@@ -22,7 +22,7 @@ Base URL: `/api/v1`
 | GET | `/restaurants/:slug` | Dados publicos do restaurante |
 | PUT | `/restaurants/:id` | Atualizar dados (OWNER/MANAGER) |
 | GET | `/restaurants/:id/settings` | Configuracoes |
-| PUT | `/restaurants/:id/settings` | Atualizar configuracoes |
+| PUT | `/restaurants/:id/settings` | Atualizar configuracoes. Body inclui: `serviceChargePercent`, `themeName`, `primaryColor`, `secondaryColor`, `backgroundColor`, `pickupReminderInterval` (default 3min), `pickupEscalationTimeout` (default 10min), `orderDelayThreshold` (default 15min — threshold para alerta de pedido atrasado) |
 
 ## Tables
 | Metodo | Rota | Descricao |
@@ -39,7 +39,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/session/:token` | Dados da sessao (pedidos, conta) |
-| POST | `/session/:token/join` | Solicitar entrada na sessao. Se mesa sem sessao, cria sessao (primeiro cliente). Se mesa com sessao ativa, cria solicitacao pendente de aprovacao. Requer WhatsApp verificado |
+| POST | `/session/:token/join` | Solicitar entrada na sessao. Se mesa sem sessao, cria sessao (primeiro cliente). Se mesa com sessao ativa, cria solicitacao pendente de aprovacao. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify` antes de chamar este endpoint. Retorna erro `SESSION_007` se telefone não verificado |
 | POST | `/session/:token/phone` | Enviar OTP via WhatsApp para o numero informado |
 | POST | `/session/:token/phone/verify` | Confirmar OTP e salvar numero verificado na sessao |
 | GET | `/session/:token/join/pending` | Listar solicitacoes pendentes de aprovacao (visivel para membros aprovados) |
@@ -94,7 +94,7 @@ Base URL: `/api/v1`
 | PUT | `/menu/tags/:id` | Atualizar tag |
 | DELETE | `/menu/tags/:id` | Remover tag |
 | GET | `/menu/products` | Listar produtos (admin) |
-| POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, `immediateDelivery?: bool`, e `tagIds[]`) |
+| POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'` — **mutuamente exclusivos**, enviar exatamente um; `immediateDelivery?: bool`, e `tagIds[]`). Retorna erro `MENU_004` se ambos ou nenhum for informado |
 | PUT | `/menu/products/:id` | Atualizar produto |
 | PATCH | `/menu/products/:id/availability` | Toggle disponibilidade |
 
@@ -143,7 +143,7 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/dashboard/overview` | Métricas gerais em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas |
 | GET | `/dashboard/popular-items` | Itens mais vendidos |
-| GET | `/dashboard/alerts` | Alertas em tempo real: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), mesas sem setor, setores sem garçom atribuído |
+| GET | `/dashboard/alerts` | Alertas em tempo real: pedidos atrasados (tempo na fila > threshold configurável, default 15min), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), setores sem garçom atribuído |
 
 ## Desempenho da Equipe
 | Metodo | Rota | Descricao |

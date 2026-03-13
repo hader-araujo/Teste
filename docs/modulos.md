@@ -10,7 +10,7 @@ Onde os itens sao produzidos. Cada restaurante cadastra seus proprios locais de 
 ### Ponto de Entrega
 Onde o garcom retira o item pronto. Cada Local de Preparo tem **1 ou mais Pontos de Entrega** (criado automaticamente com 1 default ao cadastrar o Local de Preparo). Exemplos: "Pass principal", "Balcão do bar", "Service bar", "Janela da pizzaria".
 
-- **Flag `autoEntrega`** (boolean, default `false`): se `true`, o operador do Local de Preparo entrega o item diretamente na mesa — garcom **nao** e notificado para retirada. Se `false`, garcom e notificado para buscar no Ponto de Entrega.
+- **Flag `autoDelivery`** (boolean, default `false`): se `true`, o operador do Local de Preparo entrega o item diretamente na mesa — garcom **nao** e notificado para retirada. Se `false`, garcom e notificado para buscar no Ponto de Entrega.
 
 ### Setor
 Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área Externa"). **Toda mesa pertence a exatamente 1 setor.** Ao criar o restaurante, um setor default e criado automaticamente.
@@ -46,7 +46,7 @@ Cada pedido gera até **3 grupos de entrega** independentes:
 Acesso: Dono/Gerente via computador ou tablet.
 
 - **Mapa de mesas em tempo real** (livres, ocupadas, aguardando limpeza, tempo de permanência). Filtros: "Todas", "Com problema", "Ociosas". Indicadores visuais de alerta: pedido atrasado, chamado sem resposta, tempo sem novo pedido. Botão deletar mesa (soft delete — só se não tiver sessão ativa; histórico preservado para métricas; permite recriar mesa com mesmo nome/número).
-- **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas, mesas sem setor, setores sem garçom atribuído).
+- **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados com tempo na fila acima do threshold configurável — default 15min, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído).
 - **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
   - **Por garçom:** tempo médio de entrega (Pronto → Entregue), quantidade de pedidos atendidos, escalações (nível 1 e 2), taxa de serviço acumulada. Filtro por período (dia/semana/mês).
   - **Por Local de Preparo:** tempo médio de preparo (Na fila → Pronto), quantidade de pedidos, itens mais demorados. Filtro por período.
@@ -54,7 +54,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 - **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Flag **`immediateDelivery`** (default `false`) para itens que podem ser entregues antes dos demais (ex: drinks). Ver secao "Estrutura Operacional" acima.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
 - **CRUD de Locais de Preparo:** nome do local. Ao criar, 1 Ponto de Entrega default e gerado automaticamente.
-- **CRUD de Pontos de Entrega:** nome do ponto, Local de Preparo vinculado, flag `autoEntrega` (default `false`).
+- **CRUD de Pontos de Entrega:** nome do ponto, Local de Preparo vinculado, flag `autoDelivery` (default `false`).
 - **CRUD de Setores:** nome do setor, mesas vinculadas. Mapeamento obrigatorio de Ponto de Entrega por Local de Preparo.
 - Gestao de funcionarios: cadastro de garcons, cozinheiros, gerentes com permissoes por role.
 - **Funcionarios temporarios:** cadastro com flag `temporario`. Opcao de definir dias fixos da semana (ex: seg, qua, sex) ou deixar em branco para uso avulso.
@@ -81,8 +81,8 @@ Acesso: Equipe de producao via tablet ou monitor. **Cada Local de Preparo tem su
 - Alertas visuais e sonoros para pedido novo ou urgente.
 - Clique no prato para ficha tecnica (ingredientes, modo de preparo, foto).
 - Botao "Pronto":
-  - **Ponto de Entrega com `autoEntrega = false`:** card sai da fila do KDS (trabalho da cozinha encerrado). A notificação ao garçom depende do **grupo de entrega** do item: itens normais só notificam quando todos os normais do mesmo pedido ficarem prontos; itens com `immediateDelivery` notificam quando todos os imediatos do pedido ficarem prontos. Ver "Grupos de Entrega" na seção Estrutura Operacional.
-  - **Ponto de Entrega com `autoEntrega = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botões "Pronto" e "Entregue" no próprio card.
+  - **Ponto de Entrega com `autoDelivery = false`:** card sai da fila do KDS (trabalho da cozinha encerrado). A notificação ao garçom depende do **grupo de entrega** do item: itens normais só notificam quando todos os normais do mesmo pedido ficarem prontos; itens com `immediateDelivery` notificam quando todos os imediatos do pedido ficarem prontos. Ver "Grupos de Entrega" na seção Estrutura Operacional.
+  - **Ponto de Entrega com `autoDelivery = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botões "Pronto" e "Entregue" no próprio card.
 - **Após marcar "Pronto", o item sai da fila do KDS.** O monitoramento de retirada é responsabilidade do sistema de escalação (ver abaixo) e do admin — não da cozinha.
 
 ### Notificação e Claim de Retirada
@@ -100,7 +100,7 @@ O claim (assumir entrega) é por **grupo de entrega**, não por item individual.
 4. **Grupo some da tela dos outros garçons em tempo real** (via WebSocket `waiter:pickup-claimed`).
 5. Garçom vai a cada Ponto de Entrega, pega os itens, entrega na mesa → marca **"Entregue"**.
 6. Se o garçom que assumiu não marcar "Entregue", o sistema de escalação continua funcionando normalmente — mas agora com garçom responsável identificado.
-7. Na escalação nível 2 (admin + todos), o grupo reaparece para todos os garçons (override do claim original).
+7. Na escalação nível 2 (admin + todos), o grupo reaparece para todos os garçons — o `claimedByStaffId` original é **mantido** para auditoria, mas qualquer garçom pode fazer novo claim (sobrescreve o anterior). Não existe endpoint de "unclaim" — a escalação nível 2 funciona como override implícito.
 
 ### Escalação de Retirada (item pronto sem entrega)
 
@@ -119,7 +119,7 @@ Quando um item é marcado como "Pronto" e o garçom não marca "Entregue", o sis
 | `pickupReminderInterval` | Intervalo de re-notificação ao garçom do setor (minutos) | 3 |
 | `pickupEscalationTimeout` | Tempo para escalar ao admin + todos os garçons (minutos) | 10 |
 
-**Nota:** esses parâmetros se aplicam apenas a Pontos de Entrega com `autoEntrega = false`. Pontos com `autoEntrega = true` não passam por escalação — o operador do KDS é responsável pela entrega.
+**Nota:** esses parâmetros se aplicam apenas a Pontos de Entrega com `autoDelivery = false`. Pontos com `autoDelivery = true` não passam por escalação — o operador do KDS é responsável pela entrega.
 
 ## Modulo Cliente (Cardapio Digital) — Rota: `/[slug]/mesa/[mesaId]`
 Acesso: Cliente via QR Code no navegador.
@@ -180,7 +180,7 @@ Acesso: Cliente via QR Code no navegador.
 - **Pagamento individual:** Pix com QR Code por pessoa.
 
 ### Botao "O Chefia"
-- **(REGRA CRITICA — deve ser funcional em TODAS as telas do cliente):** presente na bottom nav de todas as telas (cardapio, pedidos, conta). Ao clicar, abre modal com selecao de motivo (ex: "Chamar garcom", "Pedir a conta", "Outro") + campo de mensagem opcional + botao "Enviar chamado". Nao e um link decorativo — deve ter interacao funcional no prototipo e no codigo.
+- **(REGRA CRITICA — deve ser funcional em TODAS as telas do cliente):** 4ª tab da bottom nav (Cardápio, Pedidos, Conta, **O Chefia**). Ao clicar, **abre modal (bottom sheet)** sem navegar — mantém o contexto da tela atual. Modal com selecao de motivo (ex: "Chamar garcom", "Pedir a conta", "Outro") + campo de mensagem opcional + botao "Enviar chamado". Nao e um link decorativo — deve ter interacao funcional no prototipo e no codigo.
 
 ## Modulo Garcom — Rota: `/garcom`
 Acesso: Celular do garcom (PWA).
@@ -198,7 +198,7 @@ Acesso: Celular do garcom (PWA).
 - **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.
 - Notificacoes push: item pronto para retirada (com indicação do Ponto de Entrega), chamado de mesa, re-lembretes de retirada pendente, e escalação urgente (quando qualquer garçom pode entregar).
 - Histórico de pedidos com divisão por pessoa.
-- **Toggle taxa de serviço por pessoa ou por mesa toda.** Na tela de detalhe da mesa, toggle geral (atalho para todos) + toggle individual por pessoa. Se o garçom desliga o geral, todos desligam. Se religa, todos religam. Se mexe num individual, o geral indica estado parcial. A taxa de serviço só é calculada sobre os itens das pessoas com flag ativo.
+- **Toggle taxa de serviço por pessoa ou por mesa toda.** Na tela de detalhe da mesa, toggle geral (atalho para todos) + toggle individual por pessoa. Se o garçom desliga o geral, todos desligam. Se religa, todos religam. Se mexe num individual, o geral indica **estado parcial** (checkbox indeterminado: traço "—" em vez de check, cor neutra). A taxa de serviço só é calculada sobre os itens das pessoas com flag ativo.
 
 ## Modulo Explorar (Fase 2 — NAO IMPLEMENTAR) — Rota: `/explorar`
 **Referencia arquitetural apenas.**

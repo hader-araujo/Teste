@@ -106,7 +106,7 @@ Na Fase 1, essas metricas sao calculadas no Redis e exibidas no dashboard admin/
 | `ActiveSessions` | Por restaurante | Mesas ocupadas em tempo real |
 | `OTPSendFailures` | Global | Saude da integracao WhatsApp |
 | `PixWebhookFailures` | Global | Saude da integracao Pix |
-| `CartAbandonment` | Por restaurante | Carrinhos criados vs pedidos confirmados |
+| `CartAbandonment` | Por restaurante | Carrinhos criados vs pedidos confirmados. Métrica calculada no Redis a partir de eventos `order:created` — não requer endpoint dedicado. Exibida no dashboard do admin/super admin |
 
 Essas metricas alimentam o dashboard do Super Admin e geram alarmes automaticos.
 
@@ -143,10 +143,10 @@ Erros retornados pela API devem incluir codigo estruturado para facilitar debugg
 | Prefixo | Modulo | Exemplo |
 |---|---|---|
 | `AUTH_` | Autenticacao | `AUTH_001: Credenciais invalidas`, `AUTH_002: Token expirado`, `AUTH_003: Refresh token invalido` |
-| `SESSION_` | Sessao | `SESSION_001: Token de sessao invalido`, `SESSION_002: Sessao ja fechada`, `SESSION_003: OTP expirado`, `SESSION_004: Aprovacao pendente`, `SESSION_005: Solicitacao ja processada`, `SESSION_006: Cooldown de lembrete ativo` |
-| `ORDER_` | Pedidos | `ORDER_001: Item indisponivel`, `ORDER_002: Sessao sem pessoas cadastradas`, `ORDER_003: Pessoa invalida` |
+| `SESSION_` | Sessao | `SESSION_001: Token de sessao invalido`, `SESSION_002: Sessao ja fechada`, `SESSION_003: OTP expirado`, `SESSION_004: Aprovacao pendente`, `SESSION_005: Solicitacao ja processada`, `SESSION_006: Cooldown de lembrete ativo`, `SESSION_007: WhatsApp nao verificado (chamar /phone e /phone/verify antes de /join)` |
+| `ORDER_` | Pedidos | `ORDER_001: Item indisponivel`, `ORDER_002: Sessao sem pessoas cadastradas`, `ORDER_003: Pessoa invalida`, `ORDER_004: Grupo de entrega ja claimado por outro garcom`, `ORDER_005: Grupo de entrega nao encontrado ou sem itens prontos` |
 | `PAY_` | Pagamentos | `PAY_001: Sessao sem pedidos`, `PAY_002: Pessoa ja pagou`, `PAY_003: Webhook timeout`, `PAY_004: Assinatura invalida` |
-| `MENU_` | Cardapio | `MENU_001: Categoria nao encontrada`, `MENU_002: Produto sem destino`, `MENU_003: Imagem invalida` |
+| `MENU_` | Cardapio | `MENU_001: Categoria nao encontrada`, `MENU_002: Produto sem destino`, `MENU_003: Imagem invalida`, `MENU_004: Destino ambiguo (pickupPointId e destination sao mutuamente exclusivos)` |
 | `STAFF_` | Funcionarios | `STAFF_001: PIN incorreto`, `STAFF_002: Lockout ativo`, `STAFF_003: Convite expirado` |
 | `KDS_` | KDS | `KDS_001: Transicao de status invalida`, `KDS_002: Pedido nao encontrado` |
 

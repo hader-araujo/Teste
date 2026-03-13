@@ -309,8 +309,8 @@ Frontend do KDS. Zero endpoints REST novos.
 - [ ] Alertas visuais e sonoros para pedido novo/urgente.
 - [ ] Clique no prato para ficha técnica (ingredientes, modo de preparo, foto).
 - [ ] Botão "Pronto" com lógica:
-  - Ponto de Entrega com `autoEntrega = false`: notifica garçom(ns) do setor para retirada.
-  - Ponto de Entrega com `autoEntrega = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
+  - Ponto de Entrega com `autoDelivery = false`: notifica garçom(ns) do setor para retirada.
+  - Ponto de Entrega com `autoDelivery = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
 - [ ] Indicador de conexão WebSocket.
 
 ---
@@ -355,7 +355,7 @@ Frontend do KDS. Zero endpoints REST novos.
 - [ ] Frontend garçom: lista de mesas dos setores atribuídos (agrupadas por setor).
 - [ ] Frontend garcom: chamados abertos.
 - [ ] Frontend garcom: detalhe da mesa (pedidos por pessoa). Itens com status "Pronto" exibem botão "Retirar" (claim).
-- [ ] **Claim de retirada:** `PATCH /orders/items/:id/claim` — garçom assume item pronto. Some da tela dos outros garçons via WebSocket (`waiter:pickup-claimed`). Registra `claimedByStaffId`.
+- [ ] **Claim de retirada por grupo:** `PATCH /orders/:id/delivery-groups/:group/claim` — garçom assume retirada do grupo de entrega inteiro (`group` = `normal` ou `immediate`). Body: `{ staffId }`. Registra `claimedByStaffId` em todos os itens do grupo. Some da tela dos outros garçons via WebSocket (`waiter:pickup-claimed`).
 - [ ] Frontend garcom: comanda rapida.
 - [ ] Botao "O Chefia" no cliente: modal com motivo + mensagem + enviar.
 
@@ -375,7 +375,7 @@ Infraestrutura de notificacoes. Zero endpoints REST novos.
 - [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin.
 - [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
 - [ ] Toggle taxa de serviço por pessoa ou por mesa toda (garçom). Toggle geral como atalho + toggle individual por pessoa na tela de detalhe da mesa.
-- [ ] Pontos de Entrega com `autoEntrega = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
+- [ ] Pontos de Entrega com `autoDelivery = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
 - [ ] Service Worker com estratégia de cache para cardápio (suporte offline para leitura do cardápio).
 
 ---
