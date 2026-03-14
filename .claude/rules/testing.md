@@ -16,6 +16,18 @@ Ciclo **sempre**: RED (teste falhando) → GREEN (código mínimo) → REFACTOR.
 | E2E | Playwright | `apps/web/e2e/**/*.spec.ts` |
 | Contrato | Jest | `apps/api/test/contracts/**/*.spec.ts` |
 
+## Cobertura Mínima
+
+| Tipo | Target | Critério |
+|---|---|---|
+| Unitário | **95%** | Linhas cobertas (Jest `--coverage`) |
+| Integração | **95%** | Linhas cobertas (Jest + Supertest) |
+| E2E | **100% dos fluxos** | Todos os fluxos documentados em `docs/fluxos.md` devem ter teste Playwright |
+| Contrato | **100% dos endpoints** | Todo endpoint em `docs/api-endpoints.md` deve ter teste de contrato |
+
+- `pnpm test --coverage` deve passar os thresholds acima.
+- Configurar thresholds no `jest.config.ts` de cada app/package.
+
 ## Antes de cada commit
 
 1. `pnpm test` — todos os testes devem passar.
