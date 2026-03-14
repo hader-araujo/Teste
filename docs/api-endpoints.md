@@ -59,7 +59,7 @@ Base URL: `/api/v1`
 | GET | `/session/:token/people` | Listar pessoas cadastradas na sessão |
 | POST | `/session/:token/people` | Adicionar pessoa na mesa (body: `{ name }`) |
 | PATCH | `/session/:token/people/:personId` | Atualizar nome da pessoa (body: `{ name }`) |
-| DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa |
+| DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa. **Bloqueios:** retorna erro `SESSION_016` se pessoa tem Payment CONFIRMED ou PENDING. Retorna erro `SESSION_017` se pessoa tem OrderItems com status `QUEUED` ou `PREPARING`. Itens `READY` ou `DELIVERED` não bloqueiam (já foram processados). Antes de remover, verificar se há itens compartilhados — se sim, a pessoa é removida da divisão e os itens são reatribuídos automaticamente entre as pessoas restantes |
 | PATCH | `/session/:token/service-charge` | Toggle taxa de serviço (**requer JWT de staff**, role WAITER ou superior). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos. Com `personId` = toggle individual por pessoa. Cliente não tem acesso a este endpoint |
 | GET | `/session/:token/bill` | Conta detalhada com divisão por pessoa + taxa de serviço |
 | GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuições. Retorna lista de ações em formato legível (quem pediu, quem modificou, de/para). Visível para todos os membros da mesa |
@@ -89,8 +89,8 @@ Base URL: `/api/v1`
 | POST | `/sectors` | Criar setor (body: `{ name }`) |
 | PUT | `/sectors/:id` | Atualizar setor (nome) |
 | DELETE | `/sectors/:id` | Remover setor (somente se não tem mesas vinculadas) |
-| PUT | `/sectors/:id/pickup-point-mappings` | Definir mapeamento obrigatório: para cada Local de Preparo, qual Ponto de Entrega (body: `{ mappings: [{ preparationLocationId, pickupPointId }] }`) |
-| GET | `/sectors/:id/pickup-point-mappings` | Listar mapeamentos do setor |
+| PUT | `/sectors/:id/pickup-point-mappings` | Definir mapeamento obrigatório: para cada Local de Preparo ativo, qual Ponto de Entrega. Body: `{ mappings: [{ preparationLocationId, pickupPointId }] }`. **Comportamento:** sobrescreve todos os mapeamentos do setor (replace, não merge). Se faltar algum Local de Preparo ativo no array, retorna erro `SECTOR_003: Mapeamento incompleto — faltam Locais de Preparo: [nomes]`. Validação: cada `pickupPointId` deve pertencer ao `preparationLocationId` informado |
+| GET | `/sectors/:id/pickup-point-mappings` | Listar mapeamentos do setor (inclui flag `complete: boolean` indicando se todos os Locais de Preparo ativos estão mapeados) |
 
 ## Menu
 | Metodo | Rota | Descricao |
@@ -99,7 +99,8 @@ Base URL: `/api/v1`
 | GET | `/menu/categories` | Listar categorias (admin) |
 | POST | `/menu/categories` | Criar categoria |
 | PUT | `/menu/categories/:id` | Atualizar categoria |
-| DELETE | `/menu/categories/:id` | Remover categoria. Bloqueia se tem produtos vinculados (retorna erro `MENU_005`). Admin deve mover ou deletar os produtos antes |
+| PATCH | `/menu/categories/:id/availability` | Toggle disponibilidade da categoria. Desabilitar: todos os produtos da categoria ficam indisponíveis no cardápio (pedidos existentes não são afetados). Reabilitar: todos os produtos da categoria voltam a ficar disponíveis (incluindo os que estavam desabilitados individualmente antes) |
+| DELETE | `/menu/categories/:id` | Remover categoria (soft delete). Bloqueia se tem produtos vinculados (retorna erro `MENU_005`). Admin deve mover ou deletar os produtos antes |
 | GET | `/menu/tags` | Listar tags de produto (ex: vegano, sem glúten, picante) |
 | POST | `/menu/tags` | Criar tag |
 | PUT | `/menu/tags/:id` | Atualizar tag |
@@ -134,7 +135,8 @@ Base URL: `/api/v1`
 | POST | `/payments` | Iniciar pagamento individual por pessoa (body: `{ sessionToken, personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`). PIX gera QR Code automaticamente. CASH e CARD_DEBIT/CARD_CREDIT são registro manual pelo garçom/caixa após receber pagamento físico |
 | GET | `/payments/:id/status` | Verificar status do pagamento (inclui método utilizado) |
 | POST | `/payments/pix/webhook` | Webhook de confirmação Pix. Validação de assinatura síncrona (retorna 400 se inválida). Só enfileira no Bull após validação. Idempotency via campo `externalId` do provedor (ignora duplicatas) |
-| GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método utilizado por cada pagamento) |
+| PATCH | `/payments/:id/refund` | Confirmar devolução de pagamento (staff, WAITER+). Body: `{ method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT', amount }`. Registra `refundedByStaffId`, `refundedAt`, `refundMethod`. Muda status de `PENDING_REFUND` para `REFUNDED`. Registra no activity log e AuditLog |
+| GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método utilizado por cada pagamento, devoluções pendentes e confirmadas) |
 
 ## LGPD
 | Metodo | Rota | Descricao |
@@ -167,10 +169,10 @@ Base URL: `/api/v1`
 ## Desempenho da Equipe
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/staff/:id/performance` | Métricas individuais do funcionário por período (query: `from`, `to`). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
+| GET | `/staff/:id/performance` | Métricas individuais do funcionário por período (query: `from`, `to` — formato `YYYY-MM-DD`, interpretados como início e fim do dia no timezone do servidor). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
 | GET | `/staff/performance/summary` | Resumo de desempenho de todos os funcionários no período (query: `from`, `to`). Ranking por métricas |
 | GET | `/preparation-locations/:id/performance` | Métricas do Local de Preparo por período (query: `from`, `to`). Tempo médio de preparo, pedidos, itens mais demorados |
-| GET | `/staff/pickup-escalations` | Relatório de escalações de retirada por garçom (query: `from`, `to`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período |
+| GET | `/staff/pickup-escalations` | Relatório de escalações de retirada por garçom (query: `from`, `to` — formato `YYYY-MM-DD`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período. Paginação: `page` e `limit` (default 50, max 100) |
 
 ## Faturamento
 | Metodo | Rota | Descricao |
@@ -185,7 +187,7 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/staff` | Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100) |
 | POST | `/staff` | Criar funcionário (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` senha numérica para garçom) |
-| POST | `/staff/invite` | Enviar convite via WhatsApp (mesma infra do OTP). Gera link com token UUID v4, expira em 72h. Link enviado via WhatsApp pelo admin. Em dev, log no console |
+| POST | `/staff/invite` | Enviar convite via WhatsApp (mesma infra do OTP). Gera link com token UUID v4, expira em 72h. Link enviado via WhatsApp pelo admin. Em dev, log no console. **Convite duplicado:** se já existe convite pendente (não expirado, não aceito) para o mesmo email, o convite anterior é invalidado e um novo é gerado. Apenas o convite mais recente é válido |
 | POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER |
 | PUT | `/staff/:id` | Atualizar funcionário |
 | DELETE | `/staff/:id` | Desativar funcionário |

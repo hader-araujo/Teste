@@ -18,7 +18,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 - Acessa cardapio completo com precos. Sem sessao, sem identificacao, sem poder fazer pedidos.
 
 **Caminho B — Entrar na mesa (mesa SEM sessão ativa = primeiro cliente):**
-1. **WhatsApp** → informa número → `POST /tables/:id/verify-phone` → recebe OTP 6 dígitos → confirma
+1. **WhatsApp** → informa número (texto de consentimento + link Política de Privacidade visíveis — ver `docs/privacidade.md`) → `POST /tables/:id/verify-phone` → recebe OTP 6 dígitos → confirma
 2. `POST /tables/:id/open` → cria sessão + registra cliente como 1º membro aprovado automaticamente
 3. **Pessoas** → cadastra nomes de quem está na mesa (editável a qualquer momento via botão no header)
 4. Segue para o fluxo normal (cardápio, pedidos, etc.)

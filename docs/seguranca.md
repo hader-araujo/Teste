@@ -27,7 +27,7 @@
 - Ao abrir sessao, cliente informa numero -> sistema envia OTP via WhatsApp -> confirma -> salva `phone` + `phoneVerified = true`.
 - Nenhuma acao automatica usa o numero alem do armazenamento.
 - **Rate limit especifico para OTP:** maximo 3 envios por sessao, cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp.
-- **OTP expira em 5 minutos.** Maximo 5 tentativas de verificacao por OTP.
+- **OTP expira em 5 minutos.** Maximo 5 tentativas de verificacao por OTP. **Apos expirar ou esgotar tentativas:** o cliente pode solicitar novo OTP (conta como novo envio dentro do limite de 3 envios por sessao). Cada novo OTP gera novo counter de 5 tentativas. O OTP anterior e invalidado automaticamente ao gerar novo.
 - **Falha no envio:** se o envio via fila falhar (WhatsApp API indisponível, Redis fora), a tentativa **não é contabilizada** no rate limit. O sistema exibe mensagem "Não foi possível enviar. Tente novamente em 60s" sem consumir uma das 3 tentativas.
 
 ## Autenticacao Staff
@@ -169,7 +169,7 @@
   - Só pode ser chamado após sessão fechada (não permite exclusão com pedidos em andamento).
   - Admin/Super Admin pode forçar exclusão via painel (para atender solicitação formal LGPD).
 - **Endpoint obrigatorio (acesso):** `GET /session/:token/data` — retorna todos os dados pessoais da sessao (telefone, nomes). Requer telefone verificado. Direito de acesso (LGPD Art. 18).
-- **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados.
+- **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados + link para Politica de Privacidade (`/{slug}/privacidade`). Ver `docs/privacidade.md` para texto completo e regras.
 - **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 26 (Segurança Avançada + LGPD).
 
 ### Anonimização Automática (90 dias)

@@ -20,6 +20,8 @@ export const SOCKET_EVENTS = {
   WAITER_PICKUP_CLAIMED: 'waiter:pickup-claimed', // Garçom assumiu retirada — some da tela dos outros garçons do setor
   WAITER_PICKUP_REMINDER: 'waiter:pickup-reminder', // Re-lembrete: item pronto há X min sem retirada (nível 1)
   WAITER_PICKUP_ESCALATION: 'waiter:pickup-escalation', // URGENTE: item sem retirada há Y min — enviado a TODOS os garçons (nível 2, override do claim)
+  WAITER_CLAIM_EXPIRING: 'waiter:claim-expiring',       // Aviso ao garçom que fez claim: 1 min antes do timeout (direto ao socket do garçom)
+  WAITER_CLAIM_EXPIRED: 'waiter:claim-expired',         // Claim expirado: notifica garçom original (direto) + re-emite waiter:order-ready para o setor
   WAITER_CALL: 'waiter:call',               // Cliente chamou
   WAITER_NEW_ORDER: 'waiter:new-order',     // Emitido na criação do pedido (POST /orders) para garçons do setor da mesa. Inclui: orderId, tableId, tableName, items[]. Para itens destino "Garçom" (entrega direta), o garçom recebe este evento E já pode entregar imediatamente
 
@@ -80,6 +82,8 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `waiter:pickup-claimed` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, deliveryGroup, claimedByStaffId, claimedByName }` |
 | `waiter:pickup-reminder` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[] }` |
 | `waiter:pickup-escalation` | `restaurant:{id}:waiter` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[], previousClaimStaffId? }` |
+| `waiter:claim-expiring` | direto ao socket do garçom | `{ orderId, orderNumber, deliveryGroup, expiresInSeconds: 60 }` |
+| `waiter:claim-expired` | direto ao socket do garçom | `{ orderId, orderNumber, deliveryGroup, expiredAt }` |
 | `waiter:call` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ callId, tableNumber, reason, message?, createdAt }` |
 | `waiter:order-cancelled` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, cancelledByStaffId }` |
 | `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{originSectorId}` | `{ tableId, tableName, type: 'removed' }` — mesa saiu do setor |
@@ -154,14 +158,15 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 - Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP a cada 10 segundos como fallback para atualizacoes criticas: `GET /session/:token` (cliente), `GET /orders?status=ready` (garçom), `GET /tables` (admin).
 - Polling continua indefinidamente até reconectar. Após **60 segundos** sem sucesso, indicador visual muda de "Reconectando..." para "Sem conexão — dados podem estar desatualizados".
 - Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.
-- **Reconciliação do cliente:** ao reconectar, o cliente chama `GET /session/:token` como ponto único de reconciliação — o endpoint retorna o estado completo da sessão (pessoas, pedidos, pagamentos). Nenhum outro endpoint de reconciliação é necessário para o perfil cliente.
+- **Reconciliação do cliente:** ao reconectar, o cliente chama `GET /session/:token` como ponto único de reconciliação — o endpoint retorna o estado completo da sessão (pessoas, pedidos, pagamentos). Nenhum outro endpoint de reconciliação é necessário para o perfil cliente. **Eventos perdidos durante desconexão não são replay-ados** — o GET retorna o estado atual e o frontend substitui o estado local inteiro (não tenta merge). Isso garante consistência sem complexidade de event sourcing.
 - **Reconciliação do KDS:** ao conectar (ou reconectar) ao Local de Preparo, o KDS faz fetch inicial de pedidos pendentes via `GET /preparation-locations/:id/orders?status=pending,preparing` antes de processar novos eventos WebSocket. Garante fila consistente mesmo após interrupções.
 
 ## Performance e Gerenciamento de Memoria
 
 ### Cleanup de Rooms
 - Quando uma `TableSession` e fechada, remover todos os sockets da room `session:{token}`.
-- Implementar cleanup periodico (a cada 5 minutos) para rooms orfas (sem sockets conectados).
+- **Cleanup periodico de rooms orfas:** job no servidor (setInterval, nao Bull) a cada 5 minutos. Uma room e considerada **orfa** quando: (1) nao tem sockets conectados E (2) a sessao vinculada esta fechada (status `CLOSED`). Rooms de sessoes **abertas** nunca sao removidas pelo cleanup, mesmo sem sockets — clientes podem reconectar a qualquer momento.
+- **Reconexao tardia:** se um cliente reconecta apos 10+ minutos, o Socket.IO reconecta automaticamente e re-entra na room `session:{token}`. Como a room de sessao aberta nunca e removida, nao ha perda. O cliente chama `GET /session/:token` para reconciliacao do estado.
 - Logar rooms ativas e contagem de sockets por room em `level: debug`.
 
 ### Prevencao de Memory Leak

@@ -16,6 +16,7 @@ Onde o garcom retira o item pronto. Cada Local de Preparo tem **1 ou mais Pontos
 ### Setor
 Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área Externa"). **Toda mesa pertence a exatamente 1 setor.** Ao criar o restaurante, um setor default e criado automaticamente.
 
+- **Limite de pessoas por mesa:** máximo configurável por restaurante (`maxPeoplePerSession`, default **100**). Tentativa de adicionar além do limite retorna erro `SESSION_018`. O limite existe para proteger a UI (selects de pessoas, divisão de conta) e o rate limit agregado por mesa.
 - **Garcons sao atribuidos a setores** (nao a mesas individuais). Um garcom pode atender mais de 1 setor.
 - **Taxa de servico e dividida igualmente entre garcons do mesmo setor.** Se um garcom precisa ficar exclusivo em uma mesa, essa mesa deve estar em um setor proprio.
 - **Mapeamento obrigatorio Setor ↔ Local de Preparo:** para cada setor, deve haver um vinculo com cada Local de Preparo, indicando **qual Ponto de Entrega** os garcons daquele setor usam para retirada. Isso permite que garcons de setores diferentes retirem em pontos diferentes do mesmo Local de Preparo.
@@ -28,7 +29,7 @@ Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área E
 ### Cadastro de Produto — Destino e Entrega Imediata
 No cadastro de produto, o campo "Destino" e obrigatorio e mostra:
 - **Todos os Pontos de Entrega cadastrados** (agrupados por Local de Preparo) — o pedido vai para o KDS do Local de Preparo vinculado.
-- **Opção fixa "Garçom"** — entrega direta pelo garcom, sem preparo, nao passa por KDS nenhum.
+- **Opção fixa "Garçom"** — entrega direta pelo garcom, sem preparo, nao passa por KDS nenhum. **Nota:** produtos com destino "Garçom" não utilizam a flag `immediateDelivery` (que só se aplica a itens com destino KDS). Itens "Garçom" são sempre entrega direta — a flag é ignorada se o destino for "Garçom". Na UI de cadastro, o campo `immediateDelivery` fica desabilitado quando destino "Garçom" está selecionado.
 
 Alem do destino, o produto possui a **flag `immediateDelivery`** (boolean, default `false`):
 - **`false` (padrão):** item normal. O garçom só é notificado quando **todos** os itens normais do mesmo pedido ficarem prontos, mesmo que venham de Locais de Preparo diferentes. Exemplo: Picanha (Cozinha) + Pizza (Pizzaria) — garçom espera ambos ficarem prontos e leva tudo junto.
@@ -45,6 +46,8 @@ Cada pedido gera até **3 grupos de entrega** independentes:
 
 - Pedidos diferentes (feitos em momentos diferentes) são **independentes** — não esperam entre si.
 - O agrupamento é por **pedido**, não por mesa.
+- **Notificações por grupo:** cada grupo gera notificação independente para o garçom. Se um pedido tem grupo Normal e Imediato, o garçom recebe **2 notificações separadas** em momentos diferentes (imediato primeiro, normal depois). Cada notificação lista os Pontos de Entrega relevantes àquele grupo.
+- **UX do cliente:** na tela "Meus Pedidos", itens são exibidos agrupados por grupo de entrega com label visual: "Entrega imediata" (badge verde) ou "Entrega com pedido completo" (sem badge). O cliente vê claramente que drinks serão entregues antes da picanha. Na aba "Conta", os itens aparecem por pessoa (independente do grupo).
 
 ### Máquina de Estados do Pedido
 
@@ -81,7 +84,12 @@ Cada item de pedido pode conter o campo **`notes?: string`** — observações d
 - **OWNER/MANAGER:** pode cancelar qualquer item **em qualquer status** (incluindo Pronto e Entregue). Motivo obrigatório. Registrado em AuditLog. Se havia claim de garçom, é liberado automaticamente. Item cancelado sai da conta.
 - Todo cancelamento é registrado no **histórico/activity-log da sessão**, incluindo: quem cancelou, quando, e motivo (obrigatório se cancelado por staff).
 - **Item cancelado sai do cálculo da conta** — não é cobrado.
-- **Crédito por cancelamento de item já entregue com pagamento confirmado:** quando OWNER/MANAGER cancela um item com status Entregue e esse item já está coberto por um Payment CONFIRMED, o sistema **gera um crédito** vinculado à(s) pessoa(s) que pagaram. Se a sessão ainda está aberta, o crédito abate automaticamente do próximo pagamento dessa pessoa. Se a sessão já foi fechada, o crédito fica registrado para resolução manual pelo restaurante (devolução fora do sistema). O crédito é registrado em AuditLog junto com o cancelamento.
+- **Devolução por cancelamento de item já pago:** quando OWNER/MANAGER cancela um item com status Entregue e esse item já está coberto por um Payment CONFIRMED, o sistema gera um **registro de devolução pendente** (`PENDING_REFUND`) vinculado à(s) pessoa(s) que pagaram. O restaurante devolve o dinheiro por fora (pix, dinheiro, cartão) e o staff confirma no sistema via `PATCH /payments/:id/refund` com método e responsável. Não existe "crédito interno" — é sempre devolução real.
+  - **Status da devolução:** `PENDING_REFUND` → `REFUNDED`.
+  - **Confirmação:** staff informa método (`PIX`, `CASH`, `CARD_DEBIT`, `CARD_CREDIT`), valor, e o sistema registra `refundedByStaffId` + `refundedAt` + `refundMethod`.
+  - **Visibilidade:** devoluções aparecem no activity log da sessão ("Picanha cancelada — devolução de R$30,00 via Pix confirmada por João às 14:32"), na aba "Histórico" da conta, e no AuditLog.
+  - **Devolução pendente ao fechar sessão:** se a sessão fecha com devolução `PENDING_REFUND`, alerta no dashboard do admin ("Sessão da Mesa 5 fechada com devolução pendente de R$30,00 para Maria"). Permanece como pendente até o staff confirmar.
+  - **Relatório:** devoluções ficam visíveis no faturamento diário (campo "devoluções do dia") e no histórico de pagamentos da sessão.
 
 ### Transferência de Mesa
 
@@ -110,7 +118,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 - **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
   - **Por garçom:** tempo médio de entrega (Pronto → Entregue), quantidade de pedidos atendidos, escalações (nível 1 e 2), taxa de serviço acumulada. Filtro por período (dia/semana/mês).
   - **Por Local de Preparo:** tempo médio de preparo (Na fila → Pronto), quantidade de pedidos, itens mais demorados. Filtro por período.
-- Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real. **Desabilitar produto não afeta pedidos existentes** (QUEUED/PREPARING/READY) — esses pedidos seguem normalmente; se não for possível preparar, o staff cancela manualmente. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
+- Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real (tanto por produto individual quanto por categoria inteira). **Desabilitar categoria:** todos os produtos da categoria ficam indisponíveis. **Reabilitar categoria:** todos os produtos voltam (incluindo os que estavam desabilitados individualmente — reset completo). **Desabilitar produto não afeta pedidos existentes** (QUEUED/PREPARING/READY) — esses pedidos seguem normalmente; se não for possível preparar, o staff cancela manualmente. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
 - **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Flag **`immediateDelivery`** (default `false`) para itens que podem ser entregues antes dos demais (ex: drinks). Ver secao "Estrutura Operacional" acima.
 - Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
 - **CRUD de Locais de Preparo:** nome do local. Ao criar, 1 Ponto de Entrega default e gerado automaticamente.
@@ -126,7 +134,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 ## Modulo Faturamento — Rota: `/admin/faturamento`
 Acesso: Dono/Gerente. Tela separada do dashboard, dedicada a financeiro.
 
-- **Faturamento diario:** receita do dia, quantidade de pedidos, ticket medio, comparativo com dia anterior.
+- **Faturamento diario:** receita do dia, quantidade de pedidos, ticket medio por mesa (receita / sessoes fechadas), ticket medio por pessoa (receita / pessoas que pagaram), comparativo com dia anterior.
 - **Faturamento mensal:** receita acumulada do mes, grafico por dia, comparativo com mes anterior.
 - **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartao). (NFC-e/SAT em fase futura).
 - **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês. **Cálculo forward-only por pagamento:** a taxa é calculada **no momento do pagamento de cada pessoa**, não no fechamento da sessão. O(s) garçom(s) atribuído(s) ao setor da mesa **naquele instante** recebe(m) a taxa daquela pessoa. Se garçom muda no meio da sessão, cada pagamento vai para quem estava no setor naquele momento. Não é retroativo — se um garçom entra no meio do turno, só recebe taxa dos pagamentos feitos a partir daquele momento.
@@ -163,6 +171,9 @@ O claim (assumir entrega) é por **grupo de entrega**, não por item individual.
 6. Se o garçom que assumiu não marcar "Entregue", o sistema de escalação continua funcionando normalmente — mas agora com garçom responsável identificado.
 7. Na escalação nível 2 (admin + todos), o grupo reaparece para todos os garçons — o `claimedByStaffId` original é **mantido** para auditoria, mas qualquer garçom pode fazer novo claim (sobrescreve o anterior). Não existe endpoint de "unclaim" — a escalação nível 2 funciona como override implícito.
 8. **Claim timeout:** se o garçom que assumiu o claim **não marcar "Entregue" em 5 minutos**, o claim é liberado automaticamente — o grupo volta a aparecer para todos os garçons do setor como se nenhum claim tivesse sido feito. O `claimedByStaffId` original é registrado em log para auditoria.
+   - **Notificação antes do timeout:** aos **4 minutos** (1 minuto antes do timeout), o garçom que fez o claim recebe push notification + alerta in-app: "Grupo do Pedido #42 será liberado em 1 minuto — marque como Entregue".
+   - **Notificação no momento do timeout:** quando o claim expira, o garçom original recebe: "Claim do Pedido #42 expirado — grupo liberado para outros garçons". Simultaneamente, evento `waiter:order-ready` é re-emitido para todos os garçons do setor (mesmo evento da notificação original), permitindo novo claim.
+   - **Auditoria:** o evento de timeout registra `claimTimeoutAt`, `originalStaffId`, `orderId`, `deliveryGroup` no log. Se outro garçom fizer novo claim, o `claimedByStaffId` é sobrescrito mas o original fica no log.
 
 ### Escalação de Retirada (item pronto sem entrega)
 
@@ -192,6 +203,17 @@ Acesso: Cliente via QR Code no navegador.
 - Cada mesa fisica tem um **QR Code fixo** impresso e colado. O QR Code gera URL permanente `/{slug}/mesa/{mesaId}`.
 - Ao escanear o QR Code, o cliente ve duas opcoes: **"Entrar na mesa"** ou **"Ver cardapio"**.
 - **Ver cardapio (modo read-only):** acessa o cardapio completo com precos, sem criar sessao, sem identificacao. Nao pode fazer pedidos. Util para ver precos antes de sentar ou enquanto aguarda aprovacao. O botão "Adicionar" nos produtos exibe toast "Entre na mesa para fazer pedidos". Carrinho indisponível. Ao completar o fluxo de verificação WhatsApp e aprovação, o modo interativo é ativado automaticamente.
+
+### Proteção contra Abertura Remota de Sessão (⚠️ A DEFINIR antes da Sprint 0)
+- **Problema:** o QR Code da mesa é uma URL pública (`/{slug}/mesa/{mesaId}`). Qualquer pessoa que fotografe o QR Code pode criar sessão remotamente (ex: de casa, antes do restaurante abrir), bloqueando a mesa para clientes reais.
+- **Proteções atuais insuficientes:** force-close pelo garçom e alerta de mesa ociosa dependem de alguém no restaurante perceber.
+- **Opções em avaliação:**
+  - Sessão sem pedido expira automaticamente após X minutos
+  - Sessão sem WebSocket conectado + sem pedido expira
+  - Garçom precisa confirmar abertura (sessão fica "pendente")
+  - Validação de proximidade (GPS/Wi-Fi)
+  - Fechamento automático de todas as sessões no final do expediente
+- **Decisão pendente.** Definir solução antes de iniciar implementação.
 
 ### Abertura de Sessão (primeiro cliente)
 - Se a mesa não tem sessão ativa, o primeiro cliente a escolher "Entrar na mesa" inicia o fluxo de abertura:
@@ -224,7 +246,7 @@ Acesso: Cliente via QR Code no navegador.
 ### Pessoa Sai e Volta (Participações Múltiplas)
 - Pessoa paga sua parte (ou R$0 se não consumiu) → status "quitada" → some das atribuições de novos pedidos a partir daquele momento.
 - **Se volta via QR Code:** telefone já foi verificado anteriormente (sem fila de aprovação). O sistema cria uma **nova Person** (nova participação/Participation) na mesma sessão — não reutiliza a participação anterior.
-- Pagamentos e itens vinculados à participação anterior são **preservados intactos**.
+- Pagamentos e itens vinculados à participação anterior são **preservados intactos**. Devoluções pendentes da participação anterior permanecem pendentes — não são transferidas para a nova participação.
 - **Exibição de nome por participação:**
   - 1 participação no total: exibe `"Maria"` (sem número).
   - 2 ou mais participações do mesmo telefone: exibe `"Maria ①"`, `"Maria ②"` em **todos os lugares** onde o nome aparece (conta, pedidos, comanda, KDS, histórico).
@@ -237,6 +259,9 @@ Acesso: Cliente via QR Code no navegador.
 - **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados. Cada item pode conter **observações** (`notes?: string`) — campo de texto livre para instruções especiais (ex: "bem passado", "sem cebola", "alergia a amendoim").
 - **Pedidos em tempo real:** cada envio = pedido separado. Status segue a **Máquina de Estados do Pedido** (ver seção Estrutura Operacional): `Na fila` → `Preparando` → `Pronto` → `Entregue` (com possibilidade de `Cancelado`). WebSocket. Cada pedido gera até 3 **grupos de entrega**: itens normais (garçom notificado quando todos ficarem prontos), itens com `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), e itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Ver "Grupos de Entrega" na seção Estrutura Operacional.
 - **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuicao de pessoas. A reatribuição de pessoas é feita exclusivamente pelo cliente (membro aprovado da mesa) via `PATCH /orders/items/:id/people`. O garçom não reatribui — se necessário, lança novo pedido via comanda. **Reatribuição bloqueada** se qualquer pessoa já pagou qualquer parte daquele item (existir Payment CONFIRMED que inclua o item) — erro `ORDER_006`.
+  - **Indicação visual de bloqueio:** itens com reatribuição bloqueada exibem ícone de cadeado + tooltip "Item já pago — não pode ser reatribuído". O cliente vê o bloqueio **antes** de tentar, sem precisar receber erro.
+  - **Fluxo alternativo:** se o cliente precisa corrigir uma atribuição bloqueada, deve chamar o garçom via "O Chefia" (motivo: "Outro"). O garçom pode solicitar ao OWNER/MANAGER o cancelamento do item já entregue (gera crédito) e relançar o pedido com a atribuição correta via comanda.
+  - **Reatribuição parcial:** o bloqueio se aplica ao **item inteiro**, não por pessoa. Se qualquer fatia do item foi paga, nenhuma reatribuição é permitida no item. Isso simplifica a lógica e evita inconsistências no cálculo da conta.
 
 ### Conta e Pagamento
 - **Tela "Conta"** com 3 abas: **Visao Geral**, **Por Pessoa**, **Historico**.
@@ -258,6 +283,8 @@ Acesso: Cliente via QR Code no navegador.
     Motivo: cliente cancelou (Na fila)
     ```
   - Taxa de serviço (`serviceChargePercent`) configurável, **default 10%** (padrão brasileiro). Pode ser desabilitada por pessoa pelo garçom — na aba "Por Pessoa" da conta, pessoas com taxa desabilitada aparecem com indicação visual (ex: "sem taxa de serviço"). O valor da taxa é calculado individualmente por pessoa.
+  - **Cálculo da taxa em itens divididos:** a taxa incide sobre a **fatia de cada pessoa**, não sobre o item inteiro. Se Pessoa A (sem taxa) e Pessoa B (com taxa) dividem um item de R$100: Pessoa A paga R$50,00 (sem taxa), Pessoa B paga R$50,00 + R$5,00 (10% de taxa) = R$55,00. Cada fatia é independente.
+  - **Toggle geral após toggle individual:** se o garçom desabilita a taxa para Pessoa A individualmente, e depois reabilita o toggle geral, Pessoa A **volta a ter taxa ativa** (toggle geral sobrescreve todos). Se desabilitar o geral, todos desligam. O estado "parcial" (checkbox indeterminado) só existe enquanto há divergência entre pessoas — qualquer ação no toggle geral resolve a divergência.
   - **Arredondamento de divisão igualitária:** ao dividir um valor entre N pessoas, as N-1 primeiras recebem `floor(valor / N)` e a última recebe `total - soma_das_anteriores` (absorve o centavo residual). A última pessoa da lista ordenada paga o arredondamento.
 - **Pagamento individual por pessoa.** Tipos de pagamento aceitos:
   - **`PIX`** — gera QR Code para pagamento. Confirmação via webhook (simulado na Fase 1).
@@ -292,7 +319,7 @@ Acesso: Celular do garcom (PWA).
 - **Lista de mesas dos setores atribuidos** com status (setores definidos na Equipe do Dia). Tap na mesa livre abre tela de abertura; tap na mesa ocupada abre o detalhe.
 - **Abrir mesa:** tela para o garçom abrir sessão em mesa livre. Quantidade de pessoas + nomes (opcional, pode pular). Cria sessão e vai para detalhe da mesa. Alternativa ao fluxo via QR Code do cliente.
 - **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta". Se houver `JoinRequest` com status PENDING, a seção **"Pendentes"** aparece no topo da tela — o garçom aprova ou rejeita, registrando `approvedByStaffId` (ou `rejectedByStaffId`) + timestamp. Não há notificação push pro garçom — a seção só aparece quando ele abre a tela da mesa. Funciona para mesas analógicas e mistas.
-- **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido".
+- **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido". **Pedidos via comanda seguem o mesmo fluxo de pedidos do cliente** — o cliente pode reatribuir pessoas depois (mesmas regras de bloqueio por pagamento aplicam). A comanda não gera pedido "especial" — é um `POST /orders` com `source: 'staff'`.
 - **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.
 - Notificacoes push: item pronto para retirada (com indicação do Ponto de Entrega), chamado de mesa, re-lembretes de retirada pendente, e escalação urgente (quando qualquer garçom pode entregar).
 - Histórico de pedidos com divisão por pessoa.

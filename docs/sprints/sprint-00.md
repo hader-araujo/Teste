@@ -2,6 +2,8 @@
 
 Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && docker compose up` funciona.
 
+**Pré-requisito:** resolver definição pendente "Proteção contra Abertura Remota de Sessão" em `docs/modulos.md` antes de iniciar esta sprint.
+
 **Checklist:**
 - [ ] Criar toda a estrutura de pastas do monorepo (`apps/api`, `apps/web`, `packages/shared`).
 - [ ] Turborepo + pnpm workspace configurados.

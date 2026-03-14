@@ -64,7 +64,9 @@ Termos usados na documentacao do OChefia. Ordem alfabetica dentro de cada secao.
 
 **Taxa de Servico** — Percentual (default 10%) cobrado sobre o consumo de cada pessoa. Configuravel por restaurante. Pode ser desabilitada individualmente por pessoa pelo garcom. Valor distribuido entre garcons do setor com calculo *forward-only*.
 
-**Ticket Medio** — Receita total dividida pela quantidade de pedidos num periodo. Exibido no *Faturamento* diario.
+**Ticket Medio por Mesa** — Receita total dividida pela quantidade de sessoes fechadas num periodo. Mostra o gasto medio por visita/mesa. Exibido no *Faturamento* diario.
+
+**Ticket Medio por Pessoa** — Receita total dividida pelo total de pessoas que pagaram num periodo. Mostra o gasto medio por cliente individual. Exibido ao lado do ticket medio por mesa no *Faturamento* diario.
 
 **Transferencia de Mesa** — Mover uma sessao inteira (pessoas, pedidos, conta) para outra mesa livre. Executada apenas por staff. Funciona entre setores. Claims ativos sao liberados automaticamente.
 

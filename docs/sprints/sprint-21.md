@@ -10,5 +10,5 @@ Frontend puro. Zero endpoints REST novos.
 - [ ] CSS custom properties no cardápio do cliente.
 - [ ] Validação de contraste WCAG AA.
 - [ ] 2 temas demonstrados (Clássico + Escuro) no cardápio.
-- [ ] Mapa de mesas visual no dashboard (drag & drop ou grid).
-- [ ] Gráficos no dashboard (receita, pedidos).
+- [ ] **Mapa de mesas visual** no dashboard (drag & drop ou grid) — visualização avançada das mesas com status por cor, complementando os KPIs numéricos da Sprint 20.
+- [ ] **Gráficos no dashboard** (receita por dia, pedidos por hora, tempo médio de preparo) — visualizações gráficas dos dados que Sprint 20 entrega como números/tabelas.
