@@ -1,16 +1,13 @@
-# Sprint 17 — Push Notifications + Escalação de Retirada
+# Sprint 17 — Garçom: Claim + Taxa de Serviço + Comanda
 
-Infraestrutura de notificações. Zero endpoints REST novos.
+**Endpoints (~3):**
+- PATCH `/orders/:id/delivery-groups/:group/claim` — Garçom assume retirada do grupo de entrega inteiro.
+- PATCH `/session/:token/service-charge` — Toggle taxa de serviço (garçom only). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos; com `personId` = toggle individual.
+- PATCH `/tables/:id/transfer` — Transferência de mesa (cross-sector). Permite mover sessão ativa para outra mesa.
 
 **Checklist:**
-- [ ] Push notifications via Service Worker + Web Push API.
-- [ ] **Service Worker com cache do cardápio para suporte offline** (leitura do cardápio funciona sem internet). Estratégia stale-while-revalidate.
-- [ ] Notificação: item pronto para retirada (com indicação do Ponto de Entrega).
-- [ ] Notificação: chamado de mesa.
-- [ ] **Escalação de retirada nível 1:** job que verifica itens com status "Pronto" sem "Entregue" há mais de `pickupReminderInterval` minutos. Reenvia push + alerta in-app ao(s) garçom(ns) do setor. Repete a cada intervalo até entrega ou escalação nível 2.
-- [ ] **Escalação de retirada nível 2:** item "Pronto" sem "Entregue" há mais de `pickupEscalationTimeout` minutos. Notifica admin (push + alerta dashboard via `admin:pickup-escalation`) + todos os garçons ativos (via `waiter:pickup-escalation`). Registra ocorrência para relatório.
-- [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin (Sprint 19).
-- [ ] Pontos de Entrega com `autoDelivery = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
-- [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
-- [ ] Indicador de conexão WebSocket no cliente (pedidos/conta — componente da Sprint 11).
-- [ ] Polling HTTP fallback no cliente quando desconectado (componente da Sprint 11).
+- [ ] **Claim de retirada por grupo:** `PATCH /orders/:id/delivery-groups/:group/claim` — garçom assume retirada do grupo de entrega inteiro (`group` = `normal` ou `immediate`). Body: `{ staffId }`. Registra `claimedByStaffId` em todos os itens do grupo. Some da tela dos outros garçons via WebSocket (`waiter:pickup-claimed`).
+- [ ] Frontend garçom: detalhe da mesa (pedidos por pessoa). Itens com status "Pronto" exibem botão "Retirar" (claim).
+- [ ] **Toggle taxa de serviço** por pessoa ou por mesa toda (garçom). Toggle geral como atalho + toggle individual por pessoa na tela de detalhe da mesa. Se desliga o geral, todos desligam. Se religa, todos religam. Individual altera o geral para estado parcial (checkbox indeterminado). Usa endpoint `PATCH /session/:token/service-charge`.
+- [ ] **Transferência de mesa:** `PATCH /tables/:id/transfer` — permite mover sessão ativa para outra mesa, incluindo cross-sector. Atualiza o setor da sessão e notifica garçons envolvidos via WebSocket.
+- [ ] Frontend garçom: comanda rápida.

@@ -39,13 +39,23 @@
 - O KDS requer autenticação de funcionário com role `KITCHEN` ou `BAR` (mesmo padrão de auth dos demais staff — JWT). Não opera como tela aberta.
 
 ## CSRF (Cross-Site Request Forgery)
+
+### Staff (JWT + cookie)
 - Refresh token em httpOnly cookie exige protecao CSRF adicional alem de `SameSite=Strict`.
 - Implementar **CSRF token** (sync token pattern) via `csurf` ou equivalente NestJS.
 - Token CSRF enviado em header customizado (`X-CSRF-Token`) em toda request que modifica estado (POST, PUT, PATCH, DELETE).
 - Token gerado por sessao e validado no backend.
 - `SameSite=Strict` no cookie e camada complementar, nao substitui CSRF token.
 
+### Cliente (session token)
+- Endpoints do cliente (`/session/:token/*`) **nao usam CSRF token**. Protecao via:
+  1. **Token criptografico na URL:** o `sessionToken` (UUID v4 / randomBytes 32) funciona como bearer token — impraticável de adivinhar (128+ bits de entropia).
+  2. **Rate limiting por IP e por cliente** (telefone verificado) em todos os endpoints sensíveis.
+  3. **WhatsApp verificado como pré-requisito** para operações de pedido e pagamento — atacante precisaria ter acesso ao WhatsApp da vítima.
+- CSRF tradicional não se aplica porque a autenticação do cliente não é cookie-based — o token está na URL/body, não em cookie automático.
+
 ## PIN do Garcom (Clock-in)
+- **PIN numérico de 4 dígitos**, definido no cadastro do funcionário. Armazenado com hash (bcrypt). OWNER/MANAGER pode resetar o PIN de qualquer funcionário.
 - **Rate limit no endpoint `/shifts/clock-in`:** maximo 5 tentativas por staffId em 15 minutos. Apos exceder, lockout de 15 minutos.
 - Tentativas falhas devem ser logadas com `level: warn` para auditoria.
 
@@ -137,4 +147,4 @@
   - Admin/Super Admin pode forçar exclusão via painel (para atender solicitação formal LGPD).
 - **Endpoint obrigatorio (acesso):** `GET /session/:token/data` — retorna todos os dados pessoais da sessao (telefone, nomes). Requer telefone verificado. Direito de acesso (LGPD Art. 18).
 - **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados.
-- **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 25 (Segurança Avançada + LGPD).
+- **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 26 (Segurança Avançada + LGPD).

@@ -1,16 +1,17 @@
-# Sprint 25 — Segurança Avançada + LGPD
+# Sprint 25 — Performance + Resiliência
 
-Revisão de segurança e compliance LGPD. Zero endpoints REST novos (exceto LGPD).
-
-**Endpoints (~2):**
-- DELETE `/session/:token/data` — LGPD: excluir dados pessoais da sessão.
-- GET `/session/:token/data` — LGPD: retornar todos os dados pessoais da sessão (direito de acesso).
+Otimizações e preparação para produção. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] LGPD: endpoint `DELETE /session/:token/data` para exclusão de dados pessoais (telefone, nomes). Pedidos/pagamentos são anonimizados.
-- [ ] LGPD: endpoint `GET /session/:token/data` para acesso aos dados pessoais (direito de acesso via telefone verificado). Ver `docs/seguranca.md` seção LGPD.
-- [ ] LGPD: job agendado para anonimizar dados pessoais de sessões fechadas há mais de 90 dias.
-- [ ] Rotação de JWT_SECRET testada end-to-end (suportar 2 secrets simultâneos — implementação na Sprint 1, teste de rotação aqui).
-- [ ] Revisão de segurança: verificar que todos os campos de texto livre passam por sanitização `class-transformer`.
-- [ ] Revisão de segurança: verificar que `$queryRaw`/`$executeRaw` (se usados) utilizam `Prisma.sql` para parametrização.
-- [ ] Revisão de segurança: verificar que upload de imagens valida MIME type real em todos os endpoints.
+- [ ] Performance: otimizar queries lentas (monitorar N+1 com `prisma.$on('query')`), verificar cache Redis.
+- [ ] Performance: lazy loading de imagens no cardápio (`loading="lazy"` + WebP + placeholder blur).
+- [ ] Performance: paginação em todos os endpoints de listagem (orders, staff, establishments).
+- [ ] Performance: bundle analysis com `@next/bundle-analyzer` — code splitting por módulo (admin vs cliente vs garçom).
+- [ ] Resiliência: circuit breaker (`opossum`) para dependências externas restantes (WhatsApp API — Pix já coberto na Sprint 11).
+- [ ] Resiliência: modo degradado quando Redis cai (fallback para banco direto no cardápio, métricas calculadas on-demand). Ver `docs/observabilidade.md` seção Modo Degradado.
+- [ ] Resiliência: timeout de sessão — alerta no admin para sessões abertas há mais de 6 horas.
+- [ ] Resiliência: graceful shutdown (drenar WebSocket, fechar conexões banco/Redis em SIGTERM).
+- [ ] Validar database indexing: índices compostos em (restaurantId, status) para orders, (restaurantId, createdAt) para sessões.
+- [ ] Teste de carga multi-tenant: validar isolamento de dados entre restaurantes sob carga (100+ req/s).
+- [ ] Bull failed jobs processing strategy documentada e testada.
+- [ ] Infra: Docker Compose de produção otimizado (healthchecks, restart policies, resource limits).

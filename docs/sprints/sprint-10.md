@@ -1,16 +1,20 @@
-# Sprint 10 — Pagamento Pix
+# Sprint 10 — Frontend Carrinho + Pedidos + Conta
 
-**Endpoints (~4):**
-- POST `/payments` — Iniciar pagamento individual por pessoa.
-- GET `/payments/:id/status` — Verificar status.
-- POST `/payments/pix/webhook` — Webhook de confirmação Pix.
-- GET `/payments/session/:token` — Listar pagamentos da sessão.
+Frontend do fluxo de pedidos do cliente. Zero endpoints REST novos (backend na Sprint 9).
+
+**Endpoints usados (criados na Sprint 9):**
+- POST `/orders` — Criar pedido.
+- GET `/orders/:id` — Detalhes do pedido.
+- PATCH `/orders/items/:id/people` — Reatribuir pessoas a um item.
+- GET `/session/:token/bill` — Conta detalhada com divisão por pessoa + taxa de serviço.
+- GET `/session/:token/activity-log` — Log de atividade de pedidos e reatribuições.
 
 **Checklist:**
-- [ ] Pagamento individual Pix com QR Code por pessoa.
-- [ ] Webhook Pix com validação de assinatura **síncrona** (retorna 400 se inválida, só enfileira após validação). Idempotency via `externalId` do provedor. Processamento via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
-- [ ] Whitelist de IPs do provedor Pix como camada extra de segurança.
-- [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
-- [ ] Abstração de provedor de pagamento (PaymentProviderService) para evitar lock-in.
-- [ ] Frontend cliente: pagamento Pix com QR Code.
-- [ ] Error codes padronizados para módulo Payments (PAY_001 a PAY_004). Ver `docs/observabilidade.md`.
+- [ ] Frontend cliente: carrinho com seleção de pessoas por item e campo de observação (notes) por item.
+- [ ] Frontend cliente: tela "Meus Pedidos" com status em tempo real e reatribuição de pessoas.
+- [ ] Frontend cliente: conta com divisão por pessoa + taxa de serviço, organizada em 3 abas:
+  - **Visão geral:** total da mesa, total por pessoa, taxa de serviço.
+  - **Por pessoa:** itens consumidos por cada pessoa com valores individuais.
+  - **Histórico:** log de atividade completo (criação de pedidos, reatribuições, cancelamentos), visível para todos os membros da mesa.
+- [ ] Frontend cliente: reatribuição de itens entre pessoas (arrastar ou selecionar).
+- [ ] Carrinho persiste em localStorage (sem backend de carrinho na Fase 1).

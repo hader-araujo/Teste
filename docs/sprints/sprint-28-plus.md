@@ -1,4 +1,4 @@
-# Sprint 27+ — Fase 2: Plataforma + Estoque — NÃO IMPLEMENTAR ATÉ AVISO EXPLÍCITO
+# Sprint 28+ — Fase 2: Plataforma + Estoque — NÃO IMPLEMENTAR ATÉ AVISO EXPLÍCITO
 
 **Apenas referência arquitetural. Não iniciar até o usuário pedir. Cada item é um módulo extra pago.**
 

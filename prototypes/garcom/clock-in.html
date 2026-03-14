@@ -36,8 +36,8 @@
       </div>
 
       <div class="input-group mb-4">
-        <label for="senha">Senha</label>
-        <input class="input" id="senha" type="password" placeholder="Senha" value="1234" required>
+        <label for="pin">PIN</label>
+        <input class="input" id="pin" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="PIN de 4 dígitos" value="1234" required style="letter-spacing:0.5em; text-align:center; font-size:1.25rem; font-weight:700;">
       </div>
 
       <button type="submit" class="btn btn-primary btn-full">
@@ -111,7 +111,7 @@
       document.getElementById('shift-active').style.display = 'none';
       document.getElementById('clock-in-form').style.display = 'block';
       document.getElementById('garcom').value = '';
-      document.getElementById('senha').value = '';
+      document.getElementById('pin').value = '';
       showToast('Turno encerrado.', 'warning');
     }
   </script>

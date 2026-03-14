@@ -1,24 +1,31 @@
-# Sprint 5 — Sessão de Mesa + WhatsApp OTP + Pessoas (Backend)
+# Sprint 5 — Menu CRUD Backend + Upload de Imagens
 
-Backend da sessão do cliente. Aprovação de entrantes na Sprint 6. Frontend na Sprint 7.
-
-**Endpoints (~8):**
-- POST `/tables/:id/open` — Abrir sessão da mesa. Body: `{ personCount?, names? }`.
-- GET `/session/:token` — Dados da sessão.
-- POST `/session/:token/phone` — Enviar OTP via WhatsApp.
-- POST `/session/:token/phone/verify` — Confirmar OTP.
-- GET `/session/:token/people` — Listar pessoas na sessão.
-- POST `/session/:token/people` — Adicionar pessoa na mesa.
-- PATCH `/session/:token/people/:personId` — Atualizar nome da pessoa (body: `{ name }`).
-- DELETE `/session/:token/people/:personId` — Remover pessoa.
+**Endpoints (~14):**
+- GET `/menu/categories` — Listar categorias (admin).
+- POST `/menu/categories` — Criar categoria.
+- PUT `/menu/categories/:id` — Atualizar categoria.
+- DELETE `/menu/categories/:id` — Remover categoria.
+- GET `/menu/tags` — Listar tags de produto.
+- POST `/menu/tags` — Criar tag.
+- PUT `/menu/tags/:id` — Atualizar tag.
+- DELETE `/menu/tags/:id` — Remover tag.
+- GET `/menu/products` — Listar produtos (admin).
+- POST `/menu/products` — Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, `immediateDelivery?: bool`, e `tagIds[]`).
+- PUT `/menu/products/:id` — Atualizar produto.
+- PATCH `/menu/products/:id/availability` — Toggle disponibilidade.
+- POST `/upload/product-images` — Upload de imagens (multipart, max 5).
+- DELETE `/upload/product-images/:imageId` — Remover imagem.
 
 **Checklist:**
-- [ ] Sessão de mesa via token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32)`) na URL + cookie.
-- [ ] `POST /tables/:id/open` com body opcional `{ personCount?, names? }` para pré-cadastro de pessoas ao abrir mesa.
-- [ ] Geração de token seguro na criação da sessão.
-- [ ] Verificação WhatsApp via OTP de 6 dígitos. Rate limit: 3 envios por sessão, cooldown 60s. OTP expira em 5min, max 5 tentativas.
-- [ ] Envio de OTP via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
-- [ ] CRUD de pessoas na mesa (incluindo atualização de nome via PATCH).
-- [ ] **Unicidade de telefone por sessão (SESSION_008):** mesmo número não pode estar em duas sessões ativas simultaneamente no mesmo restaurante.
-- [ ] Sanitização de nomes de pessoas na mesa contra XSS via `class-transformer`.
-- [ ] Error codes padronizados para módulo Session (SESSION_001 a SESSION_006, SESSION_008). Ver `docs/observabilidade.md`.
+- [ ] CRUD de categorias.
+- [ ] CRUD de tags de produto (vegano, sem glúten, picante, etc).
+- [ ] CRUD de produtos com campo `pickupPointId` (Ponto de Entrega vinculado a Local de Preparo) ou `destination: 'waiter'` (entrega direta pelo garçom). Flag `immediateDelivery` (boolean, default `false`) para itens que podem ser entregues antes dos demais (ex: drinks).
+- [ ] StorageService com interface (upload, delete, getUrl).
+- [ ] Implementação Local (filesystem com volume Docker). `STORAGE_DRIVER=local`.
+- [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
+- [ ] Validação de MIME type real com `file-type` (não confiar na extensão). Aceitar apenas JPEG/PNG/WebP.
+- [ ] Sanitizar nome do arquivo (usar UUID como nome no storage).
+- [ ] Upload com preview, reordenação e remoção.
+- [ ] Frontend admin: tela cardápio CRUD.
+- [ ] Sanitização de inputs de texto livre (nome de categoria, nome/descrição de produto, nome de tag) contra XSS via `class-transformer`.
+- [ ] Error codes padronizados para módulo Menu (MENU_001 a MENU_004). Ver `docs/observabilidade.md`.

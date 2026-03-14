@@ -33,6 +33,7 @@ Base URL: `/api/v1`
 | DELETE | `/tables/:id` | Soft delete de mesa (só se não tiver sessão ativa). Histórico preservado para métricas. Permite recriar mesa com mesmo nome/número |
 | POST | `/tables/:id/open` | Abrir sessão da mesa. Body: `{ personCount?: number, names?: string[] }`. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
 | POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Emite evento `client:session-closed` via WebSocket |
+| POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
 | PATCH | `/tables/:id/transfer` | Transferir sessão para outra mesa (body: `{ targetTableId }`). Requer JWT de staff (WAITER ou superior). Mesa destino deve estar livre. Move toda a sessão (pessoas, pedidos, conta). Funciona entre setores. KDS atualiza número da mesa automaticamente. WebSocket notifica clientes conectados |
 
@@ -53,6 +54,7 @@ Base URL: `/api/v1`
 | PATCH | `/session/:token/join/:requestId/reject` | Rejeitar entrada de novo membro |
 | POST | `/session/:token/join/:requestId/remind` | Reenviar notificação de aprovação para membros da mesa (cooldown 60s) |
 | GET | `/session/:token/join/:requestId/status` | Verificar status da solicitação (pending/approved/rejected/expired) — usado por quem está aguardando |
+| DELETE | `/session/:token/join/reset-limit` | Resetar contador de re-solicitações de um telefone (staff garçom+). Body: `{ phone }`. Para casos legítimos onde entrante atingiu o limite de 3 tentativas |
 | GET | `/session/:token/people` | Listar pessoas cadastradas na sessão |
 | POST | `/session/:token/people` | Adicionar pessoa na mesa (body: `{ name }`) |
 | PATCH | `/session/:token/people/:personId` | Atualizar nome da pessoa (body: `{ name }`) |

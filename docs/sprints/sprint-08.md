@@ -1,24 +1,15 @@
-# Sprint 8 — Pedidos Backend + Grupos de Entrega
+# Sprint 8 — Frontend Cliente: WhatsApp + Cardápio + Pessoas
 
-Backend de pedidos. Frontend do carrinho e conta na Sprint 9.
-
-**Endpoints (~9):**
-- POST `/orders` — Criar pedido (cada item com `personIds[]` obrigatório e `notes?` opcional).
-- GET `/orders` — Listar pedidos (admin, filtros). **Paginação:** query `page` e `limit` (default 20, max 100).
-- GET `/orders/:id` — Detalhes do pedido.
-- PATCH `/orders/:id/status` — Atualizar status (KDS/garçom).
-- PATCH `/orders/items/:id/status` — Status de item individual.
-- PATCH `/orders/:id/cancel` — Cancelar pedido inteiro.
-- PATCH `/orders/items/:id/cancel` — Cancelar item individual.
-- PATCH `/orders/items/:id/people` — Reatribuir pessoas a um item.
-- GET `/session/:token/activity-log` — Log de atividade de pedidos e reatribuições.
+Frontend do cliente. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Criação de pedido com seleção de pessoas por item e campo `notes` (observação) por item.
-- [ ] Grupos de entrega por pedido: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens roteados para o KDS do Local de Preparo correspondente.
-- [ ] Máquina de estados do pedido: Na fila → Preparando → Pronto → Entregue + Cancelado. Cancelamento permitido apenas enquanto status = "Na fila".
-- [ ] **Cancelamento de pedido:** `PATCH /orders/:id/cancel` — cancela todos os itens canceláveis (status "Na fila"). Itens já em preparo ou prontos não são cancelados.
-- [ ] **Cancelamento de item:** `PATCH /orders/items/:id/cancel` — cancela item individual (apenas se "Na fila").
-- [ ] **Log de atividade de pedidos:** registrar todas as ações (criação de pedido, reatribuição de pessoas, cancelamentos) em formato estruturado. Renderizar como texto legível no frontend (ex: "Picanha - José realizou o pedido / Para: José e Antônio").
-- [ ] QueueService abstraction (interface única para Bull + Redis; preparada para futura migração para SQS na Fase 2).
-- [ ] Error codes padronizados para módulo Orders (ORDER_001 a ORDER_005). Ver `docs/observabilidade.md`.
+- [ ] **Persistir `sessionToken`:** ao receber o token retornado por `POST /tables/:id/open` (primeiro cliente) ou `POST /session/:token/join` (entrante aprovado), salvar em localStorage (`ochefia_session_token`). Usar em todas as chamadas subsequentes (`/session/:token/*`). Limpar ao fechar sessão.
+- [ ] **Tela de escolha após QR Code:** "Entrar na mesa" ou "Ver cardápio" (read-only sem sessão).
+- [ ] **Modo read-only do cardápio:** acesso público com preços, sem poder fazer pedidos, sem identificação.
+- [ ] Frontend cliente: tela WhatsApp (número + OTP). **Exibir texto de consentimento LGPD** claro sobre uso dos dados ao informar telefone (ver `docs/seguranca.md` seção LGPD).
+- [ ] Frontend cliente: tela pessoas (+ botão no header de TODAS as telas do cliente).
+- [ ] **Tela de pessoas com aprovação:** exibir entrantes pendentes com botões aprovar/rejeitar.
+- [ ] **Tela de espera para entrantes:** mensagem de aguardo + botão "Lembrar mesa" (cooldown 60s) + botão "Ver cardápio" (read-only) + botão "Cancelar".
+- [ ] **Notificação de novo entrante:** alerta in-app para membros aprovados (push notification na Sprint 18).
+- [ ] Frontend cliente: cardápio com galeria, categorias, filtros.
+- [ ] Frontend cliente: detalhe do produto.

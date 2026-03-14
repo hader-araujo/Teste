@@ -1,14 +1,18 @@
-# Sprint 23 — Testes E2E + Acessibilidade
+# Sprint 23 — Super Admin: Módulos + Monitoramento
 
-Testes end-to-end e revisão de acessibilidade. Zero endpoints REST novos.
+**Endpoints (~7):**
+- GET `/superadmin/modules` — Listar módulos com valor padrão.
+- PUT `/superadmin/modules/:moduleId` — Atualizar módulo.
+- GET `/superadmin/establishments/:id/modules` — Módulos do estabelecimento.
+- PUT `/superadmin/establishments/:id/modules/:moduleId` — Habilitar/desabilitar + valor.
+- GET `/superadmin/monitoring/overview` — Métricas globais (total pedidos/mês, mesas ativas, estabelecimentos por status).
+- GET `/superadmin/monitoring/establishments` — Métricas de uso por estabelecimento (pedidos/mês, mesas ativas, último acesso). **Paginação:** query `page` e `limit` (default 20, max 100). Ordenável por qualquer métrica.
+- GET `/superadmin/monitoring/establishments/:id/activity` — Histórico de atividade de um estabelecimento (últimos acessos, pedidos recentes).
 
 **Checklist:**
-- [ ] Testes e2e com Playwright: fluxo completo do cliente (QR -> WhatsApp -> cardápio -> pedido -> pagamento).
-- [ ] Testes e2e com Playwright: fluxo admin (login -> dashboard -> mesas -> cardápio).
-- [ ] Testes e2e com Playwright: fluxo garçom (clock-in -> mesas -> chamados -> comanda).
-- [ ] Testes de contrato (API).
-- [ ] Testes de integração (Supertest).
-- [ ] axe-core integrado nos testes e2e (Playwright) para validação automática de acessibilidade.
-- [ ] Skeleton loading em todas as telas que faltam.
-- [ ] Revisão de acessibilidade (botões 44x44px, contraste WCAG AA, labels, `aria-live` em regiões real-time).
-- [ ] Validação visual final.
+- [ ] Sistema de módulos: padrão + extras.
+- [ ] Habilitar/desabilitar módulos por estabelecimento.
+- [ ] Valor global e override por estabelecimento.
+- [ ] Endpoints de monitoramento: métricas globais, métricas por estabelecimento, histórico de atividade.
+- [ ] Métricas de uso por estabelecimento (pedidos/mês, mesas ativas).
+- [ ] Último acesso de cada estabelecimento.

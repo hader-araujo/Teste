@@ -1,18 +1,21 @@
-# Sprint 22 — Super Admin: Módulos + Monitoramento
+# Sprint 22 — Super Admin: Estabelecimentos + Cobrança
 
-**Endpoints (~7):**
-- GET `/superadmin/modules` — Listar módulos com valor padrão.
-- PUT `/superadmin/modules/:moduleId` — Atualizar módulo.
-- GET `/superadmin/establishments/:id/modules` — Módulos do estabelecimento.
-- PUT `/superadmin/establishments/:id/modules/:moduleId` — Habilitar/desabilitar + valor.
-- GET `/superadmin/monitoring/overview` — Métricas globais (total pedidos/mês, mesas ativas, estabelecimentos por status).
-- GET `/superadmin/monitoring/establishments` — Métricas de uso por estabelecimento (pedidos/mês, mesas ativas, último acesso). **Paginação:** query `page` e `limit` (default 20, max 100). Ordenável por qualquer métrica.
-- GET `/superadmin/monitoring/establishments/:id/activity` — Histórico de atividade de um estabelecimento (últimos acessos, pedidos recentes).
+**Endpoints (~9):**
+- GET `/superadmin/establishments` — Listar todos (com filtros). **Paginação:** query `page` e `limit` (default 20, max 100).
+- POST `/superadmin/establishments` — Cadastrar novo.
+- GET `/superadmin/establishments/:id` — Detalhes.
+- PUT `/superadmin/establishments/:id` — Atualizar.
+- PATCH `/superadmin/establishments/:id/status` — Alterar status.
+- GET `/superadmin/establishments/:id/billing` — Histórico de cobranças.
+- PUT `/superadmin/establishments/:id/billing/plan` — Definir valor do plano.
+- POST `/superadmin/establishments/:id/billing/payments` — Registrar pagamento.
+- PATCH `/superadmin/establishments/:id/billing/payments/:paymentId` — Atualizar status.
 
 **Checklist:**
-- [ ] Sistema de módulos: padrão + extras.
-- [ ] Habilitar/desabilitar módulos por estabelecimento.
-- [ ] Valor global e override por estabelecimento.
-- [ ] Endpoints de monitoramento: métricas globais, métricas por estabelecimento, histórico de atividade.
-- [ ] Métricas de uso por estabelecimento (pedidos/mês, mesas ativas).
-- [ ] Último acesso de cada estabelecimento.
+- [ ] Role SUPER_ADMIN no sistema de auth.
+- [ ] CRUD de estabelecimentos (nome, slug, CNPJ, responsável, email, telefone).
+- [ ] Suspensão de estabelecimentos.
+- [ ] Sistema de cobrança: valor do plano, registro de pagamentos, status.
+- [ ] Painel `/superadmin` com listagem, filtros, indicadores de inadimplência.
+- [ ] **Layout/sidebar do Super Admin** (branding OChefia, cor indigo — diferente do admin).
+- [ ] Seed com usuário SUPER_ADMIN.

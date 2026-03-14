@@ -1,18 +1,23 @@
-# Sprint 11 — WebSocket Gateway + Infraestrutura Real-Time
+# Sprint 11 — Pagamento (Pix + Dinheiro + Cartão)
 
-Infraestrutura de tempo real. Zero endpoints REST novos.
+**Endpoints (~6):**
+- POST `/payments` — Iniciar pagamento individual por pessoa. Body: `{ sessionToken, personId, method: 'PIX' | 'CASH' | 'CARD_DEBIT' | 'CARD_CREDIT' }`.
+- GET `/payments/:id/status` — Verificar status.
+- PATCH `/payments/:id/confirm` — Staff confirma recebimento de pagamento CASH/CARD (WAITER/MANAGER/OWNER).
+- POST `/payments/pix/webhook` — Webhook de confirmação Pix.
+- GET `/payments/session/:token` — Listar pagamentos da sessão.
+- POST `/payments/manual` — Registrar pagamento manual (OWNER/MANAGER). Para quando cliente pagou mas webhook falhou.
 
 **Checklist:**
-- [ ] WebSocket gateway (Socket.IO).
-- [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparação para scaling horizontal na Fase 2).
-- [ ] Rooms: restaurant, kds (geral), kds:{prepLocationId} (por Local de Preparo), waiter (geral), waiter:sector:{sectorId} (por setor), admin, session.
-- [ ] Eventos client->server: order:created, call:request, payment:initiated.
-- [ ] Eventos server->KDS: kds:new-order, kds:status-update.
-- [ ] Eventos server->cliente: client:order-update, client:session-update.
-- [ ] Eventos de aprovação: session:join-request, session:join-approved, session:join-rejected, session:join-remind.
-- [ ] Eventos server->garçom: waiter:order-ready, waiter:pickup-claimed, waiter:pickup-reminder, waiter:pickup-escalation, waiter:call, waiter:new-order.
-- [ ] Eventos server->admin: admin:table-update, admin:metrics-update, admin:pickup-escalation.
-- [ ] **Rate limit de eventos** client→server: máximo 10 eventos/s por socket. Desconectar sockets que excedem.
-- [ ] **Propagação de `correlationId`** nos eventos WebSocket para tracing end-to-end.
-- [ ] Atualizar **CSP** no Helmet para incluir `connect-src 'self' wss://*.ochefia.com.br` (WebSocket).
-- [ ] **Componente reutilizável de indicador de conexão** WebSocket + **polling HTTP como fallback** quando desconectado (banner "Reconectando..." + fetch REST a cada 10s). Ver `docs/websocket-events.md` seção Reconexão.
+- [ ] **Fluxo por método de pagamento:**
+  - **PIX:** cliente inicia pelo app → gera QR Code → webhook confirma automaticamente → status `CONFIRMED`.
+  - **CASH/CARD:** cliente seleciona método no app → sistema cria pagamento com status `AWAITING_STAFF` → garçom recebe notificação → garçom confirma via `PATCH /payments/:id/confirm` → status `CONFIRMED`.
+- [ ] Pagamento individual Pix com QR Code por pessoa.
+- [ ] Webhook Pix com validação de assinatura **síncrona** (retorna 400 se inválida, só enfileira após validação). **Idempotência:** `externalId` do provedor como constraint unique na tabela `Payment`. Se webhook chega 2x com mesmo `externalId`, segunda chamada retorna 200 sem reprocessar. Processamento via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
+- [ ] Whitelist de IPs do provedor Pix como camada extra de segurança.
+- [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
+- [ ] Abstração de provedor de pagamento (PaymentProviderService) para evitar lock-in.
+- [ ] Frontend cliente: pagamento Pix com QR Code.
+- [ ] **Expiração de Pix pendente:** job Bull que verifica pagamentos Pix com status `PENDING` há mais de 15 minutos e marca como `EXPIRED`. Frontend exibe "Pagamento expirado — tente novamente" com botão para gerar novo QR Code.
+- [ ] **Pagamento manual (fallback):** endpoint `POST /payments/manual` (OWNER/MANAGER) para registrar pagamento quando cliente pagou mas webhook não chegou. Body: `{ sessionToken, personId, method, amount }`. Registra em AuditLog.
+- [ ] Error codes padronizados para módulo Payments (PAY_001 a PAY_004). Ver `docs/observabilidade.md`.

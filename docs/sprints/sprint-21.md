@@ -1,21 +1,14 @@
-# Sprint 21 — Super Admin: Estabelecimentos + Cobrança
+# Sprint 21 — Settings + Theming + Dashboard Avançado
 
-**Endpoints (~9):**
-- GET `/superadmin/establishments` — Listar todos (com filtros). **Paginação:** query `page` e `limit` (default 20, max 100).
-- POST `/superadmin/establishments` — Cadastrar novo.
-- GET `/superadmin/establishments/:id` — Detalhes.
-- PUT `/superadmin/establishments/:id` — Atualizar.
-- PATCH `/superadmin/establishments/:id/status` — Alterar status.
-- GET `/superadmin/establishments/:id/billing` — Histórico de cobranças.
-- PUT `/superadmin/establishments/:id/billing/plan` — Definir valor do plano.
-- POST `/superadmin/establishments/:id/billing/payments` — Registrar pagamento.
-- PATCH `/superadmin/establishments/:id/billing/payments/:paymentId` — Atualizar status.
+Frontend puro. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Role SUPER_ADMIN no sistema de auth.
-- [ ] CRUD de estabelecimentos (nome, slug, CNPJ, responsável, email, telefone).
-- [ ] Suspensão de estabelecimentos.
-- [ ] Sistema de cobrança: valor do plano, registro de pagamentos, status.
-- [ ] Painel `/superadmin` com listagem, filtros, indicadores de inadimplência.
-- [ ] **Layout/sidebar do Super Admin** (branding OChefia, cor indigo — diferente do admin).
-- [ ] Seed com usuário SUPER_ADMIN.
+- [ ] Frontend admin: settings com nome/logo do estabelecimento, parâmetros de escalação de retirada (`pickupReminderInterval` default 3min, `pickupEscalationTimeout` default 10min).
+- [ ] Theming: seleção de tema pronto + color picker personalizado.
+- [ ] Temas prontos: Clássico, Escuro, Rústico, Moderno, Tropical, Personalizado.
+- [ ] Preview em tempo real na tela de Settings.
+- [ ] CSS custom properties no cardápio do cliente.
+- [ ] Validação de contraste WCAG AA.
+- [ ] 2 temas demonstrados (Clássico + Escuro) no cardápio.
+- [ ] Mapa de mesas visual no dashboard (drag & drop ou grid).
+- [ ] Gráficos no dashboard (receita, pedidos).

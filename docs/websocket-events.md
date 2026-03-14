@@ -39,12 +39,73 @@ export const SOCKET_EVENTS = {
   ADMIN_TABLE_UPDATE: 'admin:table-update',        // Status de mesa mudou
   ADMIN_METRICS_UPDATE: 'admin:metrics-update',    // Metricas atualizaram
   ADMIN_PICKUP_ESCALATION: 'admin:pickup-escalation', // Item sem retirada escalado (nível 2) — alerta no dashboard
+  ADMIN_MAPPING_INCOMPLETE: 'admin:mapping-incomplete', // Mapeamento Setor↔Local de Preparo incompleto — alerta urgente
+
+  // Garçom — alertas operacionais
+  WAITER_MAPPING_INCOMPLETE: 'waiter:mapping-incomplete', // Mesa do setor não pode ser aberta — mapeamento incompleto
+  WAITER_TABLE_TRANSFERRED: 'waiter:table-transferred', // Mesa transferida entre setores — notifica origem (remover) e destino (pedidos pendentes/prontos)
 
   // Estoque (Fase 2 — NAO IMPLEMENTAR)
   STOCK_ALERT_TRIGGERED: 'stock:alert-triggered',
   STOCK_UPDATED: 'stock:updated',
 } as const;
 ```
+
+## Payloads
+
+Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: string` para tracing.
+
+### Cliente → Servidor
+
+| Evento | Payload |
+|---|---|
+| `order:created` | `{ sessionToken, items: [{ productId, qty, personIds[], notes? }] }` |
+| `call:request` | `{ sessionToken, reason: 'waiter' \| 'bill' \| 'other', message? }` |
+| `payment:initiated` | `{ sessionToken, personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }` |
+
+### Servidor → KDS
+
+| Evento | Room | Payload |
+|---|---|---|
+| `kds:new-order` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, tableNumber, sectorName, items: [{ itemId, productName, qty, notes?, pickupPointName, autoDelivery }], createdAt }` |
+| `kds:status-update` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, itemId, status: 'preparing' \| 'ready' \| 'delivered', updatedBy: staffId }` |
+
+### Servidor → Garçom
+
+| Evento | Room | Payload |
+|---|---|---|
+| `waiter:new-order` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableId, tableName, items: [{ itemId, productName, qty, destination }] }` |
+| `waiter:order-ready` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup: 'normal' \| 'immediate', pickupPoints: [{ pointId, pointName, locationName, autoDelivery, items: [{ itemId, productName, qty }] }] }` |
+| `waiter:pickup-claimed` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, deliveryGroup, claimedByStaffId, claimedByName }` |
+| `waiter:pickup-reminder` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[] }` |
+| `waiter:pickup-escalation` | `restaurant:{id}:waiter` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[], previousClaimStaffId? }` |
+| `waiter:call` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ callId, tableNumber, reason, message?, createdAt }` |
+
+### Servidor → Cliente
+
+| Evento | Room | Payload |
+|---|---|---|
+| `client:order-update` | `session:{token}` | `{ orderId, items: [{ itemId, productName, status: 'queued' \| 'preparing' \| 'ready' \| 'delivered' \| 'cancelled' }] }` |
+| `client:session-update` | `session:{token}` | `{ type: 'person-added' \| 'person-removed' \| 'bill-updated', data }` |
+| `client:payment-confirmed` | `session:{token}` | `{ personId, amount, method, confirmedAt }` |
+| `client:session-closed` | `session:{token}` | `{ sessionToken, closedByStaffId, closedAt }` |
+
+### Aprovação de Entrada
+
+| Evento | Room | Payload |
+|---|---|---|
+| `session:join-request` | `session:{token}` | `{ requestId, phoneLast4, requestedAt }` |
+| `session:join-approved` | direto ao socket do entrante | `{ requestId, approvedBy, sessionToken }` |
+| `session:join-rejected` | direto ao socket do entrante | `{ requestId, rejectedBy }` |
+| `session:join-remind` | `session:{token}` | `{ requestId, phoneLast4, reminderCount }` |
+
+### Servidor → Admin
+
+| Evento | Room | Payload |
+|---|---|---|
+| `admin:table-update` | `restaurant:{id}:admin` | `{ tableId, status: 'free' \| 'occupied' \| 'awaiting-cleanup', sessionId?, occupiedSince? }` |
+| `admin:metrics-update` | `restaurant:{id}:admin` | `{ activeTables, activeOrders, avgPrepTime, revenue }` |
+| `admin:pickup-escalation` | `restaurant:{id}:admin` | `{ orderId, orderNumber, tableNumber, minutesWaiting, sectorName }` |
 
 ## Rooms WebSocket
 
@@ -74,6 +135,7 @@ export const SOCKET_EVENTS = {
 - Cliente deve implementar reconexao automatica com backoff exponencial (Socket.IO faz por padrao).
 - **Indicador de conexao obrigatorio** em todas as telas que dependem de WebSocket (KDS, garcom, cliente pedidos).
 - Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP a cada 10 segundos como fallback para atualizacoes criticas: `GET /session/:token` (cliente), `GET /orders?status=ready` (garçom), `GET /tables` (admin).
+- Polling continua indefinidamente até reconectar. Após **60 segundos** sem sucesso, indicador visual muda de "Reconectando..." para "Sem conexão — dados podem estar desatualizados".
 - Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.
 
 ## Performance e Gerenciamento de Memoria
@@ -96,4 +158,6 @@ export const SOCKET_EVENTS = {
 
 ## Push Notifications e WebSocket
 
-Push notifications e WebSocket **coexistem**. WebSocket é usado para alertas in-app (quando o app está aberto/ativo). Push notifications (via Service Worker + Web Push API) são usadas quando o app está fechado ou em background. Eventos críticos (pedido pronto, chamado, escalação) disparam **ambos** simultaneamente.
+Push notifications e WebSocket **coexistem** mas **não duplicam**. WebSocket é usado para alertas in-app (quando o app está aberto/ativo). Push notifications (via Service Worker + Web Push API) são usadas quando o app está fechado ou em background.
+
+**Deduplicação:** o servidor envia ambos (WebSocket + push), mas o **Service Worker** verifica se o app está ativo antes de exibir a push notification. Se WebSocket está conectado e o app está em foreground, a push é suprimida (o Service Worker detecta via `clients.matchAll()` se há janela ativa). Push só é exibida quando WebSocket está desconectado ou app está em background/fechado.

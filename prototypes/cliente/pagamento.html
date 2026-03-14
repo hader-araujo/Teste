@@ -53,8 +53,49 @@
       </div>
     </section>
 
-    <!-- Pix QR Code -->
-    <section style="padding:1.5rem 1rem; text-align:center;">
+    <!-- Payment Method Selection -->
+    <section id="method-section" style="padding:0 1rem 1rem;">
+      <p style="font-size:0.9rem; color:var(--color-text-secondary); margin-bottom:1rem;">Selecione a forma de pagamento:</p>
+      <div style="display:flex; flex-direction:column; gap:0.75rem;">
+        <button class="card-elevated" onclick="selectMethod('pix')" style="padding:1rem 1.25rem; border:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:1rem; text-align:left; width:100%; transition:border-color 0.15s;" id="method-pix">
+          <div style="width:40px; height:40px; border-radius:var(--radius-md); background:#00B7A3; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:0.8rem; flex-shrink:0;">PIX</div>
+          <div>
+            <div style="font-weight:600; font-size:0.95rem; color:var(--color-text-primary);">Pix</div>
+            <div style="font-size:0.8rem; color:var(--color-text-secondary);">QR Code — confirmação automática</div>
+          </div>
+        </button>
+        <button class="card-elevated" onclick="selectMethod('cash')" style="padding:1rem 1.25rem; border:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:1rem; text-align:left; width:100%; transition:border-color 0.15s;" id="method-cash">
+          <div style="width:40px; height:40px; border-radius:var(--radius-md); background:#16A34A; display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.95rem; color:var(--color-text-primary);">Dinheiro</div>
+            <div style="font-size:0.8rem; color:var(--color-text-secondary);">Pague ao garçom — confirmação pelo staff</div>
+          </div>
+        </button>
+        <button class="card-elevated" onclick="selectMethod('card_debit')" style="padding:1rem 1.25rem; border:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:1rem; text-align:left; width:100%; transition:border-color 0.15s;" id="method-card-debit">
+          <div style="width:40px; height:40px; border-radius:var(--radius-md); background:#2563EB; display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.95rem; color:var(--color-text-primary);">Cartão de Débito</div>
+            <div style="font-size:0.8rem; color:var(--color-text-secondary);">Pague ao garçom — confirmação pelo staff</div>
+          </div>
+        </button>
+        <button class="card-elevated" onclick="selectMethod('card_credit')" style="padding:1rem 1.25rem; border:2px solid transparent; cursor:pointer; display:flex; align-items:center; gap:1rem; text-align:left; width:100%; transition:border-color 0.15s;" id="method-card-credit">
+          <div style="width:40px; height:40px; border-radius:var(--radius-md); background:#7C3AED; display:flex; align-items:center; justify-content:center; color:white; flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:600; font-size:0.95rem; color:var(--color-text-primary);">Cartão de Crédito</div>
+            <div style="font-size:0.8rem; color:var(--color-text-secondary);">Pague ao garçom — confirmação pelo staff</div>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Pix QR Code (hidden until Pix selected) -->
+    <section id="pix-section" style="padding:1.5rem 1rem; text-align:center; display:none;">
       <h3 style="font-size:1rem; font-weight:600; margin-bottom:1rem;">Pague com Pix</h3>
       <div class="qr-placeholder" style="margin:0 auto 1.25rem;">
         QR Code Pix
@@ -74,8 +115,20 @@
       </button>
     </section>
 
+    <!-- Staff Confirmation (hidden until CASH/CARD selected) -->
+    <section id="staff-section" style="padding:1.5rem 1rem; text-align:center; display:none;">
+      <div class="card-elevated" style="padding:2rem;">
+        <div style="width:56px; height:56px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--color-text-primary); margin-bottom:0.5rem;">Aguardando o garçom</h3>
+        <p style="font-size:0.9rem; color:var(--color-text-secondary); margin-bottom:0.25rem;">Método: <strong id="staff-method-label">Dinheiro</strong></p>
+        <p style="font-size:0.85rem; color:var(--color-text-muted);">O garçom foi notificado e confirmará o recebimento do pagamento.</p>
+      </div>
+    </section>
+
     <!-- Payment Status -->
-    <section style="padding:0 1rem 1rem;">
+    <section id="payment-status" style="padding:0 1rem 1rem; display:none;">
 
       <!-- Waiting state -->
       <div id="payment-waiting" class="card-elevated text-center" style="padding:1.5rem;">
@@ -163,24 +216,53 @@
       });
     });
 
+    var methodLabels = {
+      pix: 'Pix',
+      cash: 'Dinheiro',
+      card_debit: 'Cartão de Débito',
+      card_credit: 'Cartão de Crédito'
+    };
+
+    function selectMethod(method) {
+      // Hide method selection
+      document.getElementById('method-section').style.display = 'none';
+
+      if (method === 'pix') {
+        // Show Pix QR Code + waiting status
+        document.getElementById('pix-section').style.display = 'block';
+        document.getElementById('payment-status').style.display = 'block';
+        // Mock Pix confirmation after 5 seconds
+        setTimeout(function() {
+          document.getElementById('payment-waiting').style.display = 'none';
+          document.getElementById('payment-confirmed').style.display = 'block';
+          showToast('Pagamento confirmado!', 'success');
+        }, 5000);
+      } else {
+        // CASH/CARD: show staff confirmation screen
+        document.getElementById('staff-method-label').textContent = methodLabels[method];
+        document.getElementById('staff-section').style.display = 'block';
+        document.getElementById('payment-status').style.display = 'block';
+        // Mock staff confirmation after 8 seconds
+        setTimeout(function() {
+          document.getElementById('staff-section').style.display = 'none';
+          document.getElementById('payment-waiting').style.display = 'none';
+          document.getElementById('payment-confirmed').style.display = 'block';
+          showToast('Pagamento confirmado pelo garçom!', 'success');
+        }, 8000);
+      }
+    }
+
     // Copy Pix code
     function copyPixCode() {
-      const code = '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540613197.005802BR5925ZE DO BAR LTDA6009SAO PAULO62070503***6304ABCD';
+      var code = '00020126580014br.gov.bcb.pix0136a1b2c3d4-e5f6-7890-abcd-ef1234567890520400005303986540613197.005802BR5925ZE DO BAR LTDA6009SAO PAULO62070503***6304ABCD';
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(code).then(() => {
+        navigator.clipboard.writeText(code).then(function() {
           showToast('Código Pix copiado!', 'success');
         });
       } else {
         showToast('Código Pix copiado!', 'success');
       }
     }
-
-    // Mock payment confirmation after 5 seconds
-    setTimeout(() => {
-      document.getElementById('payment-waiting').style.display = 'none';
-      document.getElementById('payment-confirmed').style.display = 'block';
-      showToast('Pagamento confirmado!', 'success');
-    }, 5000);
   </script>
 </body>
 </html>

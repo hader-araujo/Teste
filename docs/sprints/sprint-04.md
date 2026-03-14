@@ -1,31 +1,14 @@
-# Sprint 4 — Menu CRUD Backend + Upload de Imagens
+# Sprint 4 — Component Library + Layout Admin
 
-**Endpoints (~14):**
-- GET `/menu/categories` — Listar categorias (admin).
-- POST `/menu/categories` — Criar categoria.
-- PUT `/menu/categories/:id` — Atualizar categoria.
-- DELETE `/menu/categories/:id` — Remover categoria.
-- GET `/menu/tags` — Listar tags de produto.
-- POST `/menu/tags` — Criar tag.
-- PUT `/menu/tags/:id` — Atualizar tag.
-- DELETE `/menu/tags/:id` — Remover tag.
-- GET `/menu/products` — Listar produtos (admin).
-- POST `/menu/products` — Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, `immediateDelivery?: bool`, e `tagIds[]`).
-- PUT `/menu/products/:id` — Atualizar produto.
-- PATCH `/menu/products/:id/availability` — Toggle disponibilidade.
-- POST `/upload/product-images` — Upload de imagens (multipart, max 5).
-- DELETE `/upload/product-images/:imageId` — Remover imagem.
+Frontend puro. Zero endpoints REST novos. Biblioteca de componentes e estrutura visual do admin.
 
 **Checklist:**
-- [ ] CRUD de categorias.
-- [ ] CRUD de tags de produto (vegano, sem glúten, picante, etc).
-- [ ] CRUD de produtos com campo `pickupPointId` (Ponto de Entrega vinculado a Local de Preparo) ou `destination: 'waiter'` (entrega direta pelo garçom). Flag `immediateDelivery` (boolean, default `false`) para itens que podem ser entregues antes dos demais (ex: drinks).
-- [ ] StorageService com interface (upload, delete, getUrl).
-- [ ] Implementação Local (filesystem com volume Docker). `STORAGE_DRIVER=local`.
-- [ ] Resize com sharp (thumb 200px, media 600px, original) — processado via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
-- [ ] Validação de MIME type real com `file-type` (não confiar na extensão). Aceitar apenas JPEG/PNG/WebP.
-- [ ] Sanitizar nome do arquivo (usar UUID como nome no storage).
-- [ ] Upload com preview, reordenação e remoção.
-- [ ] Frontend admin: tela cardápio CRUD.
-- [ ] Sanitização de inputs de texto livre (nome de categoria, nome/descrição de produto, nome de tag) contra XSS via `class-transformer`.
-- [ ] Error codes padronizados para módulo Menu (MENU_001 a MENU_004). Ver `docs/observabilidade.md`.
+- [ ] Biblioteca de componentes base (Button, Input, Badge, Modal, Toggle, Skeleton, Spinner).
+- [ ] Toast notifications (sonner).
+- [ ] AdminSidebar fixa com navegação, avatar e role.
+- [ ] Layout admin com sidebar + mobile top bar.
+- [ ] Tela de login frontend (Next.js).
+- [ ] Skeleton loading nos componentes base.
+- [ ] Sentry integrado no Next.js (client-side error tracking). Propagar `correlationId` como tag.
+- [ ] Componentes base com `aria-label`, `role` e `focus-visible` corretos.
+- [ ] Implementar frontend admin de mesas, setores e locais de preparo (CRUD Next.js — backend já criado na Sprint 3).

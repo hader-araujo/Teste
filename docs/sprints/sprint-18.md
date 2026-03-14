@@ -1,14 +1,16 @@
-# Sprint 18 — Faturamento
+# Sprint 18 — Push Notifications + Escalação de Retirada
 
-**Endpoints (~4):**
-- GET `/billing/daily` — Faturamento do dia.
-- GET `/billing/monthly` — Faturamento mensal.
-- GET `/billing/cashier` — Fechamento de caixa.
-- GET `/billing/waiter-fees` — Taxas de garçom por período.
+Infraestrutura de notificações. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Faturamento diário: receita, pedidos, ticket médio, comparativo.
-- [ ] Faturamento mensal: receita acumulada, gráfico por dia, comparativo.
-- [ ] Fechamento de caixa: valores por forma de pagamento.
-- [ ] Taxas de garçom: valor devido a cada garçom no período.
-- [ ] Frontend admin: tela de faturamento.
+- [ ] Push notifications via Service Worker + Web Push API.
+- [ ] **Service Worker com cache do cardápio para suporte offline** (leitura do cardápio funciona sem internet). Estratégia stale-while-revalidate.
+- [ ] Notificação: item pronto para retirada (com indicação do Ponto de Entrega).
+- [ ] Notificação: chamado de mesa.
+- [ ] **Escalação de retirada nível 1:** job que verifica itens com status "Pronto" sem "Entregue" há mais de `pickupReminderInterval` minutos. Reenvia push + alerta in-app ao(s) garçom(ns) do setor. Repete a cada intervalo até entrega ou escalação nível 2.
+- [ ] **Escalação de retirada nível 2:** item "Pronto" sem "Entregue" há mais de `pickupEscalationTimeout` minutos. Notifica admin (push + alerta dashboard via `admin:pickup-escalation`) + todos os garçons ativos (via `waiter:pickup-escalation`). Registra ocorrência para relatório.
+- [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin (Sprint 20).
+- [ ] Pontos de Entrega com `autoDelivery = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
+- [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
+- [ ] Indicador de conexão WebSocket no cliente (pedidos/conta — componente da Sprint 12).
+- [ ] Polling HTTP fallback no cliente quando desconectado (componente da Sprint 12).

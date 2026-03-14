@@ -112,3 +112,5 @@ See @docs/sprints.md for índice do roadmap. Detalhes de cada sprint em `docs/sp
 - `docs/design-staff.md` — specs do KDS e garçom
 - `docs/design-admin.md` — specs do dashboard admin
 - `docs/design-superadmin.md` — specs do backoffice super admin
+- `docs/schema.md` — modelo de dados conceitual (entidades, campos, relacionamentos, enums)
+- `docs/glossario.md` — glossário de termos de negócio, técnicos e siglas

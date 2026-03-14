@@ -19,6 +19,11 @@ Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área E
 - **Garcons sao atribuidos a setores** (nao a mesas individuais). Um garcom pode atender mais de 1 setor.
 - **Taxa de servico e dividida igualmente entre garcons do mesmo setor.** Se um garcom precisa ficar exclusivo em uma mesa, essa mesa deve estar em um setor proprio.
 - **Mapeamento obrigatorio Setor ↔ Local de Preparo:** para cada setor, deve haver um vinculo com cada Local de Preparo, indicando **qual Ponto de Entrega** os garcons daquele setor usam para retirada. Isso permite que garcons de setores diferentes retirem em pontos diferentes do mesmo Local de Preparo.
+- **Validação de mapeamento completo:**
+  - `POST /tables/:id/open` **bloqueia abertura de sessão** se o setor da mesa não tem mapeamento para todos os Locais de Preparo ativos. Retorna erro `SESSION_011`.
+  - **Alerta urgente** via WebSocket para admin (`admin:mapping-incomplete`) e garçons do setor (`waiter:mapping-incomplete`): "Mesa X não pode ser aberta — Setor Y sem mapeamento para Local de Preparo Z".
+  - Ao criar novo Local de Preparo, **alerta no dashboard** para admin: "Novo Local de Preparo criado — configure mapeamento nos setores existentes". Todos os setores ficam com mapeamento pendente até configurar.
+  - `POST /orders` mantém validação defensiva como safety net (erro `ORDER_005` se mapeamento faltar por qualquer motivo).
 
 ### Cadastro de Produto — Destino e Entrega Imediata
 No cadastro de produto, o campo "Destino" e obrigatorio e mostra:
@@ -61,8 +66,8 @@ Cancelado  Cancelado
 | Preparando | Cancelado | Apenas Staff (garçom+) |
 
 **Restrições:**
-- Itens com status **Pronto** ou **Entregue** não podem ser cancelados.
-- **Não existe transição reversa** — um item nunca volta para um status anterior.
+- Itens com status **Pronto** ou **Entregue** podem ser cancelados **apenas por OWNER/MANAGER** (motivo obrigatório, registrado em AuditLog). Se o item tinha claim ativo de garçom, o claim é liberado automaticamente.
+- **Não existe transição reversa** — um item nunca volta para um status anterior (exceto cancelamento por OWNER/MANAGER).
 - **Itens com destino "Garçom"** (entrega direta, sem preparo): seguem fluxo simplificado `Na fila → Entregue`, pulando os estados `Preparando` e `Pronto`.
 
 ### Observações por Item (notes)
@@ -73,7 +78,7 @@ Cada item de pedido pode conter o campo **`notes?: string`** — observações d
 
 - **Cliente:** pode cancelar apenas seus próprios itens (itens vinculados a suas pessoas), e somente se o status for **Na fila**.
 - **Staff (garçom+):** pode cancelar qualquer item do pedido se o status for **Na fila** ou **Preparando**.
-- Itens com status **Pronto** ou **Entregue** **não podem ser cancelados** por ninguém.
+- **OWNER/MANAGER:** pode cancelar qualquer item **em qualquer status** (incluindo Pronto e Entregue). Motivo obrigatório. Registrado em AuditLog. Se havia claim de garçom, é liberado automaticamente. Item cancelado sai da conta.
 - Todo cancelamento é registrado no **histórico/activity-log da sessão**, incluindo: quem cancelou, quando, e motivo (obrigatório se cancelado por staff).
 - **Item cancelado sai do cálculo da conta** — não é cobrado.
 
@@ -85,6 +90,10 @@ Permite mover uma sessão inteira de uma mesa para outra:
 - Move a **sessão inteira** (pessoas, pedidos, conta, activity-log) para a mesa de destino.
 - A **mesa de destino deve estar livre** (sem sessão ativa).
 - Funciona **entre setores diferentes** — não há restrição de setor.
+- **Claims ativos** de garçons do setor de origem são **liberados automaticamente** na transferência.
+- **Notificações de transferência via WebSocket:**
+  - `waiter:table-transferred` para garçons do **setor de destino**: inclui lista de pedidos pendentes/prontos para retirada.
+  - `waiter:table-transferred` para garçons do **setor de origem**: para remover a mesa da visualização.
 - O **KDS atualiza o número da mesa automaticamente** nos cards em produção (via WebSocket).
 - O **token da sessão não muda** — apenas o `tableId` é atualizado. Clientes conectados recebem notificação via WebSocket e continuam operando normalmente.
 
@@ -96,6 +105,7 @@ Acesso: Dono/Gerente via computador ou tablet.
 - **Mapa de mesas em tempo real** (livres, ocupadas, aguardando limpeza, tempo de permanência). Filtros: "Todas", "Com problema", "Ociosas". Indicadores visuais de alerta: pedido atrasado, chamado sem resposta, tempo sem novo pedido. Botão deletar mesa (soft delete — só se não tiver sessão ativa; histórico preservado para métricas; permite recriar mesa com mesmo nome/número).
 - **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados com tempo na fila acima do `orderDelayThreshold` — default 15min, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído).
 - **`orderDelayThreshold`** (configurável em Settings, default 15min): tempo máximo que um pedido pode ficar na fila (status "Na fila") sem mudar de status antes de gerar alerta de "pedido atrasado" no dashboard. Diferente de `pickupEscalationTimeout`, que se aplica após o item ser marcado como "Pronto".
+- **Mesa ociosa:** sessão ativa sem novo pedido (`POST /orders`) há mais de `idleTableThreshold` minutos (default 30min). Chamados (`POST /calls`) e outras interações não resetam o contador — apenas novos pedidos. Gera alerta no dashboard para admin.
 - **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
   - **Por garçom:** tempo médio de entrega (Pronto → Entregue), quantidade de pedidos atendidos, escalações (nível 1 e 2), taxa de serviço acumulada. Filtro por período (dia/semana/mês).
   - **Por Local de Preparo:** tempo médio de preparo (Na fila → Pronto), quantidade de pedidos, itens mais demorados. Filtro por período.
@@ -118,7 +128,7 @@ Acesso: Dono/Gerente. Tela separada do dashboard, dedicada a financeiro.
 - **Faturamento diario:** receita do dia, quantidade de pedidos, ticket medio, comparativo com dia anterior.
 - **Faturamento mensal:** receita acumulada do mes, grafico por dia, comparativo com mes anterior.
 - **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartao). (NFC-e/SAT em fase futura).
-- **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês. **Cálculo forward-only:** baseado em quem está atribuído ao setor no momento do fechamento da conta. Não é retroativo — se um garçom entra no meio do turno, só recebe taxa das contas fechadas a partir daquele momento.
+- **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês. **Cálculo forward-only por pagamento:** a taxa é calculada **no momento do pagamento de cada pessoa**, não no fechamento da sessão. O(s) garçom(s) atribuído(s) ao setor da mesa **naquele instante** recebe(m) a taxa daquela pessoa. Se garçom muda no meio da sessão, cada pagamento vai para quem estava no setor naquele momento. Não é retroativo — se um garçom entra no meio do turno, só recebe taxa dos pagamentos feitos a partir daquele momento.
 
 ---
 
@@ -194,12 +204,14 @@ Acesso: Cliente via QR Code no navegador.
   2. Apos verificacao, entra em **fila de aprovacao**. Nao tem acesso a nada da mesa ate ser aprovado.
   3. **Qualquer pessoa ja aprovada na mesa** pode aprovar ou rejeitar o novo entrante.
   4. Os membros da mesa recebem **notificacao (push + alerta na tela)** de que alguem quer entrar.
+  5. Ao aprovar ou rejeitar, servidor emite evento WebSocket (`session:join-approved` ou `session:join-rejected`) — **a notificação some da tela de todos os membros** automaticamente. Primeira ação válida prevalece; se outro membro tentar agir depois, recebe erro `SESSION_005` (safety net para cliques simultâneos).
 - **Tela de espera (enquanto aguarda aprovacao):**
   - Mensagem "Aguardando aprovação da mesa..."
   - Botao **"Lembrar mesa"** — reenvia notificação manualmente (cooldown de 60 segundos).
   - Botao **"Ver cardápio"** — abre modo read-only enquanto espera.
   - Botao **"Cancelar"** — desiste e sai da fila de aprovação.
-- **Timeout de aprovação:** a solicitação de aprovação expira automaticamente após **5 minutos** sem resposta. Durante a espera, o sistema reenvia notificação automaticamente a cada **60 segundos** para os membros da mesa (sem precisar apertar botão). O botão **"Lembrar mesa"** é mantido para renotificação manual com cooldown de 60 segundos. Após expirar, o status muda para `EXPIRED` e o entrante vê a mensagem: "Tempo esgotado. Escaneie o QR Code novamente." Um job Bull verifica solicitações pendentes expiradas. O entrante pode re-solicitar após rejeição ou expiração.
+- **Timeout de aprovação:** a solicitação de aprovação expira automaticamente após **5 minutos** sem resposta. Durante a espera, o sistema reenvia notificação automaticamente a cada **60 segundos** para os membros da mesa (sem precisar apertar botão). O botão **"Lembrar mesa"** é mantido para renotificação manual com cooldown de 60 segundos. Após expirar, o status muda para `EXPIRED` e o entrante vê a mensagem: "Tempo esgotado. Escaneie o QR Code novamente." Um job Bull verifica solicitações pendentes expiradas.
+- **Re-solicitação após rejeição ou expiração:** entrante pode re-solicitar via `POST /session/:token/join` sem refazer OTP (telefone já verificado). Máximo **3 solicitações** por telefone por TableSession. Após 3 tentativas, erro `SESSION_014: Limite de solicitações atingido`. Staff (garçom+) pode resetar o contador via `DELETE /session/:token/join/reset-limit` (body: `{ phone }`) para casos legítimos.
 - **Se o QR Code for lido por alguem ja aprovado na sessao**, apenas abre o sistema normalmente.
 - **Na tela de pessoas**, exibir entrantes pendentes com opcao de aprovar/rejeitar.
 
@@ -258,7 +270,7 @@ Acesso: Celular do garcom (PWA).
 - "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas a partir de uma mesa especifica — **nao** aparecem na bottom nav.
 
 ### Funcionalidades
-- **Ativacao de turno (clock-in):** garcom precisa informar que comecou a trabalhar no dia. Requer **senha do garcom** (definida no cadastro do funcionario). Ao ativar, salva hora de inicio. Ao encerrar, salva hora de fim. Registro de tempo de servico por dia.
+- **Ativacao de turno (clock-in):** garcom precisa informar que comecou a trabalhar no dia. Requer **PIN numérico de 4 dígitos** (definido no cadastro do funcionário). Ao ativar, salva hora de inicio. Ao encerrar, salva hora de fim. Registro de tempo de servico por dia. OWNER/MANAGER pode resetar o PIN de qualquer funcionário.
 - **Lista de mesas dos setores atribuidos** com status (setores definidos na Equipe do Dia). Tap na mesa livre abre tela de abertura; tap na mesa ocupada abre o detalhe.
 - **Abrir mesa:** tela para o garçom abrir sessão em mesa livre. Quantidade de pessoas + nomes (opcional, pode pular). Cria sessão e vai para detalhe da mesa. Alternativa ao fluxo via QR Code do cliente.
 - **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta".
