@@ -5,26 +5,26 @@
 
 ## Contexto
 
-O sistema precisa de jobs assincronos: envio de OTP WhatsApp, escalacao de retirada, cleanup de sessoes, anonimizacao LGPD. Alternativas: Bull + Redis, SQS/SNS, sem fila (sincrono).
+O sistema precisa de jobs assíncronos: envio de OTP WhatsApp, escalação de retirada, cleanup de sessões, anonimização LGPD. Alternativas: Bull + Redis, SQS/SNS, sem fila (síncrono).
 
-## Decisao
+## Decisão
 
 Bull (BullMQ) com Redis.
 
 ## Justificativa
 
-- **Redis ja existe no stack:** usado pra cache do cardapio e Redis Adapter do Socket.IO. Sem infra extra.
-- **Bull e maduro:** retry, delay, cron, rate limiting, prioridade — tudo built-in.
-- **Integracao NestJS:** `@nestjs/bull` com decorators nativos.
-- **Jobs identificados:** envio OTP, verificacao de timeout de aprovacao, re-notificacao de retirada, escalacao, anonimizacao LGPD, cleanup de sessoes.
+- **Redis já existe no stack:** usado para cache do cardápio e Redis Adapter do Socket.IO. Sem infra extra.
+- **Bull é maduro:** retry, delay, cron, rate limiting, prioridade — tudo built-in.
+- **Integração NestJS:** `@nestjs/bull` com decorators nativos.
+- **Jobs identificados:** envio OTP, verificação de timeout de aprovação, re-notificação de retirada, escalação, anonimização LGPD, cleanup de sessões.
 
 ## Alternativas descartadas
 
-- **SQS/SNS:** requer AWS. Na Fase 1 o deploy e Docker local/VPS. Adiciona dependencia de cloud.
-- **Sem fila (sincrono):** envio de OTP bloquearia a request. Escalacao de retirada precisa de timers. Inviavel.
+- **SQS/SNS:** requer AWS. Na Fase 1 o deploy é Docker local/VPS. Adiciona dependência de cloud.
+- **Sem fila (síncrono):** envio de OTP bloquearia a request. Escalação de retirada precisa de timers. Inviável.
 
-## Consequencias
+## Consequências
 
-- Jobs definidos em modulos NestJS com `@Processor()`.
-- Redis e dependencia critica (se cair, jobs param). Monitorar via health check.
-- Na Fase 2 (AWS): migrar pra SQS se necessario, mas Bull com ElastiCache funciona bem.
+- Jobs definidos em módulos NestJS com `@Processor()`.
+- Redis é dependência crítica (se cair, jobs param). Monitorar via health check.
+- Na Fase 2 (AWS): migrar pra SQS se necessário, mas Bull com ElastiCache funciona bem.

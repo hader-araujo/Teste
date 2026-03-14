@@ -1,21 +1,21 @@
-# Fluxos de Usuario — Passo a Passo
+# Fluxos de Usuário — Passo a Passo
 
-Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `modulos.md` (que descreve **o que** cada modulo faz) com o **como** o usuario navega.
+Documento de referência com o fluxo de navegação de cada perfil. Complementa `modulos.md` (que descreve **o que** cada módulo faz) com o **como** o usuário navega.
 
 ---
 
-## Cliente (Cardapio Digital)
+## Cliente (Cardápio Digital)
 
 **Dispositivo:** celular (QR Code no navegador).
-**Navegacao:** bottom nav com 4 tabs (Cardapio, Pedidos, Conta, O Chefia) + botao de pessoas no header de todas as telas.
+**Navegação:** bottom nav com 4 tabs (Cardápio, Pedidos, Conta, O Chefia) + botão de pessoas no header de todas as telas.
 
 ### Fluxo de entrada (QR Code)
 
 1. Escaneia QR Code da mesa → abre `/{slug}/mesa/{mesaId}`
-2. Ve duas opcoes: **"Entrar na mesa"** | **"Ver cardapio"**
+2. Vê duas opções: **"Entrar na mesa"** | **"Ver cardápio"**
 
-**Caminho A — Ver cardapio (read-only):**
-- Acessa cardapio completo com precos. Sem sessao, sem identificacao, sem poder fazer pedidos.
+**Caminho A — Ver cardápio (read-only):**
+- Acessa cardápio completo com preços. Sem sessão, sem identificação, sem poder fazer pedidos.
 
 **Caminho B — Entrar na mesa (mesa SEM sessão ativa = primeiro cliente):**
 1. **WhatsApp** → informa número (texto de consentimento + link Política de Privacidade visíveis — ver `docs/privacidade.md`) → `POST /tables/:id/verify-phone` → recebe OTP 6 dígitos → confirma
@@ -23,27 +23,27 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 3. **Pessoas** → cadastra nomes de quem está na mesa (editável a qualquer momento via botão no header)
 4. Segue para o fluxo normal (cardápio, pedidos, etc.)
 
-**Caminho C — Entrar na mesa (mesa COM sessao ativa = novo entrante):**
-1. **WhatsApp** → informa numero → recebe OTP 6 digitos → confirma
-2. Entra em **fila de aprovacao**. Membros da mesa recebem notificacao (push + alerta na tela).
+**Caminho C — Entrar na mesa (mesa COM sessão ativa = novo entrante):**
+1. **WhatsApp** → informa número → recebe OTP 6 dígitos → confirma
+2. Entra em **fila de aprovação**. Membros da mesa recebem notificação (push + alerta na tela).
 3. **Tela de espera:**
-   - "Aguardando aprovacao da mesa..."
-   - Botao **"Lembrar mesa"** (reenvia notificacao, cooldown 60s)
-   - Botao **"Ver cardapio"** (read-only enquanto espera)
-   - Botao **"Cancelar"** (desiste da fila)
-4. Qualquer membro ja aprovado pode aprovar/rejeitar na tela de pessoas.
-5. Apos aprovacao → entra na sessao e segue fluxo normal.
+   - "Aguardando aprovação da mesa..."
+   - Botão **"Lembrar mesa"** (reenvia notificação, cooldown 60s)
+   - Botão **"Ver cardápio"** (read-only enquanto espera)
+   - Botão **"Cancelar"** (desiste da fila)
+4. Qualquer membro já aprovado pode aprovar/rejeitar na tela de pessoas.
+5. Após aprovação → entra na sessão e segue fluxo normal.
 
-**Caminho D — QR Code lido por alguem ja aprovado:**
-- Abre o sistema normalmente na ultima tela visitada.
+**Caminho D — QR Code lido por alguém já aprovado:**
+- Abre o sistema normalmente na última tela visitada.
 
-### Fluxo normal (apos entrar na mesa)
+### Fluxo normal (após entrar na mesa)
 
-1. **Cardapio** → navega por categorias, filtros, fotos → toca num produto
-2. **Detalhe do produto** → ve fotos, descricao, preco → "Adicionar" (seleciona pessoas obrigatoriamente)
-3. **Carrinho** → revisa itens com pessoas atribuidas → "Enviar Pedido"
+1. **Cardápio** → navega por categorias, filtros, fotos → toca num produto
+2. **Detalhe do produto** → vê fotos, descrição, preço → "Adicionar" (seleciona pessoas obrigatoriamente)
+3. **Carrinho** → revisa itens com pessoas atribuídas → "Enviar Pedido"
 4. **Pedidos** → acompanha status em tempo real (Na fila → Preparando → Pronto → Entregue) → pode reatribuir pessoas
-5. **Conta** → 3 abas: Visao Geral (divisao por pessoa + taxa) | Por Pessoa | Historico (log de atividade) → toca numa pessoa para pagar
+5. **Conta** → 3 abas: Visão Geral (divisão por pessoa + taxa) | Por Pessoa | Histórico (log de atividade) → toca numa pessoa para pagar
 6. **Pagamento** → QR Code Pix individual por pessoa
    - Se a pessoa possui itens com status diferente de `DELIVERED` ou `CANCELLED`, exibe aviso: **"Você tem itens que ainda não foram entregues. Deseja pagar mesmo assim?"** — confirmação obrigatória antes de prosseguir
 7. **Sair da mesa** → pessoa pode encerrar sua participação pagando sua parte (ou R$ 0,00). Após sair, desaparece das atribuições de novos itens e da divisão de conta. Se a mesma pessoa retornar via QR Code, cria nova participação; exibição usa sufixo ordinal: "Maria ①", "Maria ②"
@@ -51,14 +51,14 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 
 ---
 
-## Garcom
+## Garçom
 
 **Dispositivo:** celular (PWA).
-**Navegacao:** bottom nav fixa com 3 tabs: **Chamados, Mesas, Turno**. Chamados e a tela principal (primeira tab). Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
+**Navegação:** bottom nav fixa com 3 tabs: **Chamados, Mesas, Turno**. Chamados é a tela principal (primeira tab). Telas de detalhe da mesa e comanda são contextuais (acessadas a partir de uma mesa).
 
 1. **Turno** → seleciona nome → informa PIN (4 dígitos) → "Iniciar Turno" → turno ativo
-2. **Chamados** (tab principal) → ve chamados abertos + grupos prontos para retirada dos seus setores → "Resolvido" / "Retirar Grupo". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
-3. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
+2. **Chamados** (tab principal) → vê chamados abertos + grupos prontos para retirada dos seus setores → "Resolvido" / "Retirar Grupo". Banner de notificação no topo ao abrir com resumo dos alertas urgentes
+3. **Mesas** → vê lista de mesas dos **setores atribuídos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
 4. Toca numa mesa **livre** → **Abrir mesa:**
    - Quantas pessoas na mesa
    - Nomes das pessoas (campo para cada, pode pular)
@@ -75,7 +75,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
    - Busca produto ou navega por categorias
    - Toca "+" para adicionar itens
    - Barra fixa com contagem + total → "Enviar Pedido"
-   - Apos enviar, volta para detalhe da mesa
+   - Após enviar, volta para detalhe da mesa
 6. **Pagamento (garçom):**
    - Garçom pode confirmar pagamento de qualquer método (PIX, CASH, CARD) diretamente pelo detalhe da mesa ou comanda
    - Para PIX: confirma após comprovante do cliente ou webhook automático
@@ -89,7 +89,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 ## Admin (Dono/Gerente)
 
 **Dispositivo:** desktop/tablet.
-**Navegacao:** sidebar fixa com menu agrupado por secao.
+**Navegação:** sidebar fixa com menu agrupado por seção.
 
 1. **Login** → email + senha
 
@@ -144,16 +144,16 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 ## Super Admin (Equipe OChefia)
 
 **Dispositivo:** desktop.
-**Navegacao:** sidebar com branding OChefia (indigo). Menu: Dashboard, Estabelecimentos, Modulos, Monitoramento.
+**Navegação:** sidebar com branding OChefia (indigo). Menu: Dashboard, Estabelecimentos, Módulos, Monitoramento.
 
-1. **Login** → email + senha (mesma mecanica do admin, role SUPER_ADMIN)
-2. **Dashboard** → KPIs: total de estabelecimentos, ativos, suspensos, inadimplentes. Alertas recentes, ultimos acessos
-3. **Estabelecimentos** → listagem com filtros (status, inadimplente) + busca + paginacao
+1. **Login** → email + senha (mesma mecânica do admin, role SUPER_ADMIN)
+2. **Dashboard** → KPIs: total de estabelecimentos, ativos, suspensos, inadimplentes. Alertas recentes, últimos acessos
+3. **Estabelecimentos** → listagem com filtros (status, inadimplente) + busca + paginação
 4. Toca num estabelecimento → **Detalhe:**
-   - Dados gerais (nome, slug, CNPJ, responsavel, email, telefone) → editavel
+   - Dados gerais (nome, slug, CNPJ, responsável, email, telefone) → editável
    - Alterar status (ativo/suspenso)
-   - **Cobranca:** valor do plano base, historico de pagamentos mensais, registrar pagamento, status (pago/pendente/atrasado)
-   - **Modulos:** toggle de modulos extras, valor global e override
-5. **"+ Novo Estabelecimento"** → formulario de cadastro (nome, slug, CNPJ, responsavel, email, telefone)
-6. **Modulos** → listar modulos disponiveis com valor padrao → editar valor e descricao
-7. **Monitoramento** → metricas de uso por estabelecimento, ultimo acesso
+   - **Cobrança:** valor do plano base, histórico de pagamentos mensais, registrar pagamento, status (pago/pendente/atrasado)
+   - **Módulos:** toggle de módulos extras, valor global e override
+5. **"+ Novo Estabelecimento"** → formulário de cadastro (nome, slug, CNPJ, responsável, email, telefone)
+6. **Módulos** → listar módulos disponíveis com valor padrão → editar valor e descrição
+7. **Monitoramento** → métricas de uso por estabelecimento, último acesso

@@ -1,25 +1,25 @@
-# Modulos Funcionais
+# Módulos Funcionais
 
 ## Estrutura Operacional do Restaurante
 
-Antes de descrever os modulos, e importante entender as entidades que organizam a operacao fisica do restaurante:
+Antes de descrever os módulos, é importante entender as entidades que organizam a operação física do restaurante:
 
 ### Local de Preparo
-Onde os itens sao produzidos. Cada restaurante cadastra seus proprios locais de preparo com nomes livres (ex: "Cozinha Principal", "Pizzaria", "Bar", "Cozinha Fria", "Churrasqueira"). **Cada Local de Preparo corresponde a uma tela KDS independente.**
+Onde os itens são produzidos. Cada restaurante cadastra seus próprios locais de preparo com nomes livres (ex: "Cozinha Principal", "Pizzaria", "Bar", "Cozinha Fria", "Churrasqueira"). **Cada Local de Preparo corresponde a uma tela KDS independente.**
 
 ### Ponto de Entrega
-Onde o garcom retira o item pronto. Cada Local de Preparo tem **1 ou mais Pontos de Entrega** (criado automaticamente com 1 default ao cadastrar o Local de Preparo). Exemplos: "Pass principal", "Balcão do bar", "Service bar", "Janela da pizzaria".
+Onde o garçom retira o item pronto. Cada Local de Preparo tem **1 ou mais Pontos de Entrega** (criado automaticamente com 1 default ao cadastrar o Local de Preparo). Exemplos: "Pass principal", "Balcão do bar", "Service bar", "Janela da pizzaria".
 
-- **Flag `autoDelivery`** (boolean, default `false`): se `true`, o operador do Local de Preparo entrega o item diretamente na mesa — garcom **nao** e notificado para retirada. Se `false`, garcom e notificado para buscar no Ponto de Entrega.
+- **Flag `autoDelivery`** (boolean, default `false`): se `true`, o operador do Local de Preparo entrega o item diretamente na mesa — garçom **não** é notificado para retirada. Se `false`, garçom é notificado para buscar no Ponto de Entrega.
 - O Ponto de Entrega default criado automaticamente recebe o nome **"Padrão"**. Pode ser renomeado. Pode ser deletado somente se existir outro ponto no mesmo Local de Preparo.
 
 ### Setor
-Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área Externa"). **Toda mesa pertence a exatamente 1 setor.** Ao criar o restaurante, um setor default e criado automaticamente.
+Agrupamento físico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área Externa"). **Toda mesa pertence a exatamente 1 setor.** Ao criar o restaurante, um setor default é criado automaticamente.
 
 - **Limite de pessoas por mesa:** máximo configurável por restaurante (`maxPeoplePerSession`, default **100**). Tentativa de adicionar além do limite retorna erro `SESSION_018`. O limite existe para proteger a UI (selects de pessoas, divisão de conta) e o rate limit agregado por mesa.
-- **Garcons sao atribuidos a setores** (nao a mesas individuais). Um garcom pode atender mais de 1 setor.
-- **Taxa de servico e dividida igualmente entre garcons do mesmo setor.** Se um garcom precisa ficar exclusivo em uma mesa, essa mesa deve estar em um setor proprio.
-- **Mapeamento obrigatorio Setor ↔ Local de Preparo:** para cada setor, deve haver um vinculo com cada Local de Preparo, indicando **qual Ponto de Entrega** os garcons daquele setor usam para retirada. Isso permite que garcons de setores diferentes retirem em pontos diferentes do mesmo Local de Preparo.
+- **Garçons são atribuídos a setores** (não a mesas individuais). Um garçom pode atender mais de 1 setor.
+- **Taxa de serviço é dividida igualmente entre garçons do mesmo setor.** Se um garçom precisa ficar exclusivo em uma mesa, essa mesa deve estar em um setor próprio.
+- **Mapeamento obrigatório Setor ↔ Local de Preparo:** para cada setor, deve haver um vínculo com cada Local de Preparo, indicando **qual Ponto de Entrega** os garçons daquele setor usam para retirada. Isso permite que garçons de setores diferentes retirem em pontos diferentes do mesmo Local de Preparo.
 - **Validação de mapeamento completo:**
   - `POST /tables/:id/open` **bloqueia abertura de sessão** se o setor da mesa não tem mapeamento para todos os Locais de Preparo ativos. Retorna erro `SESSION_011`.
   - **Alerta urgente** via WebSocket para admin (`admin:mapping-incomplete`) e garçons do setor (`waiter:mapping-incomplete`): "Mesa X não pode ser aberta — Setor Y sem mapeamento para Local de Preparo Z".
@@ -27,11 +27,11 @@ Agrupamento fisico de mesas (ex: "Salão Principal", "Terraço", "VIP", "Área E
   - `POST /orders` mantém validação defensiva como safety net (erro `ORDER_005` se mapeamento faltar por qualquer motivo).
 
 ### Cadastro de Produto — Destino e Entrega Imediata
-No cadastro de produto, o campo "Destino" e obrigatorio e mostra:
+No cadastro de produto, o campo "Destino" é obrigatório e mostra:
 - **Todos os Pontos de Entrega cadastrados** (agrupados por Local de Preparo) — o pedido vai para o KDS do Local de Preparo vinculado.
-- **Opção fixa "Garçom"** — entrega direta pelo garcom, sem preparo, nao passa por KDS nenhum. **Nota:** produtos com destino "Garçom" não utilizam a flag `immediateDelivery` (que só se aplica a itens com destino KDS). Itens "Garçom" são sempre entrega direta — a flag é ignorada se o destino for "Garçom". Na UI de cadastro, o campo `immediateDelivery` fica desabilitado quando destino "Garçom" está selecionado.
+- **Opção fixa "Garçom"** — entrega direta pelo garçom, sem preparo, não passa por KDS nenhum. **Nota:** produtos com destino "Garçom" não utilizam a flag `immediateDelivery` (que só se aplica a itens com destino KDS). Itens "Garçom" são sempre entrega direta — a flag é ignorada se o destino for "Garçom". Na UI de cadastro, o campo `immediateDelivery` fica desabilitado quando destino "Garçom" está selecionado.
 
-Alem do destino, o produto possui a **flag `immediateDelivery`** (boolean, default `false`):
+Além do destino, o produto possui a **flag `immediateDelivery`** (boolean, default `false`):
 - **`false` (padrão):** item normal. O garçom só é notificado quando **todos** os itens normais do mesmo pedido ficarem prontos, mesmo que venham de Locais de Preparo diferentes. Exemplo: Picanha (Cozinha) + Pizza (Pizzaria) — garçom espera ambos ficarem prontos e leva tudo junto.
 - **`true` (entrega imediata):** item que pode ser entregue antes dos demais (ex: drinks, sobremesas geladas). O garçom é notificado assim que **todos os itens com `immediateDelivery = true` do mesmo pedido** ficarem prontos, sem esperar pelos itens normais.
 
@@ -108,48 +108,48 @@ Permite mover uma sessão inteira de uma mesa para outra:
 
 ---
 
-## Modulo Gerencial (Dashboard/Backoffice) — Rota: `/admin`
+## Módulo Gerencial (Dashboard/Backoffice) — Rota: `/admin`
 Acesso: Dono/Gerente via computador ou tablet.
 
 - **Mapa de mesas em tempo real** (livres, ocupadas, tempo de permanência). Filtros: "Todas", "Com problema", "Ociosas". Indicadores visuais de alerta: pedido atrasado, chamado sem resposta, tempo sem novo pedido. Botão deletar mesa (soft delete — só se não tiver sessão ativa; histórico preservado para métricas; permite recriar mesa com mesmo nome/número).
-- **Metricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados com tempo na fila acima do `orderDelayThreshold` — default 15min, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído).
+- **Métricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados com tempo na fila acima do `orderDelayThreshold` — default 15min, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído).
 - **`orderDelayThreshold`** (configurável em Settings, default 15min): tempo máximo que um pedido pode ficar na fila (status "Na fila") sem mudar de status antes de gerar alerta de "pedido atrasado" no dashboard. Diferente de `pickupEscalationTimeout`, que se aplica após o item ser marcado como "Pronto".
 - **Mesa ociosa:** sessão ativa sem novo pedido (`POST /orders`) há mais de `idleTableThreshold` minutos (default 30min). Chamados (`POST /calls`) e outras interações não resetam o contador — apenas novos pedidos. Gera alerta no dashboard para admin.
 - **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
   - **Por garçom:** tempo médio de entrega (Pronto → Entregue), quantidade de pedidos atendidos, escalações (nível 1 e 2), taxa de serviço acumulada. Filtro por período (dia/semana/mês).
   - **Por Local de Preparo:** tempo médio de preparo (Na fila → Pronto), quantidade de pedidos, itens mais demorados. Filtro por período.
-- Cardapio: CRUD de categorias, **tags de produto** (ex: vegano, sem gluten, picante, sugestao do chef) e produtos. Habilitar/desabilitar em tempo real (tanto por produto individual quanto por categoria inteira). **Desabilitar categoria:** todos os produtos da categoria ficam indisponíveis. **Reabilitar categoria:** todos os produtos voltam (incluindo os que estavam desabilitados individualmente — reset completo). **Desabilitar produto não afeta pedidos existentes** (QUEUED/PREPARING/READY) — esses pedidos seguem normalmente; se não for possível preparar, o staff cancela manualmente. Precificacao dinamica/Happy Hour e referencia futura (sem endpoint/sprint definido na Fase 1).
-- **Cadastro de produto — destino apos pedido:** campo obrigatorio indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Flag **`immediateDelivery`** (default `false`) para itens que podem ser entregues antes dos demais (ex: drinks). Ver secao "Estrutura Operacional" acima.
-- Upload de imagens: multiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenacao e remocao.
-- **CRUD de Locais de Preparo:** nome do local. Ao criar, 1 Ponto de Entrega default e gerado automaticamente.
+- Cardápio: CRUD de categorias, **tags de produto** (ex: vegano, sem glúten, picante, sugestão do chef) e produtos. Habilitar/desabilitar em tempo real (tanto por produto individual quanto por categoria inteira). **Desabilitar categoria:** todos os produtos da categoria ficam indisponíveis. **Reabilitar categoria:** todos os produtos voltam (incluindo os que estavam desabilitados individualmente — reset completo). **Desabilitar produto não afeta pedidos existentes** (QUEUED/PREPARING/READY) — esses pedidos seguem normalmente; se não for possível preparar, o staff cancela manualmente. Precificação dinâmica/Happy Hour é referência futura (sem endpoint/sprint definido na Fase 1).
+- **Cadastro de produto — destino após pedido:** campo obrigatório indicando o **Ponto de Entrega** (que pertence a um Local de Preparo) ou **"Garçom"** (entrega direta, sem preparo). Flag **`immediateDelivery`** (default `false`) para itens que podem ser entregues antes dos demais (ex: drinks). Ver seção "Estrutura Operacional" acima.
+- Upload de imagens: múltiplas fotos por produto (galeria). Primeira foto = capa. Upload com preview, reordenação e remoção.
+- **CRUD de Locais de Preparo:** nome do local. Ao criar, 1 Ponto de Entrega default é gerado automaticamente.
 - **CRUD de Pontos de Entrega:** nome do ponto, Local de Preparo vinculado, flag `autoDelivery` (default `false`).
-- **CRUD de Setores:** nome do setor, mesas vinculadas. Mapeamento obrigatorio de Ponto de Entrega por Local de Preparo.
-- Gestao de funcionarios: cadastro de garcons, cozinheiros, gerentes com permissoes por role.
-- **Funcionarios temporarios:** cadastro com flag `temporario`. Opcao de definir dias fixos da semana (ex: seg, qua, sex) ou deixar em branco para uso avulso.
-- **Tela de Escala (programacao):** calendario/lista por dia mostrando quem vai trabalhar nos proximos dias. Funcionarios permanentes + temporarios com dia pre-definido entram automaticamente. Permite desmarcar qualquer um para o dia e adicionar temporarios avulsos.
-- **Tela Equipe do Dia:** lista todos que vao trabalhar hoje (auto-preenchido pela escala). Toggle para desmarcar/marcar. Adicionar temporarios avulsos. **Atribuir garcons a setores** (um garcom pode ter mais de 1 setor).
-- **Configuracoes do estabelecimento** (em Settings): nome do estabelecimento e logo. O nome/logo substitui "OChefia" no header do cardapio do cliente, mas mantem "OChefia" em tamanho pequeno (branding). Se nao configurado, mostra apenas "OChefia". Inclui parametros de escalação de retirada (`pickupReminderInterval`, `pickupEscalationTimeout`) — ver seção "Escalação de Retirada" no Módulo KDS.
-- **Estoque:** movido para Fase 2. Nao implementar ate aviso explicito.
+- **CRUD de Setores:** nome do setor, mesas vinculadas. Mapeamento obrigatório de Ponto de Entrega por Local de Preparo.
+- Gestão de funcionários: cadastro de garçons, cozinheiros, gerentes com permissões por role.
+- **Funcionários temporários:** cadastro com flag `temporario`. Opção de definir dias fixos da semana (ex: seg, qua, sex) ou deixar em branco para uso avulso.
+- **Tela de Escala (programação):** calendário/lista por dia mostrando quem vai trabalhar nos próximos dias. Funcionários permanentes + temporários com dia pré-definido entram automaticamente. Permite desmarcar qualquer um para o dia e adicionar temporários avulsos.
+- **Tela Equipe do Dia:** lista todos que vão trabalhar hoje (auto-preenchido pela escala). Toggle para desmarcar/marcar. Adicionar temporários avulsos. **Atribuir garçons a setores** (um garçom pode ter mais de 1 setor).
+- **Configurações do estabelecimento** (em Settings): nome do estabelecimento e logo. O nome/logo substitui "OChefia" no header do cardápio do cliente, mas mantém "OChefia" em tamanho pequeno (branding). Se não configurado, mostra apenas "OChefia". Inclui parâmetros de escalação de retirada (`pickupReminderInterval`, `pickupEscalationTimeout`) — ver seção "Escalação de Retirada" no Módulo KDS.
+- **Estoque:** movido para Fase 2. Não implementar até aviso explícito.
 
-## Modulo Faturamento — Rota: `/admin/faturamento`
+## Módulo Faturamento — Rota: `/admin/faturamento`
 Acesso: Dono/Gerente. Tela separada do dashboard, dedicada a financeiro.
 
-- **Faturamento diario:** receita do dia, quantidade de pedidos, ticket medio por mesa (receita / sessoes fechadas), ticket medio por pessoa (receita / pessoas que pagaram), comparativo com dia anterior.
-- **Faturamento mensal:** receita acumulada do mes, grafico por dia, comparativo com mes anterior.
-- **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartao). (NFC-e/SAT em fase futura).
-- **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês. **Cálculo forward-only por pagamento:** a taxa é calculada **no momento do pagamento de cada pessoa**, não no fechamento da sessão. O(s) garçom(s) atribuído(s) ao setor da mesa **naquele instante** recebe(m) a taxa daquela pessoa. Se garçom muda no meio da sessão, cada pagamento vai para quem estava no setor naquele momento. Não é retroativo — se um garçom entra no meio do turno, só recebe taxa dos pagamentos feitos a partir daquele momento.
+- **Faturamento diário:** receita do dia, quantidade de pedidos, ticket médio por mesa (receita / sessões fechadas), ticket médio por pessoa (receita / pessoas que pagaram), comparativo com dia anterior.
+- **Faturamento mensal:** receita acumulada do mês, gráfico por dia, comparativo com mês anterior.
+- **Fechamento de caixa:** resumo de valores recebidos (Pix, dinheiro, cartão). (NFC-e/SAT em fase futura).
+- **Taxas de garçom:** valores a pagar para cada garçom no período. Calculado automaticamente com base na taxa de serviço das mesas dos setores atendidos (dividida igualmente entre garçons do mesmo setor). Não é salário — é apenas a parte da taxa de serviço devida a cada garçom. Filtro por dia e por mês. **Cálculo forward-only por pagamento:** a taxa é calculada **no momento do pagamento de cada pessoa**, não no fechamento da sessão. O(s) garçom(ns) atribuído(s) ao setor da mesa **naquele instante** recebe(m) a taxa daquela pessoa. Se garçom muda no meio da sessão, cada pagamento vai para quem estava no setor naquele momento. Não é retroativo — se um garçom entra no meio do turno, só recebe taxa dos pagamentos feitos a partir daquele momento.
 
 ---
 
-## Modulo KDS (Kitchen Display System) — Rota: `/kds`
-Acesso: Equipe de producao via tablet ou monitor. **Cada Local de Preparo tem sua propria tela KDS.**
+## Módulo KDS (Kitchen Display System) — Rota: `/kds`
+Acesso: Equipe de produção via tablet ou monitor. **Cada Local de Preparo tem sua própria tela KDS.**
 
-- Roteamento automatico baseado no **Ponto de Entrega** do produto: o pedido vai para o KDS do **Local de Preparo** vinculado ao Ponto de Entrega. Produtos com destino "Garçom" nao passam pelo KDS.
-- Fila de producao com temporizadores e cores (Verde: no prazo, Amarelo: atencao, Vermelho: atrasado).
+- Roteamento automático baseado no **Ponto de Entrega** do produto: o pedido vai para o KDS do **Local de Preparo** vinculado ao Ponto de Entrega. Produtos com destino "Garçom" não passam pelo KDS.
+- Fila de produção com temporizadores e cores (Verde: no prazo, Amarelo: atenção, Vermelho: atrasado).
 - Alertas visuais e sonoros para pedido novo ou urgente.
 - Clique no prato para ver foto ampliada.
 - **Observações do item** (`notes`) exibidas em **destaque amarelo** no card do KDS para garantir visibilidade (ex: "bem passado", "alergia a amendoim").
-- Botao "Pronto":
+- Botão "Pronto":
   - **Ponto de Entrega com `autoDelivery = false`:** card sai da fila do KDS (trabalho da cozinha encerrado). A notificação ao garçom depende do **grupo de entrega** do item: itens normais só notificam quando todos os normais do mesmo pedido ficarem prontos; itens com `immediateDelivery` notificam quando todos os imediatos do pedido ficarem prontos. Ver "Grupos de Entrega" na seção Estrutura Operacional.
   - **Ponto de Entrega com `autoDelivery = true`:** operador do Local de Preparo entrega diretamente. KDS exibe botões "Pronto" e "Entregue" no próprio card.
 - **Após marcar "Pronto", o item sai da fila do KDS.** O monitoramento de retirada é responsabilidade do sistema de escalação (ver abaixo) e do admin — não da cozinha.
@@ -196,13 +196,13 @@ Quando um item é marcado como "Pronto" e o garçom não marca "Entregue", o sis
 
 **Autenticação do KDS:** o KDS requer autenticação de funcionário com role `KITCHEN` (mesmo padrão de auth dos demais staff — JWT). Após login, o funcionário seleciona o Local de Preparo. O operador pode acessar qualquer Local de Preparo do restaurante. Ações no KDS (marcar "Pronto", "Entregue") são registradas com `userId`, `source: 'kds'` e `preparationLocationId` no log.
 
-## Modulo Cliente (Cardapio Digital) — Rota: `/[slug]/mesa/[mesaId]`
+## Módulo Cliente (Cardápio Digital) — Rota: `/[slug]/mesa/[mesaId]`
 Acesso: Cliente via QR Code no navegador.
 
 ### QR Code e Entrada na Mesa
-- Cada mesa fisica tem um **QR Code fixo** impresso e colado. O QR Code gera URL permanente `/{slug}/mesa/{mesaId}`.
-- Ao escanear o QR Code, o cliente ve duas opcoes: **"Entrar na mesa"** ou **"Ver cardapio"**.
-- **Ver cardapio (modo read-only):** acessa o cardapio completo com precos, sem criar sessao, sem identificacao. Nao pode fazer pedidos. Util para ver precos antes de sentar ou enquanto aguarda aprovacao. O botão "Adicionar" nos produtos exibe toast "Entre na mesa para fazer pedidos". Carrinho indisponível. Ao completar o fluxo de verificação WhatsApp e aprovação, o modo interativo é ativado automaticamente.
+- Cada mesa física tem um **QR Code fixo** impresso e colado. O QR Code gera URL permanente `/{slug}/mesa/{mesaId}`.
+- Ao escanear o QR Code, o cliente vê duas opções: **"Entrar na mesa"** ou **"Ver cardápio"**.
+- **Ver cardápio (modo read-only):** acessa o cardápio completo com preços, sem criar sessão, sem identificação. Não pode fazer pedidos. Útil para ver preços antes de sentar ou enquanto aguarda aprovação. O botão "Adicionar" nos produtos exibe toast "Entre na mesa para fazer pedidos". Carrinho indisponível. Ao completar o fluxo de verificação WhatsApp e aprovação, o modo interativo é ativado automaticamente.
 
 ### Proteção contra Abertura sem Atendimento
 - **Bloqueio:** `POST /tables/:id/open` (abertura pelo cliente) verifica se o setor da mesa tem pelo menos 1 garçom com turno ativo (clock-in feito). Se não tem, retorna erro `SESSION_019: Mesa sem atendimento no momento` + mensagem amigável: "Esta mesa ainda não tem atendimento. Aguarde ou procure um funcionário."
@@ -223,22 +223,22 @@ Acesso: Cliente via QR Code no navegador.
   3. Cadastra nomes de quem está na mesa (incluindo o próprio).
 - **Nota:** o endpoint `POST /session/:token/join` **nunca cria sessão**. Ele é utilizado exclusivamente por clientes subsequentes que entram em uma sessão já existente. `POST /tables/:id/open` só pode ser chamado pelo primeiro cliente (mesa sem sessão ativa).
 
-### Aprovacao de Novos Entrantes (REGRA CRITICA)
-- Se a mesa **ja tem sessao ativa** e alguem escaneia o QR Code e escolhe "Entrar na mesa":
+### Aprovação de Novos Entrantes (REGRA CRÍTICA)
+- Se a mesa **já tem sessão ativa** e alguém escaneia o QR Code e escolhe "Entrar na mesa":
   1. O entrante detecta a sessão ativa → informa número de WhatsApp → `POST /session/:token/phone` (verifica telefone no contexto da sessão existente) → recebe OTP → confirma.
   2. Após verificação, chama `POST /session/:token/join` (que **nunca cria sessão**, apenas solicita entrada) → entra em **fila de aprovação**. Não tem acesso a nada da mesa até ser aprovado.
-  3. **Qualquer pessoa ja aprovada na mesa** pode aprovar ou rejeitar o novo entrante.
-  4. Os membros da mesa recebem **notificacao (push + alerta na tela)** de que alguem quer entrar.
+  3. **Qualquer pessoa já aprovada na mesa** pode aprovar ou rejeitar o novo entrante.
+  4. Os membros da mesa recebem **notificação (push + alerta na tela)** de que alguém quer entrar.
   5. Ao aprovar ou rejeitar, servidor emite evento WebSocket (`session:join-approved` ou `session:join-rejected`) — **a notificação some da tela de todos os membros** automaticamente. Primeira ação válida prevalece; se outro membro tentar agir depois, recebe erro `SESSION_005` (safety net para cliques simultâneos).
-- **Tela de espera (enquanto aguarda aprovacao):**
+- **Tela de espera (enquanto aguarda aprovação):**
   - Mensagem "Aguardando aprovação da mesa..."
-  - Botao **"Lembrar mesa"** — reenvia notificação manualmente (cooldown de 60 segundos).
-  - Botao **"Ver cardápio"** — abre modo read-only enquanto espera.
-  - Botao **"Cancelar"** — desiste e sai da fila de aprovação.
+  - Botão **"Lembrar mesa"** — reenvia notificação manualmente (cooldown de 60 segundos).
+  - Botão **"Ver cardápio"** — abre modo read-only enquanto espera.
+  - Botão **"Cancelar"** — desiste e sai da fila de aprovação.
 - **Timeout de aprovação:** a solicitação de aprovação expira automaticamente após **5 minutos** sem resposta. Durante a espera, o sistema reenvia notificação automaticamente a cada **60 segundos** para os membros da mesa (sem precisar apertar botão). O botão **"Lembrar mesa"** é mantido para renotificação manual com cooldown de 60 segundos. Após expirar, o status muda para `EXPIRED` e o entrante vê a mensagem: "Tempo esgotado. Escaneie o QR Code novamente." Um job Bull verifica solicitações pendentes expiradas.
 - **Re-solicitação após rejeição ou expiração:** entrante pode re-solicitar via `POST /session/:token/join` sem refazer OTP (telefone já verificado). Máximo **3 solicitações** por telefone por TableSession. Após 3 tentativas, erro `SESSION_014: Limite de solicitações atingido`. Staff (garçom+) pode resetar o contador via `DELETE /session/:token/join/reset-limit` (body: `{ phone }`) para casos legítimos.
-- **Se o QR Code for lido por alguem ja aprovado na sessao**, apenas abre o sistema normalmente.
-- **Na tela de pessoas**, exibir entrantes pendentes com opcao de aprovar/rejeitar.
+- **Se o QR Code for lido por alguém já aprovado na sessão**, apenas abre o sistema normalmente.
+- **Na tela de pessoas**, exibir entrantes pendentes com opção de aprovar/rejeitar.
 
 ### Identificação via WhatsApp
 - **Obrigatória para entrar na mesa.** OTP de 6 dígitos via WhatsApp. Salva `phone` + `phoneVerified = true`.
@@ -253,22 +253,22 @@ Acesso: Cliente via QR Code no navegador.
   - 2 ou mais participações do mesmo telefone: exibe `"Maria ①"`, `"Maria ②"` em **todos os lugares** onde o nome aparece (conta, pedidos, comanda, KDS, histórico).
 - **Aba "Por Pessoa" da Conta:** participações separadas em blocos distintos. Cada bloco exibe o nome com sufixo ordinal (se houver múltiplas).
 
-### Cardapio e Pedidos
-- Cardapio com galeria de fotos, descricoes, filtros (vegano, sem gluten, etc).
-- Upselling: sugestoes automaticas de adicionais e acompanhamentos (referencia futura — sem endpoint/sprint definido na Fase 1).
-- **Pessoas na mesa (REGRA CRITICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificacao). Lista editavel durante toda a sessao. **OBRIGATORIO:** um botao visivel no header de TODAS as telas do cliente (cardapio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Nao basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
-- **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatorio). Valor divide igual entre selecionados. Cada item pode conter **observações** (`notes?: string`) — campo de texto livre para instruções especiais (ex: "bem passado", "sem cebola", "alergia a amendoim").
+### Cardápio e Pedidos
+- Cardápio com galeria de fotos, descrições, filtros (vegano, sem glúten, etc).
+- Upselling: sugestões automáticas de adicionais e acompanhamentos (referência futura — sem endpoint/sprint definido na Fase 1).
+- **Pessoas na mesa (REGRA CRÍTICA — aplicar em TODAS as telas do cliente):** cadastrar nomes (sem verificação). Lista editável durante toda a sessão. **OBRIGATÓRIO:** um botão visível no header de TODAS as telas do cliente (cardápio, produto, carrinho, pedidos, conta, pagamento) deve abrir modal/tela para adicionar/remover pessoas a qualquer momento. Não basta existir a tela `pessoas.html` no fluxo inicial — o acesso deve ser permanente via header.
+- **Carrinho:** ao adicionar item, selecionar pelo menos 1 pessoa (obrigatório). Valor divide igual entre selecionados. Cada item pode conter **observações** (`notes?: string`) — campo de texto livre para instruções especiais (ex: "bem passado", "sem cebola", "alergia a amendoim").
 - **Pedidos em tempo real:** cada envio = pedido separado. Status segue a **Máquina de Estados do Pedido** (ver seção Estrutura Operacional): `Na fila` → `Preparando` → `Pronto` → `Entregue` (com possibilidade de `Cancelado`). WebSocket. Cada pedido gera até 3 **grupos de entrega**: itens normais (garçom notificado quando todos ficarem prontos), itens com `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), e itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Ver "Grupos de Entrega" na seção Estrutura Operacional.
-- **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuicao de pessoas. A reatribuição de pessoas é feita exclusivamente pelo cliente (membro aprovado da mesa) via `PATCH /orders/items/:id/people`. O garçom não reatribui — se necessário, lança novo pedido via comanda. **Reatribuição bloqueada** se qualquer pessoa já pagou qualquer parte daquele item (existir Payment CONFIRMED que inclua o item) — erro `ORDER_006`.
+- **Tela "Meus Pedidos"**: lista por pedido, status individual, reatribuição de pessoas. A reatribuição de pessoas é feita exclusivamente pelo cliente (membro aprovado da mesa) via `PATCH /orders/items/:id/people`. O garçom não reatribui — se necessário, lança novo pedido via comanda. **Reatribuição bloqueada** se qualquer pessoa já pagou qualquer parte daquele item (existir Payment CONFIRMED que inclua o item) — erro `ORDER_006`.
   - **Indicação visual de bloqueio:** itens com reatribuição bloqueada exibem ícone de cadeado + tooltip "Item já pago — não pode ser reatribuído". O cliente vê o bloqueio **antes** de tentar, sem precisar receber erro.
   - **Fluxo alternativo:** se o cliente precisa corrigir uma atribuição bloqueada, deve chamar o garçom via "O Chefia" (motivo: "Outro"). O garçom pode solicitar ao OWNER/MANAGER o cancelamento do item já entregue (gera crédito) e relançar o pedido com a atribuição correta via comanda.
   - **Reatribuição parcial:** o bloqueio se aplica ao **item inteiro**, não por pessoa. Se qualquer fatia do item foi paga, nenhuma reatribuição é permitida no item. Isso simplifica a lógica e evita inconsistências no cálculo da conta.
 
 ### Conta e Pagamento
-- **Tela "Conta"** com 3 abas: **Visao Geral**, **Por Pessoa**, **Historico**.
-  - **Visao geral:** lista todos os itens. Nome do item exibe entre parenteses a quantidade de pessoas que dividem (ex: "Picanha na Brasa (3)"). Clicar no item abre modal para editar quem divide — selecionar/desselecionar pessoas.
-  - **Por pessoa:** lista itens de cada pessoa com quantidade de pessoas que dividem entre parenteses. Itens iguais com grupos de divisao diferentes sao diferenciados por **cor** (barra lateral ou indicador colorido), para distinguir visualmente que sao pedidos separados.
-  - **Historico (log de atividade):** registro legivel de todas as acoes de pedido, reatribuicao e cancelamento. Visivel para todos na mesa. Formato simples para leigos:
+- **Tela "Conta"** com 3 abas: **Visão Geral**, **Por Pessoa**, **Histórico**.
+  - **Visão geral:** lista todos os itens. Nome do item exibe entre parênteses a quantidade de pessoas que dividem (ex: "Picanha na Brasa (3)"). Clicar no item abre modal para editar quem divide — selecionar/desselecionar pessoas.
+  - **Por pessoa:** lista itens de cada pessoa com quantidade de pessoas que dividem entre parênteses. Itens iguais com grupos de divisão diferentes são diferenciados por **cor** (barra lateral ou indicador colorido), para distinguir visualmente que são pedidos separados.
+  - **Histórico (log de atividade):** registro legível de todas as ações de pedido, reatribuição e cancelamento. Visível para todos na mesa. Formato simples para leigos:
     ```
     Picanha - José realizou o pedido
     Para: José e Antônio
@@ -306,80 +306,80 @@ Acesso: Cliente via QR Code no navegador.
 - Itens com status **Pronto** que ainda não foram entregues geram um **aviso** ao staff, mas **não bloqueiam** o fechamento da sessão.
 - Todos os pagamentos devem estar quitados antes do fechamento.
 
-### Botao "O Chefia"
-- **(REGRA CRITICA — deve ser funcional em TODAS as telas do cliente):** 4ª tab da bottom nav (Cardápio, Pedidos, Conta, **O Chefia**). Ao clicar, **abre modal (bottom sheet)** sem navegar — mantém o contexto da tela atual. Modal com selecao de motivo (ex: "Chamar garcom", "Pedir a conta", "Outro") + campo de mensagem opcional + botao "Enviar chamado". Nao e um link decorativo — deve ter interacao funcional no prototipo e no codigo.
+### Botão "O Chefia"
+- **(REGRA CRÍTICA — deve ser funcional em TODAS as telas do cliente):** 4ª tab da bottom nav (Cardápio, Pedidos, Conta, **O Chefia**). Ao clicar, **abre modal (bottom sheet)** sem navegar — mantém o contexto da tela atual. Modal com seleção de motivo (ex: "Chamar garçom", "Pedir a conta", "Outro") + campo de mensagem opcional + botão "Enviar chamado". Não é um link decorativo — deve ter interação funcional no protótipo e no código.
 
-## Modulo Garcom — Rota: `/garcom`
-Acesso: Celular do garcom (PWA).
+## Módulo Garçom — Rota: `/garcom`
+Acesso: Celular do garçom (PWA).
 
-### Navegacao
+### Navegação
 - **Bottom nav fixa com 3 tabs:** Chamados (principal), Mesas, Turno.
-- "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas a partir de uma mesa especifica — **nao** aparecem na bottom nav.
+- "Detalhe da mesa" e "Comanda" são telas contextuais acessadas a partir de uma mesa específica — **não** aparecem na bottom nav.
 
 ### Funcionalidades
-- **Ativacao de turno (clock-in):** garcom precisa informar que comecou a trabalhar no dia. Requer **PIN numérico de 4 dígitos** (definido no cadastro do funcionário). Ao ativar, salva hora de inicio. Ao encerrar, salva hora de fim. Registro de tempo de servico por dia. OWNER/MANAGER pode resetar o PIN de qualquer funcionário.
-- **Lista de mesas dos setores atribuidos** com status (setores definidos na Equipe do Dia). Tap na mesa livre abre tela de abertura; tap na mesa ocupada abre o detalhe.
+- **Ativação de turno (clock-in):** garçom precisa informar que começou a trabalhar no dia. Requer **PIN numérico de 4 dígitos** (definido no cadastro do funcionário). Ao ativar, salva hora de início. Ao encerrar, salva hora de fim. Registro de tempo de serviço por dia. OWNER/MANAGER pode resetar o PIN de qualquer funcionário.
+- **Lista de mesas dos setores atribuídos** com status (setores definidos na Equipe do Dia). Tap na mesa livre abre tela de abertura; tap na mesa ocupada abre o detalhe.
 - **Abrir mesa:** tela para o garçom abrir sessão em mesa livre. Quantidade de pessoas + nomes (opcional, pode pular). Cria sessão e vai para detalhe da mesa. Alternativa ao fluxo via QR Code do cliente.
-- **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botao "Novo Pedido" (abre comanda), botao "Fechar conta". Se houver `JoinRequest` com status PENDING, a seção **"Pendentes"** aparece no topo da tela — o garçom aprova ou rejeita, registrando `approvedByStaffId` (ou `rejectedByStaffId`) + timestamp. Não há notificação push pro garçom — a seção só aparece quando ele abre a tela da mesa. Funciona para mesas analógicas e mistas.
-- **Comanda:** lancar pedidos rapidos para a mesa selecionada. Busca de produtos, selecao de pessoas, lista por categoria com botao "+", barra de resumo com "Enviar Pedido". **Pedidos via comanda seguem o mesmo fluxo de pedidos do cliente** — o cliente pode reatribuir pessoas depois (mesmas regras de bloqueio por pagamento aplicam). A comanda não gera pedido "especial" — é um `POST /orders` com `source: 'staff'`.
+- **Detalhe da mesa:** pessoas na mesa, pedidos ativos com status de cada item, botão "Novo Pedido" (abre comanda), botão "Fechar conta". Se houver `JoinRequest` com status PENDING, a seção **"Pendentes"** aparece no topo da tela — o garçom aprova ou rejeita, registrando `approvedByStaffId` (ou `rejectedByStaffId`) + timestamp. Não há notificação push pro garçom — a seção só aparece quando ele abre a tela da mesa. Funciona para mesas analógicas e mistas.
+- **Comanda:** lançar pedidos rápidos para a mesa selecionada. Busca de produtos, seleção de pessoas, lista por categoria com botão "+", barra de resumo com "Enviar Pedido". **Pedidos via comanda seguem o mesmo fluxo de pedidos do cliente** — o cliente pode reatribuir pessoas depois (mesmas regras de bloqueio por pagamento aplicam). A comanda não gera pedido "especial" — é um `POST /orders` com `source: 'staff'`.
 - **Chamados:** lista de chamados abertos de clientes das mesas dos seus setores.
-- Notificacoes push: item pronto para retirada (com indicação do Ponto de Entrega), chamado de mesa, re-lembretes de retirada pendente, e escalação urgente (quando qualquer garçom pode entregar).
+- Notificações push: item pronto para retirada (com indicação do Ponto de Entrega), chamado de mesa, re-lembretes de retirada pendente, e escalação urgente (quando qualquer garçom pode entregar).
 - Histórico de pedidos com divisão por pessoa.
 - **Toggle taxa de serviço por pessoa ou por mesa toda.** Na tela de detalhe da mesa, toggle geral (atalho para todos) + toggle individual por pessoa. Se o garçom desliga o geral, todos desligam. Se religa, todos religam. Se mexe num individual, o geral indica **estado parcial** (checkbox indeterminado: traço "—" em vez de check, cor neutra). A taxa de serviço só é calculada sobre os itens das pessoas com flag ativo.
 - **Transferência de mesa:** garçom pode transferir sessão ativa para outra mesa livre. Ver seção "Transferência de Mesa" na Estrutura Operacional.
 
-## Modulo Explorar (Fase 2 — NAO IMPLEMENTAR) — Rota: `/explorar`
-**Referencia arquitetural apenas.**
-- Listagem de estabelecimentos, mapa, filtros, lotacao, reserva, pre-pedido, fidelidade.
+## Módulo Explorar (Fase 2 — NÃO IMPLEMENTAR) — Rota: `/explorar`
+**Referência arquitetural apenas.**
+- Listagem de estabelecimentos, mapa, filtros, lotação, reserva, pré-pedido, fidelidade.
 
 ---
 
-## Sistema de Modulos
+## Sistema de Módulos
 
-O OChefia funciona com **sistema modular**. A Fase 1 completa e o **modulo padrao**, incluso no plano base de todo estabelecimento. Novas funcionalidades sao **modulos extras** vendidos separadamente.
+O OChefia funciona com **sistema modular**. A Fase 1 completa é o **módulo padrão**, incluído no plano base de todo estabelecimento. Novas funcionalidades são **módulos extras** vendidos separadamente.
 
-| Modulo | Tipo | Conteudo |
+| Módulo | Tipo | Conteúdo |
 |---|---|---|
-| **Padrao** | Incluso | Cardapio digital, pedidos, KDS, garcom, mesas, faturamento, dashboard |
-| **Estoque** | Extra (Fase 2) | Controle de estoque, ingredientes, baixa automatica, alertas de minimo |
-| **Explorar** | Extra (Fase 2) | App consumidor, listagem, reserva, pre-pedido, fidelidade |
-| **NFC-e/SAT** | Extra (Fase 2) | Emissao fiscal integrada |
+| **Padrão** | Incluído | Cardápio digital, pedidos, KDS, garçom, mesas, faturamento, dashboard |
+| **Estoque** | Extra (Fase 2) | Controle de estoque, ingredientes, baixa automática, alertas de mínimo |
+| **Explorar** | Extra (Fase 2) | App consumidor, listagem, reserva, pré-pedido, fidelidade |
+| **NFC-e/SAT** | Extra (Fase 2) | Emissão fiscal integrada |
 
-- Modulos extras so ficam disponiveis quando **habilitados pelo Super Admin** do OChefia para o estabelecimento.
-- Cada modulo tem valor proprio, configuravel globalmente e por estabelecimento.
-- O estabelecimento nao ve/acessa funcionalidades de modulos nao habilitados.
+- Módulos extras só ficam disponíveis quando **habilitados pelo Super Admin** do OChefia para o estabelecimento.
+- Cada módulo tem valor próprio, configurável globalmente e por estabelecimento.
+- O estabelecimento não vê/acessa funcionalidades de módulos não habilitados.
 
 ---
 
-## Modulo Super Admin OChefia — Rota: `/superadmin`
-Acesso: Equipe interna OChefia (role `SUPER_ADMIN`). **Nao acessivel por estabelecimentos.**
+## Módulo Super Admin OChefia — Rota: `/superadmin`
+Acesso: Equipe interna OChefia (role `SUPER_ADMIN`). **Não acessível por estabelecimentos.**
 
-### Gestao de Estabelecimentos
+### Gestão de Estabelecimentos
 - **Listagem** de todos os estabelecimentos com status: ativo, suspenso, inadimplente.
-- **Cadastro** de novo estabelecimento: nome, slug, CNPJ, responsavel, email, telefone.
+- **Cadastro** de novo estabelecimento: nome, slug, CNPJ, responsável, email, telefone.
 - **Editar/suspender** estabelecimento. **Suspensão gradual:** bloqueia criação de novas sessões e novos pedidos; sessões e pedidos já ativos continuam até conclusão normal.
 
-### Cobranca e Pagamentos
-- **Valor do plano base** por estabelecimento (campo editavel).
+### Cobrança e Pagamentos
+- **Valor do plano base** por estabelecimento (campo editável).
 - **Registro de pagamento mensal**: marcar como pago, pendente ou atrasado.
-- **Historico de pagamentos** por estabelecimento.
+- **Histórico de pagamentos** por estabelecimento.
 - **Indicadores visuais**: destaque para inadimplentes e atrasados.
 
-### Gestao de Modulos
-- **Habilitar/desabilitar** modulos extras por estabelecimento.
-- **Definir valor** de cada modulo (global e override por estabelecimento).
-- **Visualizar** quais modulos cada estabelecimento possui.
+### Gestão de Módulos
+- **Habilitar/desabilitar** módulos extras por estabelecimento.
+- **Definir valor** de cada módulo (global e override por estabelecimento).
+- **Visualizar** quais módulos cada estabelecimento possui.
 
 ### Monitoramento
-- Metricas de uso por estabelecimento (pedidos/mes, mesas ativas).
-- Ultimo acesso.
+- Métricas de uso por estabelecimento (pedidos/mês, mesas ativas).
+- Último acesso.
 - Acesso a logs via `docker compose logs` (Fase 1) ou CloudWatch (Fase 2).
 
 ---
 
 ## Storage de Imagens
 
-- **Fase 1:** Filesystem local com volume Docker mapeado. nginx serve os arquivos estaticos.
+- **Fase 1:** Filesystem local com volume Docker mapeado. nginx serve os arquivos estáticos.
 - **Fase 2 (AWS):** S3 + CloudFront (upload -> S3, entrega via CDN).
-- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementacoes: Local (Fase 1) e S3 (Fase 2).
+- Interface `StorageService` (`upload`, `delete`, `getUrl`). Implementações: Local (Fase 1) e S3 (Fase 2).
 - `STORAGE_DRIVER=local|s3`. Resize com `sharp` (thumb 200px, media 600px, original). Max 5MB, JPEG/PNG/WebP.

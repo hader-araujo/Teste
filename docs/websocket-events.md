@@ -1,6 +1,6 @@
 # Eventos WebSocket (Socket.IO)
 
-Arquivo de referencia: `packages/shared/src/constants/socket-events.ts`
+Arquivo de referência: `packages/shared/src/constants/socket-events.ts`
 
 ```typescript
 export const SOCKET_EVENTS = {
@@ -146,10 +146,10 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | Restaurante geral | `restaurant:{id}` | Todos do restaurante |
 | KDS geral | `restaurant:{id}:kds` | Todos os Locais de Preparo — usado para eventos cross-KDS (ex: admin monitorando todos os Locais de Preparo simultaneamente) |
 | KDS por Local de Preparo | `restaurant:{id}:kds:{prepLocationId}` | Staff do Local de Preparo específico |
-| Garcom geral | `restaurant:{id}:waiter` | Todos os garçons ativos |
-| Garcom por setor | `restaurant:{id}:waiter:sector:{sectorId}` | Garçons atribuídos ao setor |
+| Garçom geral | `restaurant:{id}:waiter` | Todos os garçons ativos |
+| Garçom por setor | `restaurant:{id}:waiter:sector:{sectorId}` | Garçons atribuídos ao setor |
 | Admin | `restaurant:{id}:admin` | OWNER/MANAGER |
-| Sessao cliente | `session:{token}` | Cliente da mesa |
+| Sessão cliente | `session:{token}` | Cliente da mesa |
 
 ## Deduplicação de Eventos
 
@@ -157,39 +157,39 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 - **Regra:** o servidor deve emitir cada evento **uma única vez por socket**, usando o socket ID para deduplicar. Implementar via `Set` de socketIds já notificados antes de emitir para múltiplas rooms.
 - Eventos de escalação nível 2 (`waiter:pickup-escalation`) são emitidos apenas para a room `waiter` geral — **não** duplicar para rooms de setor.
 
-## Redis Adapter (preparacao para scaling)
+## Redis Adapter (preparação para scaling)
 
-- Configurar `@socket.io/redis-adapter` desde a Fase 1, apontando para o container Redis. Na Fase 1 ha apenas 1 instancia da API, mas o adapter ja fica preparado para scaling horizontal na Fase 2.
-- Na Fase 2 (AWS): multiplas instancias ECS compartilham rooms e eventos via ElastiCache Redis. Sem o Redis Adapter, containers diferentes nao compartilham eventos.
+- Configurar `@socket.io/redis-adapter` desde a Fase 1, apontando para o container Redis. Na Fase 1 há apenas 1 instância da API, mas o adapter já fica preparado para scaling horizontal na Fase 2.
+- Na Fase 2 (AWS): múltiplas instâncias ECS compartilham rooms e eventos via ElastiCache Redis. Sem o Redis Adapter, containers diferentes não compartilham eventos.
 
-## Reconexao e Resiliencia
+## Reconexão e Resiliência
 
-- Cliente deve implementar reconexao automatica com backoff exponencial (Socket.IO faz por padrao).
-- **Indicador de conexao obrigatorio** em todas as telas que dependem de WebSocket (KDS, garcom, cliente pedidos).
-- Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP a cada 10 segundos como fallback para atualizacoes criticas: `GET /session/:token` (cliente), `GET /orders?status=ready` (garçom), `GET /tables` (admin).
+- Cliente deve implementar reconexão automática com backoff exponencial (Socket.IO faz por padrão).
+- **Indicador de conexão obrigatório** em todas as telas que dependem de WebSocket (KDS, garçom, cliente pedidos).
+- Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP a cada 10 segundos como fallback para atualizações críticas: `GET /session/:token` (cliente), `GET /orders?status=ready` (garçom), `GET /tables` (admin).
 - Polling continua indefinidamente até reconectar. Após **60 segundos** sem sucesso, indicador visual muda de "Reconectando..." para "Sem conexão — dados podem estar desatualizados".
 - Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.
 - **Reconciliação do cliente:** ao reconectar, o cliente chama `GET /session/:token` como ponto único de reconciliação — o endpoint retorna o estado completo da sessão (pessoas, pedidos, pagamentos). Nenhum outro endpoint de reconciliação é necessário para o perfil cliente. **Eventos perdidos durante desconexão não são replay-ados** — o GET retorna o estado atual e o frontend substitui o estado local inteiro (não tenta merge). Isso garante consistência sem complexidade de event sourcing.
 - **Reconciliação do KDS:** ao conectar (ou reconectar) ao Local de Preparo, o KDS faz fetch inicial de pedidos pendentes via `GET /preparation-locations/:id/orders?status=pending,preparing` antes de processar novos eventos WebSocket. Garante fila consistente mesmo após interrupções.
 
-## Performance e Gerenciamento de Memoria
+## Performance e Gerenciamento de Memória
 
 ### Cleanup de Rooms
-- Quando uma `TableSession` e fechada, remover todos os sockets da room `session:{token}`.
-- **Cleanup periodico de rooms orfas:** job no servidor (setInterval, nao Bull) a cada 5 minutos. Uma room e considerada **orfa** quando: (1) nao tem sockets conectados E (2) a sessao vinculada esta fechada (status `CLOSED`). Rooms de sessoes **abertas** nunca sao removidas pelo cleanup, mesmo sem sockets — clientes podem reconectar a qualquer momento.
-- **Reconexao tardia:** se um cliente reconecta apos 10+ minutos, o Socket.IO reconecta automaticamente e re-entra na room `session:{token}`. Como a room de sessao aberta nunca e removida, nao ha perda. O cliente chama `GET /session/:token` para reconciliacao do estado.
+- Quando uma `TableSession` é fechada, remover todos os sockets da room `session:{token}`.
+- **Cleanup periódico de rooms órfãs:** job no servidor (setInterval, não Bull) a cada 5 minutos. Uma room é considerada **órfã** quando: (1) não tem sockets conectados E (2) a sessão vinculada está fechada (status `CLOSED`). Rooms de sessões **abertas** nunca são removidas pelo cleanup, mesmo sem sockets — clientes podem reconectar a qualquer momento.
+- **Reconexão tardia:** se um cliente reconecta após 10+ minutos, o Socket.IO reconecta automaticamente e re-entra na room `session:{token}`. Como a room de sessão aberta nunca é removida, não há perda. O cliente chama `GET /session/:token` para reconciliação do estado.
 - Logar rooms ativas e contagem de sockets por room em `level: debug`.
 
-### Prevencao de Memory Leak
+### Prevenção de Memory Leak
 - Limitar listeners por socket: `socket.setMaxListeners(20)`. Logar `warn` se exceder.
-- Remover event listeners no `disconnect` (Socket.IO faz por padrao, mas verificar listeners customizados).
-- Monitorar memoria do processo Node.js (RSS) via logs Winston (Fase 1) ou CloudWatch (Fase 2) — alarme se > 80% do limite do container.
-- Em ambiente com 100+ sessoes simultaneas (bar lotado), monitorar contagem total de sockets e rooms.
+- Remover event listeners no `disconnect` (Socket.IO faz por padrão, mas verificar listeners customizados).
+- Monitorar memória do processo Node.js (RSS) via logs Winston (Fase 1) ou CloudWatch (Fase 2) — alarme se > 80% do limite do container.
+- Em ambiente com 100+ sessões simultâneas (bar lotado), monitorar contagem total de sockets e rooms.
 
 ### Backpressure
-- Se o servidor estiver sobrecarregado, usar `socket.volatile.emit()` para eventos nao-criticos (metrics-update) — descarta se nao conseguir enviar.
+- Se o servidor estiver sobrecarregado, usar `socket.volatile.emit()` para eventos não-críticos (metrics-update) — descarta se não conseguir enviar.
 - Eventos criticos (order-update, payment-update) devem usar `emit()` normal com garantia de entrega.
-- Rate limit de eventos do cliente para o servidor: maximo 10 eventos por segundo por socket. Desconectar sockets que excedem (possivel abuso).
+- Rate limit de eventos do cliente para o servidor: máximo 10 eventos por segundo por socket. Desconectar sockets que excedem (possível abuso).
 
 ## Push Notifications e WebSocket
 

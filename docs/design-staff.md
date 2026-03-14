@@ -2,9 +2,9 @@
 
 Specs detalhadas da interface staff. Para visão geral, paleta base e princípios, ver `docs/design-system.md`.
 
-**Inspiracao:** McDonald's POS & KDS (Figma), Toast POS, Square. Foco em eficiencia, velocidade, zero erro.
+**Inspiração:** McDonald's POS & KDS (Figma), Toast POS, Square. Foco em eficiência, velocidade, zero erro.
 
-O Staff se subdivide em 3 contextos com variacoes:
+O Staff se subdivide em 3 contextos com variações:
 
 ---
 
@@ -28,73 +28,73 @@ Após o login, o funcionário é direcionado à tela de seleção de Local de Pr
 |---|---|---|
 | Fundo da tela | `#111827` | `gray-900` |
 | Card de pedido (normal) | `#1F2937` | `gray-800` |
-| Card de pedido (atencao — >10min) | `#1F2937` com borda `#CA8A04` | `gray-800 border-yellow-600` |
+| Card de pedido (atenção — >10min) | `#1F2937` com borda `#CA8A04` | `gray-800 border-yellow-600` |
 | Card de pedido (atrasado — >15min) | `#1F2937` com borda `#DC2626` | `gray-800 border-red-600` |
 | Card de pedido (pronto) | `#1F2937` com borda `#16A34A` | `gray-800 border-green-600` |
-| Header do card (numero do pedido) | `#F9FAFB` | `gray-50` |
+| Header do card (número do pedido) | `#F9FAFB` | `gray-50` |
 | Texto do item | `#E5E7EB` | `gray-200` |
-| Texto de observacao | `#FBBF24` | `yellow-400` |
+| Texto de observação | `#FBBF24` | `yellow-400` |
 | Timer (normal) | `#9CA3AF` | `gray-400` |
-| Timer (atencao) | `#CA8A04` | `yellow-600` |
+| Timer (atenção) | `#CA8A04` | `yellow-600` |
 | Timer (atrasado) | `#DC2626` | `red-600` |
-| Botao "Pronto/Bump" | `#16A34A` fundo, texto branco | `bg-green-600 text-white` |
+| Botão "Pronto/Bump" | `#16A34A` fundo, texto branco | `bg-green-600 text-white` |
 | Separador de seção (entre pedidos) | `#374151` | `gray-700` |
 
 ### Componentes
 
-| Componente | Especificacao |
+| Componente | Especificação |
 |---|---|
-| **Card de pedido** | Ocupa 1 coluna em grid. Header com numero do pedido + mesa + timer. Lista de itens em texto grande. Observacoes em amarelo. Borda lateral muda de cor conforme tempo. Rounded-lg |
-| **Grid de pedidos** | 3-5 colunas dependendo do tamanho da tela. Scroll horizontal se necessario. Novos pedidos entram pela esquerda |
+| **Card de pedido** | Ocupa 1 coluna em grid. Header com número do pedido + mesa + timer. Lista de itens em texto grande. Observações em amarelo. Borda lateral muda de cor conforme tempo. Rounded-lg |
+| **Grid de pedidos** | 3-5 colunas dependendo do tamanho da tela. Scroll horizontal se necessário. Novos pedidos entram pela esquerda |
 | **Timer** | Contador de minutos desde que o pedido entrou. Muda de cor automaticamente: cinza (<10min), amarelo (10-15min), vermelho (>15min) |
-| **Botao Bump (pronto)** | Grande, ocupa toda a largura do card. `min-h-[56px]`. Verde. Um toque para marcar como pronto. Sem confirmacao |
-| **Alerta sonoro** | Novo pedido: beep curto. Pedido atrasado: beep repetido. Configuravel |
+| **Botão Bump (pronto)** | Grande, ocupa toda a largura do card. `min-h-[56px]`. Verde. Um toque para marcar como pronto. Sem confirmação |
+| **Alerta sonoro** | Novo pedido: beep curto. Pedido atrasado: beep repetido. Configurável |
 | **Identificação do Local** | Header exibe o nome do Local de Preparo (ex: "Cozinha Principal", "Bar", "Pizzaria"). Cada instância do KDS exibe apenas um Local de Preparo — não há abas ou botões para alternar entre locais |
 
-### Tipografia especifica
+### Tipografia específica
 
 | Uso | Tamanho | Peso |
 |---|---|---|
-| Numero do pedido | `text-2xl` | `font-bold` |
+| Número do pedido | `text-2xl` | `font-bold` |
 | Mesa | `text-lg` | `font-semibold` |
 | Nome do item | `text-lg` | `font-medium` |
 | Quantidade | `text-xl` | `font-bold` |
-| Observacao | `text-base` | `font-semibold` |
+| Observação | `text-base` | `font-semibold` |
 | Timer | `text-base` | `font-mono font-bold` |
 
-**Espacamento:** cards com `p-4`, gap de `gap-3` entre cards. Tudo visivel sem scroll quando possivel. Fonte maior que o normal — leitura a 1-2 metros de distancia.
+**Espacamento:** cards com `p-4`, gap de `gap-3` entre cards. Tudo visível sem scroll quando possível. Fonte maior que o normal — leitura a 1-2 metros de distância.
 
 ---
 
-## Garcom — Light Mode, Mobile-First
+## Garçom — Light Mode, Mobile-First
 
-### Superficies e Cores
+### Superfícies e Cores
 
 | Elemento | Valor | Tailwind |
 |---|---|---|
-| Fundo da pagina | `#FFFFFF` | `white` |
+| Fundo da página | `#FFFFFF` | `white` |
 | Card de mesa | `#FFFFFF` com borda | `white border border-gray-200` |
 | Mesa livre | Borda `#16A34A` | `border-green-600` |
 | Mesa ocupada | Borda `#2563EB` | `border-blue-600` |
 | Mesa pedindo conta | Borda `#CA8A04` | `border-yellow-600` |
 | Mesa com pedido atrasado | Borda `#DC2626` | `border-red-600` |
 | Header | `#111827` fundo, texto branco | `bg-gray-900 text-white` |
-| Botao acao principal | `#EA580C` | `bg-orange-600 text-white` |
-| Badge de notificacao | `#DC2626` | `bg-red-600 text-white` |
+| Botão ação principal | `#EA580C` | `bg-orange-600 text-white` |
+| Badge de notificação | `#DC2626` | `bg-red-600 text-white` |
 | Tab ativa | `#EA580C` | `border-b-2 border-orange-600 text-orange-600` |
 
 ### Componentes
 
-| Componente | Especificacao |
+| Componente | Especificação |
 |---|---|
-| **Mapa de mesas** | Grid com cards representando mesas, agrupadas por setor. Cada card mostra: numero, status (cor da borda), tempo de ocupacao, valor parcial. Tap abre detalhe |
-| **Card de mesa** | `rounded-xl`, borda lateral grossa (4px) com cor do status. Numero da mesa grande no centro. Badge se tem chamado pendente |
+| **Mapa de mesas** | Grid com cards representando mesas, agrupadas por setor. Cada card mostra: número, status (cor da borda), tempo de ocupação, valor parcial. Tap abre detalhe |
+| **Card de mesa** | `rounded-xl`, borda lateral grossa (4px) com cor do status. Número da mesa grande no centro. Badge se tem chamado pendente |
 | **Lista de pedidos da mesa** | Pedidos agrupados por grupo de entrega (Normal, Imediato, Garçom direto). Itens com status do preparo (cor). Grupos com todos os itens "Pronto" exibem botão **"Retirar Grupo"** (claim). Após claim, botão "Marcar Entregue" no grupo. Hora do pedido |
-| **Botao novo pedido** | FAB (floating action button) fixo. `rounded-full bg-orange-600 text-white shadow-lg`. 56x56px |
-| **Notificacao** | Banner no topo deslizante. "Mesa 5 pedindo conta", "Pedido #42 pronto". Tap para ir direto |
-| **Bottom tabs** | 3 tabs: Chamados (principal), Mesas, Turno. Icone + texto. Ativa em orange. "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas via tap na mesa, nao aparecem na bottom nav |
+| **Botão novo pedido** | FAB (floating action button) fixo. `rounded-full bg-orange-600 text-white shadow-lg`. 56x56px |
+| **Notificação** | Banner no topo deslizante. "Mesa 5 pedindo conta", "Pedido #42 pronto". Tap para ir direto |
+| **Bottom tabs** | 3 tabs: Chamados (principal), Mesas, Turno. Ícone + texto. Ativa em orange. "Detalhe da mesa" e "Comanda" são telas contextuais acessadas via tap na mesa, não aparecem na bottom nav |
 
-**Tipografia:** mesma escala do cliente, mas com enfase em numeros grandes (numero da mesa, valores).
+**Tipografia:** mesma escala do cliente, mas com ênfase em números grandes (número da mesa, valores).
 
 ### Push Notification Deep Links
 
@@ -115,11 +115,11 @@ Ao tocar na notificação, o app abre diretamente na tela correspondente. Se o g
 
 > **⚠ FASE 2 — NÃO IMPLEMENTAR ATÉ AVISO EXPLÍCITO.** Esta seção é apenas referência arquitetural. Na Fase 1, o fechamento de conta é feito pelo garçom (via detalhe da mesa) ou pelo cliente (via pagamento individual).
 
-**Superficies e Cores:** mesmas do garcom (light mode), mas layout otimizado para tablet landscape.
+**Superfícies e Cores:** mesmas do garçom (light mode), mas layout otimizado para tablet landscape.
 
-| Componente | Especificacao |
+| Componente | Especificação |
 |---|---|
 | **Layout** | Split view: lista de pedidos/mesas na esquerda (40%), detalhe do pedido na direita (60%) |
-| **Resumo da conta** | Card grande com todos os itens, subtotal, taxa de servico, total. Fonte grande nos valores |
-| **Botoes de pagamento** | Grid: Pix, Credito, Debito, Dinheiro. Cada um com icone + texto. Grandes (`min-h-[64px]`) |
-| **Botao fechar conta** | Full-width, `bg-green-600 text-white`, `min-h-[56px]`. Confirmacao antes de fechar |
+| **Resumo da conta** | Card grande com todos os itens, subtotal, taxa de serviço, total. Fonte grande nos valores |
+| **Botões de pagamento** | Grid: Pix, Crédito, Débito, Dinheiro. Cada um com ícone + texto. Grandes (`min-h-[64px]`) |
+| **Botão fechar conta** | Full-width, `bg-green-600 text-white`, `min-h-[56px]`. Confirmação antes de fechar |

@@ -5,26 +5,26 @@
 
 ## Contexto
 
-O MVP precisa de pagamento Pix funcional. Alternativas: integrar com provedor real desde o inicio, ou usar gateway fake na Fase 1 e trocar depois.
+O MVP precisa de pagamento Pix funcional. Alternativas: integrar com provedor real desde o início, ou usar gateway fake na Fase 1 e trocar depois.
 
-## Decisao
+## Decisão
 
-`FakePaymentGateway` na Fase 1. Interface generica `PaymentGateway` permite trocar implementacao sem mexer no resto do codigo.
+`FakePaymentGateway` na Fase 1. Interface genérica `PaymentGateway` permite trocar implementação sem mexer no resto do código.
 
 ## Justificativa
 
-- **MVP precisa validar o fluxo, nao o provedor:** o importante e testar QR Code → pagamento → confirmacao → conta atualizada. O provedor real nao muda o fluxo.
-- **Integracao real atrasa o MVP:** setup de conta, documentacao, sandbox, webhook real — semanas de overhead.
-- **Interface generica:** `PaymentGateway` com `createPixCharge()`, `verifyWebhook()`, `getPaymentStatus()`. Trocar de Fake pra real e trocar a implementacao, sem mexer em controller/service.
-- **Simulacao completa:** QR fake, webhook simulado com delay, confirmacao automatica. Testa o fluxo inteiro end-to-end.
+- **MVP precisa validar o fluxo, não o provedor:** o importante é testar QR Code → pagamento → confirmação → conta atualizada. O provedor real não muda o fluxo.
+- **Integração real atrasa o MVP:** setup de conta, documentação, sandbox, webhook real — semanas de overhead.
+- **Interface genérica:** `PaymentGateway` com `createPixCharge()`, `verifyWebhook()`, `getPaymentStatus()`. Trocar de Fake para real é trocar a implementação, sem mexer em controller/service.
+- **Simulação completa:** QR fake, webhook simulado com delay, confirmação automática. Testa o fluxo inteiro end-to-end.
 
 ## Alternativas descartadas
 
-- **Integracao real desde o inicio:** risco de ficar preso em burocracia do provedor. Provedor nem esta definido ainda.
+- **Integração real desde o início:** risco de ficar preso em burocracia do provedor. Provedor nem está definido ainda.
 
-## Consequencias
+## Consequências
 
-- `FakePaymentGateway` simula tudo: QR Code, webhook com delay, confirmacao.
+- `FakePaymentGateway` simula tudo: QR Code, webhook com delay, confirmação.
 - PIX pendente expira em 30 min (mesmo fake).
-- Antes do deploy pra producao: escolher provedor, implementar `RealPaymentGateway`, configurar webhook real.
-- Validacao de assinatura do webhook ja implementada na interface (mesmo fake valida, pra garantir que o fluxo funciona).
+- Antes do deploy para produção: escolher provedor, implementar `RealPaymentGateway`, configurar webhook real.
+- Validação de assinatura do webhook já implementada na interface (mesmo fake valida, para garantir que o fluxo funciona).

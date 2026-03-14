@@ -1,173 +1,173 @@
-# Glossario
+# Glossário
 
-Termos usados na documentacao do OChefia. Ordem alfabetica dentro de cada secao.
-
----
-
-## Termos de Negocio
-
-**Activity Log (Log de Atividade)** — Registro cronologico e legivel de todas as acoes de uma sessao (pedidos, reatribuicoes, cancelamentos). Visivel para todos os membros da mesa na aba "Historico" da conta.
-
-**Aprovacao de Entrantes** — Processo pelo qual clientes ja aprovados na mesa decidem se um novo cliente pode entrar na sessao. A solicitacao expira em 5 minutos sem resposta. Renotificacao automatica a cada 60 segundos.
-
-**Cardapio Digital** — Interface publica acessivel via QR Code que exibe produtos, categorias, tags e precos do restaurante. Pode ser usado em modo read-only (sem sessao) ou interativo (com sessao ativa).
-
-**Chamado** — Solicitacao do cliente ao garcom via botao "O Chefia". Possui motivo (chamar garcom, pedir conta, outro) e mensagem opcional. Status: OPEN ou RESOLVED.
-
-**Claim** — Ato de um garcom assumir a responsabilidade de retirar e entregar um grupo de entrega. O primeiro garcom que toca "Retirar" assume o grupo inteiro. O grupo some da tela dos outros garcons. Ver *Grupo de Entrega*.
-
-**Clock-in / Clock-out** — Registro de inicio e fim do turno de trabalho de um garcom. Exige senha numerica (PIN). Gera um registro de *Turno*.
-
-**Comanda** — Tela do modulo garcom para lancar pedidos rapidos em nome da mesa. Busca de produtos, selecao de pessoas e envio direto, sem passar pelo carrinho do cliente.
-
-**Conta** — Resumo financeiro da sessao com 3 visualizacoes: visao geral (todos os itens), por pessoa (itens de cada pessoa com divisao) e historico (activity log). Inclui calculo de taxa de servico individual.
-
-**Equipe do Dia** — Lista de funcionarios que vao trabalhar em determinado dia. Auto-preenchida pela *Escala*. Permite ajustes manuais e atribuicao de garcons a *Setores*.
-
-**Escala** — Programacao de trabalho dos funcionarios por dia. Funcionarios permanentes e temporarios com dia fixo entram automaticamente. Permite desmarcar ou adicionar avulsos.
-
-**Escalacao de Retirada** — Sistema automatico de alertas quando um item marcado como "Pronto" nao e entregue. Nivel 1: renotificacao ao garcom do setor a cada `pickupReminderInterval` minutos. Nivel 2: alerta para admin e todos os garcons apos `pickupEscalationTimeout` minutos.
-
-**Fechamento de Caixa** — Resumo de valores recebidos no dia por forma de pagamento (Pix, dinheiro, cartao). Parte do modulo de *Faturamento*.
-
-**Funcionario Temporario** — Staff cadastrado com flag `temporario`. Pode ter dias fixos da semana ou ser avulso. Entra na *Escala* automaticamente nos dias fixos.
-
-**Grupo de Entrega** — Agrupamento de itens de um mesmo pedido para fins de notificacao e retirada. Cada pedido gera ate 3 grupos: Normal (itens comuns, garcom notificado quando todos ficarem prontos), Entrega Imediata (itens `immediateDelivery`, notificado quando todos os imediatos ficarem prontos) e Garcom Direto (entrega imediata sem KDS).
-
-**Local de Preparo** — Lugar fisico onde itens sao produzidos (ex: "Cozinha Principal", "Pizzaria", "Bar"). Cada Local de Preparo corresponde a uma tela KDS independente. Possui um ou mais *Pontos de Entrega*.
-
-**Mapeamento Setor-Local de Preparo** — Vinculo obrigatorio entre cada *Setor* e cada *Local de Preparo*, indicando qual *Ponto de Entrega* os garcons daquele setor usam para retirada. Bloqueia abertura de sessao se incompleto.
-
-**Maquina de Estados do Pedido** — Fluxo de status de cada item: Na fila -> Preparando -> Pronto -> Entregue. Cancelamento possivel em Na fila (cliente ou staff) e Preparando (staff). Pronto/Entregue so cancelavel por OWNER/MANAGER. Sem transicao reversa.
-
-**Mesa** — Entidade fisica do restaurante identificada por nome/numero. Pertence a exatamente 1 *Setor*. Possui QR Code fixo que gera URL permanente. Status: FREE ou OCCUPIED.
-
-**Modulo** — Unidade funcional do sistema. O modulo padrao (Fase 1) inclui cardapio, pedidos, KDS, garcom, mesas, faturamento e dashboard. Modulos extras (Fase 2) sao vendidos separadamente e habilitados pelo *Super Admin*.
-
-**Notes (Observacoes)** — Campo de texto livre em cada item de pedido para instrucoes especiais do cliente (ex: "bem passado", "sem cebola"). Exibido em destaque amarelo no KDS.
-
-**Pessoa** — Individuo cadastrado numa sessao de mesa. Nao exige verificacao de identidade — basta um nome. Itens do pedido sao atribuidos a pessoas para divisao da conta.
-
-**Ponto de Entrega** — Local onde o garcom retira o item pronto. Pertence a um *Local de Preparo*. Exemplos: "Pass principal", "Balcao do bar". Possui flag `autoDelivery` que determina se o operador do KDS entrega direto na mesa.
-
-**QR Code** — Codigo impresso e fixo em cada mesa. Gera URL permanente `/{slug}/mesa/{mesaId}`. Ponto de entrada do cliente no sistema.
-
-**Reatribuicao de Pessoas** — Acao de alterar quais pessoas dividem um item ja pedido. Feita exclusivamente pelo cliente na tela "Meus Pedidos". Registrada no *Activity Log*.
-
-**Sessao de Mesa** — Periodo entre a abertura e o fechamento de uma mesa. Vincula pessoas, pedidos, pagamentos e activity log. Identificada por token criptografico. Pode ser transferida entre mesas.
-
-**Setor** — Agrupamento fisico de mesas (ex: "Salao Principal", "Terraco", "VIP"). Garcons sao atribuidos a setores, nao a mesas individuais. Taxa de servico dividida igualmente entre garcons do mesmo setor.
-
-**Super Admin** — Equipe interna do OChefia com acesso cross-tenant. Gerencia estabelecimentos, cobranca, modulos extras e monitoramento da plataforma. Nao acessivel por restaurantes.
-
-**Tag de Produto** — Rotulo descritivo aplicado a produtos do cardapio (ex: vegano, sem gluten, picante, sugestao do chef). Usado para filtros no cardapio digital.
-
-**Taxa de Servico** — Percentual (default 10%) cobrado sobre o consumo de cada pessoa. Configuravel por restaurante. Pode ser desabilitada individualmente por pessoa pelo garcom. Valor distribuido entre garcons do setor com calculo *forward-only*.
-
-**Ticket Medio por Mesa** — Receita total dividida pela quantidade de sessoes fechadas num periodo. Mostra o gasto medio por visita/mesa. Exibido no *Faturamento* diario.
-
-**Ticket Medio por Pessoa** — Receita total dividida pelo total de pessoas que pagaram num periodo. Mostra o gasto medio por cliente individual. Exibido ao lado do ticket medio por mesa no *Faturamento* diario.
-
-**Transferencia de Mesa** — Mover uma sessao inteira (pessoas, pedidos, conta) para outra mesa livre. Executada apenas por staff. Funciona entre setores. Claims ativos sao liberados automaticamente.
-
-**Turno** — Registro de periodo de trabalho de um garcom. Criado pelo *clock-in* e encerrado pelo *clock-out*. Registra hora de inicio e fim.
+Termos usados na documentação do OChefia. Ordem alfabética dentro de cada seção.
 
 ---
 
-## Termos Tecnicos
+## Termos de Negócio
 
-**autoDelivery** — Flag booleana do *Ponto de Entrega* (default `false`). Quando `true`, o operador do KDS entrega o item direto na mesa — o garcom nao e notificado para retirada. Quando `false`, o garcom e notificado pelo sistema de *Grupos de Entrega*.
+**Activity Log (Log de Atividade)** — Registro cronológico e legível de todas as ações de uma sessão (pedidos, reatribuições, cancelamentos). Visível para todos os membros da mesa na aba "Histórico" da conta.
 
-**backoff exponencial** — Estrategia de reconexao do Socket.IO onde o intervalo entre tentativas aumenta progressivamente. Comportamento padrao da biblioteca.
+**Aprovação de Entrantes** — Processo pelo qual clientes já aprovados na mesa decidem se um novo cliente pode entrar na sessão. A solicitação expira em 5 minutos sem resposta. Renotificação automática a cada 60 segundos.
 
-**backpressure** — Mecanismo de controle de carga em WebSocket. Eventos nao-criticos (ex: metrics-update) usam `socket.volatile.emit()` que descarta se nao conseguir enviar. Eventos criticos usam emit normal.
+**Cardápio Digital** — Interface pública acessível via QR Code que exibe produtos, categorias, tags e preços do restaurante. Pode ser usado em modo read-only (sem sessão) ou interativo (com sessão ativa).
 
-**Bull (job queue)** — Fila de processamento assincrono baseada em Redis. Usada para processar webhooks Pix e verificar solicitacoes de aprovacao expiradas.
+**Chamado** — Solicitação do cliente ao garçom via botão "O Chefia". Possui motivo (chamar garçom, pedir conta, outro) e mensagem opcional. Status: OPEN ou RESOLVED.
 
-**circuit breaker** — Padrao de resiliencia que interrompe chamadas a servicos externos (ex: provedor Pix) apos falhas consecutivas. Evita sobrecarga em cascata.
+**Claim** — Ato de um garçom assumir a responsabilidade de retirar e entregar um grupo de entrega. O primeiro garçom que toca "Retirar" assume o grupo inteiro. O grupo some da tela dos outros garçons. Ver *Grupo de Entrega*.
 
-**correlationId** — Identificador unico propagado em todas as requests e eventos WebSocket. Permite rastrear uma operacao completa atraves dos logs Winston e do AuditLog.
+**Clock-in / Clock-out** — Registro de início e fim do turno de trabalho de um garçom. Exige senha numérica (PIN). Gera um registro de *Turno*.
 
-**forward-only** — Principio de calculo da taxa de garcom: a taxa e calculada no momento do pagamento de cada pessoa, usando os garcons atribuidos ao setor naquele instante. Nao e retroativo — garcons que entram depois so recebem taxa de pagamentos futuros.
+**Comanda** — Tela do módulo garçom para lançar pedidos rápidos em nome da mesa. Busca de produtos, seleção de pessoas e envio direto, sem passar pelo carrinho do cliente.
 
-**idempotency** — Garantia de que processar a mesma operacao multiplas vezes produz o mesmo resultado. Aplicado ao webhook Pix via campo `pixExternalId` para ignorar notificacoes duplicadas.
+**Conta** — Resumo financeiro da sessão com 3 visualizações: visão geral (todos os itens), por pessoa (itens de cada pessoa com divisão) e histórico (activity log). Inclui cálculo de taxa de serviço individual.
+
+**Equipe do Dia** — Lista de funcionários que vão trabalhar em determinado dia. Auto-preenchida pela *Escala*. Permite ajustes manuais e atribuição de garçons a *Setores*.
+
+**Escala** — Programação de trabalho dos funcionários por dia. Funcionários permanentes e temporários com dia fixo entram automaticamente. Permite desmarcar ou adicionar avulsos.
+
+**Escalação de Retirada** — Sistema automático de alertas quando um item marcado como "Pronto" não é entregue. Nível 1: renotificação ao garçom do setor a cada `pickupReminderInterval` minutos. Nível 2: alerta para admin e todos os garçons após `pickupEscalationTimeout` minutos.
+
+**Fechamento de Caixa** — Resumo de valores recebidos no dia por forma de pagamento (Pix, dinheiro, cartão). Parte do módulo de *Faturamento*.
+
+**Funcionário Temporário** — Staff cadastrado com flag `temporario`. Pode ter dias fixos da semana ou ser avulso. Entra na *Escala* automaticamente nos dias fixos.
+
+**Grupo de Entrega** — Agrupamento de itens de um mesmo pedido para fins de notificação e retirada. Cada pedido gera até 3 grupos: Normal (itens comuns, garçom notificado quando todos ficarem prontos), Entrega Imediata (itens `immediateDelivery`, notificado quando todos os imediatos ficarem prontos) e Garçom Direto (entrega imediata sem KDS).
+
+**Local de Preparo** — Lugar físico onde itens são produzidos (ex: "Cozinha Principal", "Pizzaria", "Bar"). Cada Local de Preparo corresponde a uma tela KDS independente. Possui um ou mais *Pontos de Entrega*.
+
+**Mapeamento Setor-Local de Preparo** — Vínculo obrigatório entre cada *Setor* e cada *Local de Preparo*, indicando qual *Ponto de Entrega* os garçons daquele setor usam para retirada. Bloqueia abertura de sessão se incompleto.
+
+**Máquina de Estados do Pedido** — Fluxo de status de cada item: Na fila -> Preparando -> Pronto -> Entregue. Cancelamento possível em Na fila (cliente ou staff) e Preparando (staff). Pronto/Entregue só cancelável por OWNER/MANAGER. Sem transição reversa.
+
+**Mesa** — Entidade física do restaurante identificada por nome/número. Pertence a exatamente 1 *Setor*. Possui QR Code fixo que gera URL permanente. Status: FREE ou OCCUPIED.
+
+**Módulo** — Unidade funcional do sistema. O módulo padrão (Fase 1) inclui cardápio, pedidos, KDS, garçom, mesas, faturamento e dashboard. Módulos extras (Fase 2) são vendidos separadamente e habilitados pelo *Super Admin*.
+
+**Notes (Observações)** — Campo de texto livre em cada item de pedido para instruções especiais do cliente (ex: "bem passado", "sem cebola"). Exibido em destaque amarelo no KDS.
+
+**Pessoa** — Indivíduo cadastrado numa sessão de mesa. Não exige verificação de identidade — basta um nome. Itens do pedido são atribuídos a pessoas para divisão da conta.
+
+**Ponto de Entrega** — Local onde o garçom retira o item pronto. Pertence a um *Local de Preparo*. Exemplos: "Pass principal", "Balcão do bar". Possui flag `autoDelivery` que determina se o operador do KDS entrega direto na mesa.
+
+**QR Code** — Código impresso e fixo em cada mesa. Gera URL permanente `/{slug}/mesa/{mesaId}`. Ponto de entrada do cliente no sistema.
+
+**Reatribuição de Pessoas** — Ação de alterar quais pessoas dividem um item já pedido. Feita exclusivamente pelo cliente na tela "Meus Pedidos". Registrada no *Activity Log*.
+
+**Sessão de Mesa** — Período entre a abertura e o fechamento de uma mesa. Vincula pessoas, pedidos, pagamentos e activity log. Identificada por token criptográfico. Pode ser transferida entre mesas.
+
+**Setor** — Agrupamento físico de mesas (ex: "Salão Principal", "Terraço", "VIP"). Garçons são atribuídos a setores, não a mesas individuais. Taxa de serviço dividida igualmente entre garçons do mesmo setor.
+
+**Super Admin** — Equipe interna do OChefia com acesso cross-tenant. Gerencia estabelecimentos, cobrança, módulos extras e monitoramento da plataforma. Não acessível por restaurantes.
+
+**Tag de Produto** — Rótulo descritivo aplicado a produtos do cardápio (ex: vegano, sem glúten, picante, sugestão do chef). Usado para filtros no cardápio digital.
+
+**Taxa de Serviço** — Percentual (default 10%) cobrado sobre o consumo de cada pessoa. Configurável por restaurante. Pode ser desabilitada individualmente por pessoa pelo garçom. Valor distribuído entre garçons do setor com cálculo *forward-only*.
+
+**Ticket Médio por Mesa** — Receita total dividida pela quantidade de sessões fechadas num período. Mostra o gasto médio por visita/mesa. Exibido no *Faturamento* diário.
+
+**Ticket Médio por Pessoa** — Receita total dividida pelo total de pessoas que pagaram num período. Mostra o gasto médio por cliente individual. Exibido ao lado do ticket médio por mesa no *Faturamento* diário.
+
+**Transferência de Mesa** — Mover uma sessão inteira (pessoas, pedidos, conta) para outra mesa livre. Executada apenas por staff. Funciona entre setores. Claims ativos são liberados automaticamente.
+
+**Turno** — Registro de período de trabalho de um garçom. Criado pelo *clock-in* e encerrado pelo *clock-out*. Registra hora de início e fim.
+
+---
+
+## Termos Técnicos
+
+**autoDelivery** — Flag booleana do *Ponto de Entrega* (default `false`). Quando `true`, o operador do KDS entrega o item direto na mesa — o garçom não é notificado para retirada. Quando `false`, o garçom é notificado pelo sistema de *Grupos de Entrega*.
+
+**backoff exponencial** — Estratégia de reconexão do Socket.IO onde o intervalo entre tentativas aumenta progressivamente. Comportamento padrão da biblioteca.
+
+**backpressure** — Mecanismo de controle de carga em WebSocket. Eventos não-críticos (ex: metrics-update) usam `socket.volatile.emit()` que descarta se não conseguir enviar. Eventos críticos usam emit normal.
+
+**Bull (job queue)** — Fila de processamento assíncrono baseada em Redis. Usada para processar webhooks Pix e verificar solicitações de aprovação expiradas.
+
+**circuit breaker** — Padrão de resiliência que interrompe chamadas a serviços externos (ex: provedor Pix) após falhas consecutivas. Evita sobrecarga em cascata.
+
+**correlationId** — Identificador único propagado em todas as requests e eventos WebSocket. Permite rastrear uma operação completa através dos logs Winston e do AuditLog.
+
+**forward-only** — Princípio de cálculo da taxa de garçom: a taxa é calculada no momento do pagamento de cada pessoa, usando os garçons atribuídos ao setor naquele instante. Não é retroativo — garçons que entram depois só recebem taxa de pagamentos futuros.
+
+**idempotency** — Garantia de que processar a mesma operação múltiplas vezes produz o mesmo resultado. Aplicado ao webhook Pix via campo `pixExternalId` para ignorar notificações duplicadas.
 
 **immediateDelivery** — Flag booleana do produto (default `false`). Quando `true`, o item pode ser entregue antes dos demais do mesmo pedido (ex: drinks). Gera um *Grupo de Entrega* separado do tipo IMMEDIATE.
 
 **multi-tenancy** — Isolamento de dados entre restaurantes. Toda entidade vinculada a restaurante possui campo `restaurantId`. Queries sempre filtram por tenant.
 
-**orderDelayThreshold** — Parametro configuravel (default 15min) que define o tempo maximo que um pedido pode ficar "Na fila" antes de gerar alerta de "pedido atrasado" no dashboard. Diferente de `pickupEscalationTimeout`.
+**orderDelayThreshold** — Parâmetro configurável (default 15min) que define o tempo máximo que um pedido pode ficar "Na fila" antes de gerar alerta de "pedido atrasado" no dashboard. Diferente de `pickupEscalationTimeout`.
 
-**pickupEscalationTimeout** — Parametro configuravel (default 10min) que define o tempo para escalar um item "Pronto" sem entrega ao nivel 2 (admin + todos os garcons). Ver *Escalacao de Retirada*.
+**pickupEscalationTimeout** — Parâmetro configurável (default 10min) que define o tempo para escalar um item "Pronto" sem entrega ao nível 2 (admin + todos os garçons). Ver *Escalação de Retirada*.
 
-**pickupReminderInterval** — Parametro configuravel (default 3min) que define o intervalo de renotificacao ao garcom do setor para itens "Pronto" sem entrega. Nivel 1 da *Escalacao de Retirada*.
+**pickupReminderInterval** — Parâmetro configurável (default 3min) que define o intervalo de renotificação ao garçom do setor para itens "Pronto" sem entrega. Nível 1 da *Escalação de Retirada*.
 
-**idleTableThreshold** — Parametro configuravel (default 30min) que define o tempo sem novo pedido para uma mesa ser considerada ociosa e gerar alerta no dashboard.
+**idleTableThreshold** — Parâmetro configurável (default 30min) que define o tempo sem novo pedido para uma mesa ser considerada ociosa e gerar alerta no dashboard.
 
-**polling HTTP** — Fallback para atualizacoes criticas quando a conexao WebSocket esta inativa. Requisicoes GET periodicas (a cada 10s) para endpoints REST ate a reconexao.
+**polling HTTP** — Fallback para atualizações críticas quando a conexão WebSocket está inativa. Requisições GET periódicas (a cada 10s) para endpoints REST até a reconexão.
 
-**Redis Adapter** — Adaptador `@socket.io/redis-adapter` que permite multiplas instancias da API compartilharem rooms e eventos WebSocket via Redis. Configurado desde a Fase 1 para preparar scaling horizontal.
+**Redis Adapter** — Adaptador `@socket.io/redis-adapter` que permite múltiplas instâncias da API compartilharem rooms e eventos WebSocket via Redis. Configurado desde a Fase 1 para preparar scaling horizontal.
 
-**room (WebSocket)** — Canal logico do Socket.IO onde eventos sao emitidos para um grupo de sockets. Exemplos: `session:{token}` (clientes da mesa), `restaurant:{id}:kds:{prepLocationId}` (KDS de um local), `restaurant:{id}:waiter:sector:{sectorId}` (garcons de um setor).
+**room (WebSocket)** — Canal lógico do Socket.IO onde eventos são emitidos para um grupo de sockets. Exemplos: `session:{token}` (clientes da mesa), `restaurant:{id}:kds:{prepLocationId}` (KDS de um local), `restaurant:{id}:waiter:sector:{sectorId}` (garçons de um setor).
 
-**sessionToken** — Token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32).toString('hex')`) que identifica uma sessao de mesa. Usado na URL e em endpoints REST para acesso publico sem JWT.
+**sessionToken** — Token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32).toString('hex')`) que identifica uma sessão de mesa. Usado na URL e em endpoints REST para acesso público sem JWT.
 
-**slug** — Identificador unico do restaurante usado na URL publica (`/{slug}/mesa/{mesaId}`). Ex: "ze-bar". Definido no cadastro do estabelecimento.
+**slug** — Identificador único do restaurante usado na URL pública (`/{slug}/mesa/{mesaId}`). Ex: "ze-bar". Definido no cadastro do estabelecimento.
 
-**snapshot de preco** — Copia do preco do produto no momento do pedido (`unitPrice` no OrderItem). Garante que alteracoes futuras no cardapio nao afetam pedidos existentes.
+**snapshot de preço** — Cópia do preço do produto no momento do pedido (`unitPrice` no OrderItem). Garante que alterações futuras no cardápio não afetam pedidos existentes.
 
-**soft delete** — Exclusao logica via campo `deletedAt`. O registro permanece no banco para preservar historico e metricas, mas e excluido de queries normais. Aplicado em mesas, setores, locais de preparo, categorias e produtos.
+**soft delete** — Exclusão lógica via campo `deletedAt`. O registro permanece no banco para preservar histórico e métricas, mas é excluído de queries normais. Aplicado em mesas, setores, locais de preparo, categorias e produtos.
 
-**StorageService** — Interface abstrata para upload e entrega de imagens. Implementacao Local (filesystem + nginx) na Fase 1 e S3 + CloudFront na Fase 2. Resize com `sharp` em 3 tamanhos: thumb (200px), medium (600px) e original.
+**StorageService** — Interface abstrata para upload e entrega de imagens. Implementação Local (filesystem + nginx) na Fase 1 e S3 + CloudFront na Fase 2. Resize com `sharp` em 3 tamanhos: thumb (200px), medium (600px) e original.
 
-**volatile emit** — Metodo do Socket.IO (`socket.volatile.emit()`) que descarta o evento se nao conseguir envia-lo imediatamente. Usado para eventos nao-criticos como atualizacao de metricas. Ver *backpressure*.
+**volatile emit** — Método do Socket.IO (`socket.volatile.emit()`) que descarta o evento se não conseguir enviá-lo imediatamente. Usado para eventos não-críticos como atualização de métricas. Ver *backpressure*.
 
-**webhook** — Endpoint que recebe notificacoes externas (ex: confirmacao de pagamento Pix). Valida assinatura de forma sincrona e processa via Bull. Protegido por idempotency.
+**webhook** — Endpoint que recebe notificações externas (ex: confirmação de pagamento Pix). Valida assinatura de forma síncrona e processa via Bull. Protegido por idempotency.
 
 ---
 
 ## Siglas
 
-**ADR** — Architecture Decision Record. Registro formal de decisoes arquiteturais do projeto, criado na Sprint 0.
+**ADR** — Architecture Decision Record. Registro formal de decisões arquiteturais do projeto, criado na Sprint 0.
 
-**ALB** — Application Load Balancer. Balanceador de carga da AWS usado na Fase 2 para distribuir trafego entre instancias.
+**ALB** — Application Load Balancer. Balanceador de carga da AWS usado na Fase 2 para distribuir tráfego entre instâncias.
 
-**CDN** — Content Delivery Network. Rede de distribuicao de conteudo. Na Fase 2, CloudFront serve imagens armazenadas no S3.
+**CDN** — Content Delivery Network. Rede de distribuição de conteúdo. Na Fase 2, CloudFront serve imagens armazenadas no S3.
 
-**CNPJ** — Cadastro Nacional da Pessoa Juridica. Identificador fiscal do estabelecimento, opcional na Fase 1.
+**CNPJ** — Cadastro Nacional da Pessoa Jurídica. Identificador fiscal do estabelecimento, opcional na Fase 1.
 
-**CRUD** — Create, Read, Update, Delete. Operacoes basicas de manipulacao de dados.
+**CRUD** — Create, Read, Update, Delete. Operações básicas de manipulação de dados.
 
-**CSRF** — Cross-Site Request Forgery. Ataque onde um site malicioso induz o navegador a enviar requests autenticadas. Mitigado por tokens e headers de seguranca.
+**CSRF** — Cross-Site Request Forgery. Ataque onde um site malicioso induz o navegador a enviar requests autenticadas. Mitigado por tokens e headers de segurança.
 
-**CSP** — Content Security Policy. Header HTTP que restringe origens de scripts, estilos e recursos carregaveis pelo navegador.
+**CSP** — Content Security Policy. Header HTTP que restringe origens de scripts, estilos e recursos carregáveis pelo navegador.
 
-**DTO** — Data Transfer Object. Objeto usado para validacao e tipagem de dados de entrada nos controllers NestJS, com `class-validator`.
+**DTO** — Data Transfer Object. Objeto usado para validação e tipagem de dados de entrada nos controllers NestJS, com `class-validator`.
 
-**ECS** — Elastic Container Service. Servico AWS para orquestracao de containers Docker, usado na Fase 2.
+**ECS** — Elastic Container Service. Serviço AWS para orquestração de containers Docker, usado na Fase 2.
 
 **FK** — Foreign Key. Chave estrangeira que referencia a PK de outra tabela.
 
-**JWT** — JSON Web Token. Token de autenticacao usado por staff (admin, garcom, cozinha). Emitido no login e validado pelo `JwtAuthGuard`.
+**JWT** — JSON Web Token. Token de autenticação usado por staff (admin, garçom, cozinha). Emitido no login e validado pelo `JwtAuthGuard`.
 
-**KDS** — Kitchen Display System. Sistema de exibicao para equipe de producao (cozinha, bar). Cada *Local de Preparo* tem sua tela KDS independente com fila de pedidos, temporizadores e botoes de status.
+**KDS** — Kitchen Display System. Sistema de exibição para equipe de produção (cozinha, bar). Cada *Local de Preparo* tem sua tela KDS independente com fila de pedidos, temporizadores e botões de status.
 
-**LGPD** — Lei Geral de Protecao de Dados. Legislacao brasileira de privacidade. O sistema oferece endpoints de acesso e exclusao de dados pessoais. Anonimizacao automatica apos 90 dias.
+**LGPD** — Lei Geral de Proteção de Dados. Legislação brasileira de privacidade. O sistema oferece endpoints de acesso e exclusão de dados pessoais. Anonimização automática após 90 dias.
 
-**M:N** — Relacionamento muitos-para-muitos. Implementado via tabela intermediaria (ex: OrderItemPerson, ProductTag).
+**M:N** — Relacionamento muitos-para-muitos. Implementado via tabela intermediária (ex: OrderItemPerson, ProductTag).
 
-**NFC-e** — Nota Fiscal de Consumidor Eletronica. Emissao fiscal integrada, prevista como modulo extra na Fase 2.
+**NFC-e** — Nota Fiscal de Consumidor Eletrônica. Emissão fiscal integrada, prevista como módulo extra na Fase 2.
 
-**OTP** — One-Time Password. Codigo de 6 digitos enviado via WhatsApp para verificacao do numero do cliente. Valido por tempo limitado.
+**OTP** — One-Time Password. Código de 6 dígitos enviado via WhatsApp para verificação do número do cliente. Válido por tempo limitado.
 
-**PK** — Primary Key. Chave primaria da tabela. UUID em todos os modelos do OChefia.
+**PK** — Primary Key. Chave primária da tabela. UUID em todos os modelos do OChefia.
 
-**PWA** — Progressive Web App. Aplicacao web que funciona como app nativo (offline, push notifications, instalacao). O cardapio do cliente e o modulo garcom sao PWAs.
+**PWA** — Progressive Web App. Aplicação web que funciona como app nativo (offline, push notifications, instalação). O cardápio do cliente e o módulo garçom são PWAs.
 
-**RLS** — Row-Level Security. Politica de seguranca a nivel de linha no banco de dados que restringe acesso por tenant (`restaurantId`). Garante isolamento entre restaurantes.
+**RLS** — Row-Level Security. Política de segurança a nível de linha no banco de dados que restringe acesso por tenant (`restaurantId`). Garante isolamento entre restaurantes.
 
-**RSS** — Resident Set Size. Metrica de uso de memoria do processo Node.js. Monitorada para detectar memory leaks.
+**RSS** — Resident Set Size. Métrica de uso de memória do processo Node.js. Monitorada para detectar memory leaks.
 
-**SAT** — Sistema Autenticador e Transmissor de Cupons Fiscais Eletronicos. Alternativa ao NFC-e, previsto como modulo extra na Fase 2.
+**SAT** — Sistema Autenticador e Transmissor de Cupons Fiscais Eletrônicos. Alternativa ao NFC-e, previsto como módulo extra na Fase 2.
 
-**UUID** — Universally Unique Identifier. Identificador unico usado como PK em todos os modelos. Versao 4 (aleatorio).
+**UUID** — Universally Unique Identifier. Identificador único usado como PK em todos os modelos. Versão 4 (aleatório).
