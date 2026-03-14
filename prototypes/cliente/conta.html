@@ -118,6 +118,22 @@
             <a href="pagamento.html" class="btn btn-primary btn-full mt-4" style="text-decoration:none;">Pagar</a>
           </div>
 
+          <!-- Ana (não consumiu nada — pode sair com R$0) -->
+          <div class="card-elevated" style="padding:1.25rem;">
+            <div class="flex items-center gap-2 mb-4">
+              <div style="width:36px; height:36px; border-radius:50%; background:var(--color-primary-light); color:var(--color-primary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem;">A</div>
+              <h3 style="font-size:1rem; font-weight:700;">Ana</h3>
+            </div>
+            <div style="font-size:0.875rem; color:var(--color-text-muted); font-style:italic; margin-bottom:0.75rem;">Nenhum item consumido</div>
+            <div style="border-top:1px solid var(--color-border-light); padding-top:0.75rem;">
+              <div class="flex justify-between mb-2">
+                <span style="font-weight:700;">Total</span>
+                <span style="font-weight:700; color:var(--color-primary);">R$ 0,00</span>
+              </div>
+            </div>
+            <button class="btn btn-full mt-2" style="background:var(--color-bg-secondary); color:var(--color-text-secondary); border:1px solid var(--color-border-light);" onclick="confirmarSairDaMesa()">Sair da mesa</button>
+          </div>
+
           <!-- Pedro (taxa de serviço desabilitada pelo garçom) -->
           <div class="card-elevated" style="padding:1.25rem;">
             <div class="flex items-center gap-2 mb-4">
@@ -442,6 +458,13 @@
       closeModal('modal-edit-people');
       renderBillItems();
       showToast('Divisão atualizada', 'success');
+    }
+
+    function confirmarSairDaMesa() {
+      if (confirm('Você não consumiu nada. Deseja sair da mesa?')) {
+        showToast('Você saiu da mesa. Se voltar, escaneie o QR Code novamente.', 'success');
+        // No app real: redireciona para tela inicial
+      }
     }
 
     // Init
