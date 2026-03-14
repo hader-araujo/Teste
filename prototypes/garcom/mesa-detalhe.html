@@ -55,6 +55,43 @@
 
     <main style="padding:1rem;">
 
+      <!-- Seção: Pendentes (entrantes aguardando aprovação) -->
+      <section id="pendentes-section" style="margin-bottom:1rem;">
+        <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-warning); margin-bottom:0.5rem;">
+          Pendentes
+        </div>
+
+        <!-- Entrante aguardando aprovação -->
+        <div id="entrante-4567" style="
+          display:flex; align-items:center; justify-content:space-between; gap:0.75rem;
+          padding:0.75rem 1rem;
+          background:linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+          border:1px solid #F59E0B;
+          border-radius:var(--radius-lg);
+          flex-wrap:wrap;
+          gap:0.5rem;
+        ">
+          <div style="display:flex; align-items:center; gap:0.5rem; flex:1; min-width:0;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#F59E0B" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            <span style="font-size:0.875rem; font-weight:500; color:#92400E;">Telefone ***4567 &mdash; Aguardando aprovação</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-shrink:0;">
+            <button
+              class="btn btn-sm"
+              style="background:#16A34A; color:white; border:none; min-height:36px; padding:0 0.875rem;"
+              onclick="aprovarEntrante('4567')"
+              aria-label="Aprovar entrante telefone 4567"
+            >Aprovar</button>
+            <button
+              class="btn btn-sm"
+              style="background:#DC2626; color:white; border:none; min-height:36px; padding:0 0.875rem;"
+              onclick="rejeitarEntrante('4567')"
+              aria-label="Rejeitar entrante telefone 4567"
+            >Rejeitar</button>
+          </div>
+        </div>
+      </section>
+
       <!-- Mesa Info -->
       <section style="margin-bottom:1rem;">
         <div class="flex justify-between items-center" style="padding:0.75rem; background-color:var(--color-gray-50); border-radius:var(--radius-lg);">
@@ -85,7 +122,7 @@
 
           <!-- João -->
           <div style="margin-bottom:1.25rem;">
-            <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
+            <div class="flex justify-between items-center" style="margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
               <div class="flex items-center gap-2">
                 <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">João</span>
                 <div class="flex items-center gap-1">
@@ -93,7 +130,24 @@
                   <div class="toggle active" style="transform:scale(0.75);" onclick="togglePersonServiceCharge(this, 'João')" role="switch" aria-checked="true" aria-label="Taxa de serviço João"></div>
                 </div>
               </div>
-              <span style="font-weight:700; color:var(--color-primary);">R$ 91,94</span>
+              <div class="flex items-center gap-2">
+                <span style="font-weight:700; color:var(--color-primary);">R$ 91,94</span>
+                <button
+                  class="btn btn-sm"
+                  style="background:#16A34A; color:white; border:none; min-height:32px; padding:0 0.625rem; font-size:0.75rem;"
+                  onclick="abrirConfirmarPagamento('João', '91,94')"
+                  aria-label="Confirmar pagamento de João"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle; margin-right:0.25rem;"><polyline points="20,6 9,17 4,12"/></svg>
+                  Confirmar
+                </button>
+                <button
+                  class="btn btn-sm"
+                  style="background:#DC2626; color:white; border:none; min-height:32px; padding:0 0.625rem; font-size:0.75rem;"
+                  onclick="cancelarPix('João')"
+                  aria-label="Cancelar PIX de João"
+                >Cancelar PIX</button>
+              </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
               <!-- Pedido #42 — Grupo Normal: Picanha + Pizza (prontos, 2 pontos de entrega) -->
@@ -121,7 +175,7 @@
 
           <!-- Pedro -->
           <div style="margin-bottom:1.25rem;">
-            <div class="flex justify-between items-center" style="margin-bottom:0.5rem;">
+            <div class="flex justify-between items-center" style="margin-bottom:0.5rem; flex-wrap:wrap; gap:0.5rem;">
               <div class="flex items-center gap-2">
                 <span style="font-weight:600; font-size:1rem; color:var(--color-text-primary);">Pedro</span>
                 <div class="flex items-center gap-1">
@@ -129,7 +183,24 @@
                   <div class="toggle active" style="transform:scale(0.75);" onclick="togglePersonServiceCharge(this, 'Pedro')" role="switch" aria-checked="true" aria-label="Taxa de serviço Pedro"></div>
                 </div>
               </div>
-              <span style="font-weight:700; color:var(--color-primary);">R$ 91,94</span>
+              <div class="flex items-center gap-2">
+                <span style="font-weight:700; color:var(--color-primary);">R$ 91,94</span>
+                <button
+                  class="btn btn-sm"
+                  style="background:#16A34A; color:white; border:none; min-height:32px; padding:0 0.625rem; font-size:0.75rem;"
+                  onclick="abrirConfirmarPagamento('Pedro', '91,94')"
+                  aria-label="Confirmar pagamento de Pedro"
+                >
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle; margin-right:0.25rem;"><polyline points="20,6 9,17 4,12"/></svg>
+                  Confirmar
+                </button>
+                <button
+                  class="btn btn-sm"
+                  style="background:#DC2626; color:white; border:none; min-height:32px; padding:0 0.625rem; font-size:0.75rem;"
+                  onclick="cancelarPix('Pedro')"
+                  aria-label="Cancelar PIX de Pedro"
+                >Cancelar PIX</button>
+              </div>
             </div>
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
               <!-- Pedido #42 — Grupo Normal: Picanha + Pizza (prontos) -->
@@ -221,8 +292,104 @@
 
   </div>
 
+  <!-- Modal: Confirmar Pagamento -->
+  <div class="modal-overlay" id="modalConfirmarPagamento" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; padding:1rem;">
+    <div class="modal" style="background:white; border-radius:var(--radius-xl); max-width:380px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <div class="modal-header" style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--color-border-light); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:1rem; font-weight:700; color:var(--color-text-primary); margin:0;">Confirmar Pagamento</h3>
+        <button onclick="fecharModalPagamento()" style="background:none; border:none; cursor:pointer; color:var(--color-text-secondary); display:flex; align-items:center;">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:1.25rem 1.5rem;">
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+
+          <!-- Info da pessoa -->
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--color-gray-50); border-radius:var(--radius-lg);">
+            <div>
+              <div style="font-size:0.75rem; color:var(--color-text-muted);">Pessoa</div>
+              <div style="font-weight:600; color:var(--color-text-primary);" id="modal-pagamento-pessoa">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.75rem; color:var(--color-text-muted);">Valor</div>
+              <div style="font-weight:700; font-size:1.125rem; color:var(--color-primary);">R$ <span id="modal-pagamento-valor">—</span></div>
+            </div>
+          </div>
+
+          <!-- Método de pagamento -->
+          <div style="display:flex; flex-direction:column; gap:0.375rem;">
+            <label for="modal-metodo-pagamento" style="font-size:0.8125rem; font-weight:500; color:var(--color-text-secondary);">Método de Pagamento</label>
+            <select class="select" id="modal-metodo-pagamento" style="width:100%;">
+              <option value="pix">PIX</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="debito">Cartão Débito</option>
+              <option value="credito">Cartão Crédito</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid var(--color-border-light); display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button class="btn btn-secondary" onclick="fecharModalPagamento()">Cancelar</button>
+        <button
+          class="btn"
+          style="background:#16A34A; color:white;"
+          onclick="confirmarPagamento()"
+        >Confirmar Pagamento</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/app.js"></script>
   <script>
+    // Variável de estado do modal de pagamento
+    var _modalPagamentoPessoa = '';
+
+    function abrirConfirmarPagamento(pessoa, valor) {
+      _modalPagamentoPessoa = pessoa;
+      document.getElementById('modal-pagamento-pessoa').textContent = pessoa;
+      document.getElementById('modal-pagamento-valor').textContent = valor;
+      document.getElementById('modal-metodo-pagamento').value = 'pix';
+      var modal = document.getElementById('modalConfirmarPagamento');
+      modal.style.display = 'flex';
+    }
+
+    function fecharModalPagamento() {
+      document.getElementById('modalConfirmarPagamento').style.display = 'none';
+    }
+
+    function confirmarPagamento() {
+      var metodo = document.getElementById('modal-metodo-pagamento');
+      var labels = { pix: 'PIX', dinheiro: 'Dinheiro', debito: 'Cartão Débito', credito: 'Cartão Crédito' };
+      var metodoLabel = labels[metodo.value] || metodo.value;
+      fecharModalPagamento();
+      showToast('Pagamento de ' + _modalPagamentoPessoa + ' confirmado via ' + metodoLabel + '!', 'success');
+    }
+
+    function cancelarPix(pessoa) {
+      showToast('PIX de ' + pessoa + ' cancelado.', 'warning');
+    }
+
+    function aprovarEntrante(telefone) {
+      var el = document.getElementById('entrante-' + telefone);
+      if (el) { el.remove(); }
+      var section = document.getElementById('pendentes-section');
+      if (section && section.querySelectorAll('[id^="entrante-"]').length === 0) {
+        section.style.display = 'none';
+      }
+      showToast('Entrante ***' + telefone + ' aprovado!', 'success');
+    }
+
+    function rejeitarEntrante(telefone) {
+      var el = document.getElementById('entrante-' + telefone);
+      if (el) { el.remove(); }
+      var section = document.getElementById('pendentes-section');
+      if (section && section.querySelectorAll('[id^="entrante-"]').length === 0) {
+        section.style.display = 'none';
+      }
+      showToast('Entrante ***' + telefone + ' rejeitado.', 'warning');
+    }
+
     function claimDeliveryGroup(btn, group) {
       // Step 1: Claim (Retirar) → garçom assume o grupo inteiro
       btn.textContent = 'Marcar como Entregue';

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login KDS — OChefia</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      background-color: #111827;
+      color: #F9FAFB;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kds-login-wrapper {
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem 1.5rem;
+    }
+
+    .kds-login-logo {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .kds-login-logo-text {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #F9FAFB;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .kds-login-logo-sub {
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-top: 0.375rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .kds-login-card {
+      background-color: #1F2937;
+      border: 1px solid #374151;
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+
+    .kds-login-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #F9FAFB;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .kds-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      margin-bottom: 1rem;
+    }
+
+    .kds-form-group label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #9CA3AF;
+    }
+
+    .kds-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background-color: #111827;
+      border: 1px solid #374151;
+      border-radius: 0.5rem;
+      color: #F9FAFB;
+      font-size: 0.9375rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+      box-sizing: border-box;
+    }
+
+    .kds-input::placeholder {
+      color: #6B7280;
+    }
+
+    .kds-input:focus {
+      border-color: #16A34A;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+
+    .kds-login-btn {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background-color: #16A34A;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background-color 0.15s ease;
+      min-height: 48px;
+    }
+
+    .kds-login-btn:hover {
+      background-color: #15803D;
+    }
+
+    .kds-login-btn:active {
+      background-color: #166534;
+    }
+
+    .kds-login-footer {
+      text-align: center;
+      margin-top: 2rem;
+      color: #4B5563;
+      font-size: 0.8125rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="kds-login-wrapper">
+
+    <!-- Logo -->
+    <div class="kds-login-logo">
+      <div class="kds-login-logo-text">OChefia KDS</div>
+      <div class="kds-login-logo-sub">Sistema de Exibição de Cozinha</div>
+    </div>
+
+    <!-- Card de Login -->
+    <div class="kds-login-card">
+      <h1 class="kds-login-title">Entrar no KDS</h1>
+
+      <form id="login-form" onsubmit="handleLogin(event)">
+
+        <div class="kds-form-group">
+          <label for="email">E-mail</label>
+          <input
+            class="kds-input"
+            id="email"
+            type="email"
+            placeholder="seu@email.com"
+            required
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="kds-form-group">
+          <label for="senha">Senha</label>
+          <input
+            class="kds-input"
+            id="senha"
+            type="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="kds-login-btn" id="login-btn">
+          Entrar
+        </button>
+
+      </form>
+    </div>
+
+    <div class="kds-login-footer">
+      OChefia &mdash; Acesso restrito a operadores autorizados
+    </div>
+
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    function handleLogin(event) {
+      event.preventDefault();
+      var btn = document.getElementById('login-btn');
+      btn.textContent = 'Entrando...';
+      btn.disabled = true;
+
+      // Simula autenticação no protótipo
+      setTimeout(function() {
+        showToast('Login realizado com sucesso!', 'success');
+        setTimeout(function() {
+          window.location.href = 'selecao-local.html';
+        }, 800);
+      }, 600);
+    }
+  </script>
+
+</body>
+</html>
