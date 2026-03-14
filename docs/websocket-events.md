@@ -23,6 +23,7 @@ export const SOCKET_EVENTS = {
   WAITER_CLAIM_EXPIRING: 'waiter:claim-expiring',       // Aviso ao garçom que fez claim: 1 min antes do timeout (direto ao socket do garçom)
   WAITER_CLAIM_EXPIRED: 'waiter:claim-expired',         // Claim expirado: notifica garçom original (direto) + re-emite waiter:order-ready para o setor
   WAITER_CALL: 'waiter:call',               // Cliente chamou
+  WAITER_SESSION_OPENED: 'waiter:session-opened', // Mesa aberta pelo cliente — garçom do setor recebe para dar boas-vindas e verificar presença física. Também protege contra sessão fantasma (QR Code fotografado remotamente)
   WAITER_NEW_ORDER: 'waiter:new-order',     // Emitido na criação do pedido (POST /orders) para garçons do setor da mesa. Inclui: orderId, tableId, tableName, items[]. Para itens destino "Garçom" (entrega direta), o garçom recebe este evento E já pode entregar imediatamente
 
   // Servidor -> Cliente
@@ -83,6 +84,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 | Evento | Room | Payload |
 |---|---|---|
+| `waiter:session-opened` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ tableId, tableName, personCount, openedAt }`. Garçom vai até a mesa para dar boas-vindas. Se mesa estiver vazia → sessão fantasma, garçom fecha manualmente |
 | `waiter:new-order` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableId, tableName, items: [{ itemId, productName, qty, destination }] }` |
 | `waiter:order-ready` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup: 'normal' \| 'immediate', pickupPoints: [{ pointId, pointName, locationName, autoDelivery, items: [{ itemId, productName, qty }] }] }` |
 | `waiter:pickup-claimed` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, deliveryGroup, claimedByStaffId, claimedByName }` |

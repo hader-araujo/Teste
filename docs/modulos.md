@@ -204,16 +204,14 @@ Acesso: Cliente via QR Code no navegador.
 - Ao escanear o QR Code, o cliente ve duas opcoes: **"Entrar na mesa"** ou **"Ver cardapio"**.
 - **Ver cardapio (modo read-only):** acessa o cardapio completo com precos, sem criar sessao, sem identificacao. Nao pode fazer pedidos. Util para ver precos antes de sentar ou enquanto aguarda aprovacao. O botão "Adicionar" nos produtos exibe toast "Entre na mesa para fazer pedidos". Carrinho indisponível. Ao completar o fluxo de verificação WhatsApp e aprovação, o modo interativo é ativado automaticamente.
 
-### Proteção contra Abertura Remota de Sessão (⚠️ A DEFINIR antes da Sprint 0)
+### Proteção contra Abertura Remota de Sessão
 - **Problema:** o QR Code da mesa é uma URL pública (`/{slug}/mesa/{mesaId}`). Qualquer pessoa que fotografe o QR Code pode criar sessão remotamente (ex: de casa, antes do restaurante abrir), bloqueando a mesa para clientes reais.
-- **Proteções atuais insuficientes:** force-close pelo garçom e alerta de mesa ociosa dependem de alguém no restaurante perceber.
-- **Opções em avaliação:**
-  - Sessão sem pedido expira automaticamente após X minutos
-  - Sessão sem WebSocket conectado + sem pedido expira
-  - Garçom precisa confirmar abertura (sessão fica "pendente")
-  - Validação de proximidade (GPS/Wi-Fi)
-  - Fechamento automático de todas as sessões no final do expediente
-- **Decisão pendente.** Definir solução antes de iniciar implementação.
+- **Solução (Fase 1): notificação ao garçom + atenuantes naturais.**
+  - **Notificação imediata:** ao abrir sessão pelo cliente (`POST /tables/:id/open`), o sistema emite `waiter:session-opened` para os garçons do setor. Garçom vai até a mesa para dar boas-vindas e explicar o sistema. Se a mesa estiver fisicamente vazia → sessão fantasma → garçom fecha manualmente via force-close.
+  - **Atenuante 1 — mesa ociosa:** sessão ativa sem pedido há mais de `idleTableThreshold` minutos (default 30min) gera alerta no dashboard do admin.
+  - **Atenuante 2 — pedido sem retirada:** se o "atacante" fizer pedido, o pedido vai pra cozinha e ninguém retira → sistema de escalação notifica garçons → garçom percebe mesa vazia → fecha sessão.
+  - **Atenuante 3 — risco baixo:** o prejuízo é do próprio atacante (paga por comida que não come) ou desperdício detectável pela equipe.
+- **Fase futura (se necessário):** código diário de 4 dígitos exibido na mesa, GPS opcional, ou confirmação obrigatória do garçom para abertura.
 
 ### Abertura de Sessão (primeiro cliente)
 - Se a mesa não tem sessão ativa, o primeiro cliente a escolher "Entrar na mesa" inicia o fluxo de abertura:
