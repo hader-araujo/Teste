@@ -7,8 +7,9 @@ SaaS de gestão para bares/restaurantes no Brasil. Monorepo TypeScript: NestJS +
 ## REGRAS OBRIGATÓRIAS
 
 1. **TDD inviolável.** RED → GREEN → REFACTOR. Teste primeiro, código depois. Sem exceções. Ver `.claude/rules/testing.md`.
-2. **Consultar `docs/` antes de implementar.** Identificar docs relevantes → ler com Read → só então implementar.
+2. **Consultar `docs/` antes de implementar. Atualizar `docs/` depois.** Identificar docs relevantes → ler com Read → implementar → atualizar docs afetados. Se a implementação mudou um endpoint, atualizar `api-endpoints.md`. Se adicionou evento WebSocket, atualizar `websocket-events.md`. Se mudou campo no schema, atualizar `schema.md`. Se mudou fluxo de navegação, atualizar `fluxos.md`. Nenhum PR deve ser mergeado com docs desatualizados.
 3. **Planejar antes de executar tarefas complexas.** Para features novas ou refatorações grandes: apresentar plano (arquivos a criar/modificar, ordem, testes a escrever) e aguardar aprovação. O plano antecede o TDD — primeiro decide O QUE fazer, depois executa com TDD.
+4. **Nunca tomar decisões de negócio ou design sozinho.** Ao encontrar ambiguidade, furo lógico, ou necessidade de definir regra/comportamento/limite/valor — SEMPRE perguntar antes de decidir. Isso vale para docs (definição de regras, fluxos, limites, comportamentos) e para código (escolhas de implementação que afetam lógica de negócio). Listar as opções com prós/contras e aguardar escolha explícita. Nunca inventar números, comportamentos ou regras por conta própria.
 
 ---
 
@@ -114,3 +115,5 @@ See @docs/sprints.md for índice do roadmap. Detalhes de cada sprint em `docs/sp
 - `docs/design-superadmin.md` — specs do backoffice super admin
 - `docs/schema.md` — modelo de dados conceitual (entidades, campos, relacionamentos, enums)
 - `docs/glossario.md` — glossário de termos de negócio, técnicos e siglas
+- `docs/decisions/` — ADRs (Architecture Decision Records) com justificativas das escolhas técnicas
+- `docs/privacidade.md` — texto da Política de Privacidade, regras LGPD, URL e implementação
