@@ -396,6 +396,18 @@ function updateCartUI() {
     }
   }
 
+  // Update badge on bottom nav Cardápio tab
+  const cartBadge = document.getElementById('cart-badge');
+  if (cartBadge) {
+    const badgeCount = getCartCount();
+    if (badgeCount > 0) {
+      cartBadge.textContent = badgeCount;
+      cartBadge.style.display = 'inline-flex';
+    } else {
+      cartBadge.style.display = 'none';
+    }
+  }
+
   // Update cart page if on it
   if (typeof renderCartPage === 'function') {
     renderCartPage();
