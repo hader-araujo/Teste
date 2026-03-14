@@ -22,3 +22,10 @@ Ciclo **sempre**: RED (teste falhando) → GREEN (código mínimo) → REFACTOR.
 2. `pnpm lint` — zero warnings/errors.
 3. Commits atômicos: 1 feature ou 1 fix por commit.
 4. Se tem mudanças de 2 tarefas, separar em commits distintos.
+
+## NÃO FAÇA
+
+- Não escrever código de produção antes do teste — o teste vem PRIMEIRO.
+- Não mockar o banco de dados em testes de integração — usar banco real (container de teste).
+- Não pular o REFACTOR — após o GREEN, sempre revisar antes de seguir.
+- Não commitar com testes falhando ou lint com erros.

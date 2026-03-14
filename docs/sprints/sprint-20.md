@@ -14,5 +14,6 @@
 - [ ] **Dashboard alertas:** seção de alertas em tempo real — pedidos atrasados (tempo > threshold configurável, default 15min), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), setores sem garçom atribuído.
 - [ ] Itens populares.
 - [ ] **Tela "Desempenho da Equipe":** métricas por garçom (tempo médio de entrega Pronto→Entregue, pedidos atendidos, escalações nível 1 e 2, taxa de serviço acumulada) e por Local de Preparo (tempo médio de preparo Na fila→Pronto, pedidos produzidos, itens mais demorados). Filtro por período (dia/semana/mês). Inclui **relatório de escalações de retirada** por garçom e por período.
+- [ ] **Frontend admin:** tela de dashboard com KPIs dinâmicos, alertas e pedidos recentes. Tela de desempenho da equipe com métricas por garçom e por Local de Preparo.
 
 **Nota:** métrica de abandono de carrinho movida para Fase 2 (carrinho é localStorage na Fase 1).

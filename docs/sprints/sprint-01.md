@@ -12,3 +12,5 @@ Hardening de segurança, pipeline de CI e documentação de padrões. Pré-requi
 - [ ] `pnpm audit` como step do CI.
 - [ ] Criar `docs/patterns.md` com exemplos canônicos de código por camada.
 - [ ] Criar `docs/decisions/` com ADRs das decisões arquiteturais (Socket.IO, Prisma, Bull, etc).
+- [ ] Tabela `AuditLog` no Prisma schema (para uso em sprints futuras).
+- [ ] **PostgreSQL RLS** como segunda camada de proteção para multi-tenancy. Policies baseadas em `restaurantId` nas tabelas principais. Ver `docs/seguranca.md`.
