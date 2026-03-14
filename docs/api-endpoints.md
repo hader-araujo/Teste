@@ -12,7 +12,8 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | POST | `/auth/register` | Registro de restaurante + owner |
-| POST | `/auth/login` | Login -> retorna JWT |
+| POST | `/auth/login` | Login com email+senha → retorna JWT. Usado por Admin e Super Admin |
+| POST | `/auth/pin` | Login com PIN → retorna JWT. Body: `{ restaurantId, staffId, pin }`. Usado por Garçom (WAITER) e KDS (KITCHEN). Rate limiting: 5 tentativas/15min + lockout 15min |
 | POST | `/auth/refresh` | Refresh token |
 | GET | `/auth/me` | Dados do usuário logado |
 
@@ -32,7 +33,8 @@ Base URL: `/api/v1`
 | PUT | `/tables/:id` | Atualizar mesa |
 | DELETE | `/tables/:id` | Soft delete de mesa (só se não tiver sessão ativa). Histórico preservado para métricas. Permite recriar mesa com mesmo nome/número |
 | POST | `/tables/:id/verify-phone` | Enviar OTP de verificação WhatsApp antes de criar sessão (1º cliente, mesa sem sessão ativa). Body: `{ phone }`. Não requer sessão ativa |
-| POST | `/tables/:id/open` | Abrir sessão da mesa. Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. Cria sessão + 1º membro. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
+| POST | `/tables/:id/open` | Abrir sessão da mesa (cliente). Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. Cria sessão + 1º membro. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
+| POST | `/tables/:id/open-staff` | Abrir sessão da mesa (garçom). Roles: WAITER, MANAGER, OWNER. Body: `{ peopleCount: number, names?: string[] }`. Não exige WhatsApp/OTP. Pessoas criadas como genéricas se nomes não informados. `consentGivenAt` fica null para pessoas sem OTP. Usado para clientes sem celular ou mesas analógicas |
 | POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Emite evento `client:session-closed` via WebSocket |
 | POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
@@ -59,7 +61,7 @@ Base URL: `/api/v1`
 | GET | `/session/:token/people` | Listar pessoas cadastradas na sessão |
 | POST | `/session/:token/people` | Adicionar pessoa na mesa (body: `{ name }`) |
 | PATCH | `/session/:token/people/:personId` | Atualizar nome da pessoa (body: `{ name }`) |
-| DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa. **Bloqueios:** retorna erro `SESSION_016` se pessoa tem Payment CONFIRMED ou PENDING. Retorna erro `SESSION_017` se pessoa tem OrderItems com status `QUEUED` ou `PREPARING`. Itens `READY` ou `DELIVERED` não bloqueiam (já foram processados). Antes de remover, verificar se há itens compartilhados — se sim, a pessoa é removida da divisão e os itens são reatribuídos automaticamente entre as pessoas restantes |
+| DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa (cliente "Sair da mesa" ou staff). **Só permitido se saldo da pessoa = R$ 0,00** (sem itens, ou todos os itens pagos). Retorna erro `SESSION_016` se pessoa tem saldo pendente (itens não pagos ou Payment PENDING). Retorna erro `SESSION_017` se pessoa tem OrderItems com status `QUEUED` ou `PREPARING`. Não existe reatribuição automática de itens — pessoa paga primeiro, depois sai |
 | PATCH | `/session/:token/service-charge` | Toggle taxa de serviço (**requer JWT de staff**, role WAITER ou superior). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos. Com `personId` = toggle individual por pessoa. Cliente não tem acesso a este endpoint |
 | GET | `/session/:token/bill` | Conta detalhada com divisão por pessoa + taxa de serviço |
 | GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuições. Retorna lista de ações em formato legível (quem pediu, quem modificou, de/para). Visível para todos os membros da mesa |
@@ -73,6 +75,11 @@ Base URL: `/api/v1`
 | POST | `/preparation-locations` | Criar local de preparo (gera 1 Ponto de Entrega default automaticamente) |
 | PUT | `/preparation-locations/:id` | Atualizar local de preparo |
 | DELETE | `/preparation-locations/:id` | Remover local de preparo (somente se não tem produtos vinculados) |
+
+## Fila do KDS (por Local de Preparo)
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/preparation-locations/:id/orders?status=pending,preparing` | Pedidos pendentes/em preparo roteados para o local. Carga inicial do KDS antes do WebSocket assumir. Roles: WAITER, KITCHEN, OWNER, MANAGER |
 
 ## Pontos de Entrega
 | Metodo | Rota | Descricao |
@@ -130,19 +137,27 @@ Base URL: `/api/v1`
 | PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment CONFIRMED que inclua o item |
 
 ## Payments
+
+> **Fluxo:** Qualquer método (PIX, CASH, CARD) pode ser iniciado pelo cliente OU pelo garçom. CASH/CARD sempre exigem confirmação do garçom. PIX é confirmado automaticamente via webhook, ou manualmente pelo garçom se webhook falhar.
+
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/payments` | Iniciar pagamento individual por pessoa (body: `{ sessionToken, personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`). PIX gera QR Code automaticamente. CASH e CARD_DEBIT/CARD_CREDIT são registro manual pelo garçom/caixa após receber pagamento físico |
-| GET | `/payments/:id/status` | Verificar status do pagamento (inclui método utilizado) |
-| POST | `/payments/pix/webhook` | Webhook de confirmação Pix. Validação de assinatura síncrona (retorna 400 se inválida). Só enfileira no Bull após validação. Idempotency via campo `externalId` do provedor (ignora duplicatas) |
+| POST | `/session/:token/payments` | **Cliente inicia pagamento.** Body: `{ personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. PIX gera QR Code. CASH/CARD ficam PENDING aguardando confirmação do garçom. Registra `initiatedBy: CLIENT` |
+| POST | `/payments` | **Staff inicia pagamento.** Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Mesmo comportamento. Registra `initiatedBy: STAFF` + `initiatedByStaffId` |
+| GET | `/payments/:id/status` | Verificar status do pagamento (inclui método, quem iniciou, quem confirmou) |
+| PATCH | `/payments/:id/confirm` | **Staff confirma pagamento.** Roles: WAITER, MANAGER, OWNER. Muda status de `PENDING` para `CONFIRMED`. Registra `confirmedByStaffId` + `confirmedAt`. Obrigatório para CASH/CARD. Para PIX: só usado como fallback quando webhook falha |
+| POST | `/payments/pix/webhook` | Webhook de confirmação Pix (automático). Validação de assinatura síncrona (retorna 400 se inválida). Só enfileira no Bull após validação. Idempotency via `externalId` do provedor (ignora duplicatas). `confirmedByStaffId` fica null |
+| PATCH | `/payments/:id/cancel` | Staff cancela pagamento pendente (roles: WAITER, MANAGER, OWNER). Body: `{ reason?: string }`. Só status `PENDING`. Registra `cancelledAt` + `cancelledByStaffId` |
+| PATCH | `/session/:token/payments/:id/cancel` | Cliente cancela o próprio pagamento pendente para tentar outro método. Só status `PENDING`. Sem body |
 | PATCH | `/payments/:id/refund` | Confirmar devolução de pagamento (staff, WAITER+). Body: `{ method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT', amount }`. Registra `refundedByStaffId`, `refundedAt`, `refundMethod`. Muda status de `PENDING_REFUND` para `REFUNDED`. Registra no activity log e AuditLog |
-| GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método utilizado por cada pagamento, devoluções pendentes e confirmadas) |
+| GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método, quem iniciou, quem confirmou, devoluções pendentes e confirmadas) |
 
 ## LGPD
 | Metodo | Rota | Descricao |
 |---|---|---|
 | POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone (primeiro passo para acesso a dados LGPD) |
 | GET | `/lgpd/data?phone=X&otp=Y` | Retorna todos os dados pessoais vinculados ao telefone após OTP verificado. Direito de acesso LGPD |
+| DELETE | `/lgpd/data?phone=X&otp=Y` | Anonimiza dados pessoais de todas as sessões passadas do telefone após OTP verificado. Direito de exclusão LGPD. Substitui nome por "Anonimizado", phone por null, phoneLast4 por null |
 
 ## Call Requests
 | Metodo | Rota | Descricao |
@@ -186,9 +201,9 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/staff` | Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100) |
-| POST | `/staff` | Criar funcionário (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` senha numérica para garçom) |
+| POST | `/staff` | Criar funcionário (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` PIN numérico 4 dígitos, obrigatório para WAITER e KITCHEN) |
 | POST | `/staff/invite` | Enviar convite via WhatsApp (mesma infra do OTP). Gera link com token UUID v4, expira em 72h. Link enviado via WhatsApp pelo admin. Em dev, log no console. **Convite duplicado:** se já existe convite pendente (não expirado, não aceito) para o mesmo email, o convite anterior é invalidado e um novo é gerado. Apenas o convite mais recente é válido |
-| POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER |
+| POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER ou KITCHEN |
 | PUT | `/staff/:id` | Atualizar funcionário |
 | DELETE | `/staff/:id` | Desativar funcionário |
 | POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. Garçom deve definir novo PIN no próximo clock-in |
@@ -206,6 +221,7 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/schedule` | Listar escala por período (query: `from`, `to`) |
 | GET | `/schedule/:date` | Retorna a programação para a data: quem deveria trabalhar (baseado em escala cadastrada e dias fixos) |
+| PUT | `/schedule/:date` | Definir/atualizar escala do dia (idempotente, sobrescreve). Body: `{ entries: [{ staffId, role }] }`. Roles: OWNER, MANAGER |
 
 ## Equipe do Dia
 | Metodo | Rota | Descricao |

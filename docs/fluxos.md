@@ -56,7 +56,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Dispositivo:** celular (PWA).
 **Navegacao:** bottom nav fixa com 3 tabs: **Chamados, Mesas, Turno**. Chamados e a tela principal (primeira tab). Telas de detalhe da mesa e comanda sao contextuais (acessadas a partir de uma mesa).
 
-1. **Turno** → seleciona nome → informa senha → "Iniciar Turno" → turno ativo
+1. **Turno** → seleciona nome → informa PIN (4 dígitos) → "Iniciar Turno" → turno ativo
 2. **Chamados** (tab principal) → ve chamados abertos + grupos prontos para retirada dos seus setores → "Resolvido" / "Retirar Grupo". Banner de notificacao no topo ao abrir com resumo dos alertas urgentes
 3. **Mesas** → ve lista de mesas dos **setores atribuidos** (definidos na Equipe do Dia) com status (livre, ocupada, pedindo conta, atrasado). Mesas agrupadas por setor
 4. Toca numa mesa **livre** → **Abrir mesa:**
@@ -92,16 +92,34 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Navegacao:** sidebar fixa com menu agrupado por secao.
 
 1. **Login** → email + senha
+
+**Visão Geral:**
+
 2. **Dashboard** → métricas em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas, pedidos recentes + seção **Alertas** unificada (pedidos atrasados, chamados abertos, escalações ativas, mesas ociosas, setores sem garçom)
-3. **Mesas** → mapa visual com status por cor → filtros (Todas, Com problema, Ociosas) → abrir/fechar/deletar sessão. Deletar = soft delete (só mesa fechada, histórico preservado)
-4. **Cardapio** → CRUD de categorias, tags e produtos (com fotos, Ponto de Entrega ou "Garçom", preço)
+
+**Cardápio:**
+
+3. **Cardápio** → CRUD de categorias, tags e produtos (com fotos, Ponto de Entrega ou "Garçom", preço)
+
+**Operação:**
+
+4. **Mesas** → mapa visual com status por cor → filtros (Todas, Com problema, Ociosas) → abrir/fechar/deletar sessão. Deletar = soft delete (só mesa fechada, histórico preservado)
 5. **Locais de Preparo** → CRUD de locais (ex: Cozinha, Bar, Pizzaria) + Pontos de Entrega por local (com flag auto-entrega)
 6. **Setores** → CRUD de setores + vincular mesas + mapeamento obrigatório de Ponto de Entrega por Local de Preparo
-7. **Faturamento** → diário (receita, pedidos, ticket médio) | mensal (gráfico por dia) | caixa (por forma de pagamento) | taxas de garçom
-8. **Equipe** → cadastrar funcionários (com flag temporário, dias fixos, senha garçom) → enviar convites
-9. **Escala** → calendário por dia → auto-preenchido + ajustes manuais
-10. **Equipe do Dia** → quem trabalha hoje + atribuição de setores por garçom
-11. **Desempenho da Equipe** → métricas por garçom (tempo médio entrega, pedidos atendidos, escalações) e por Local de Preparo (tempo médio preparo, pedidos, itens mais demorados). Filtro por período
+
+**Equipe:**
+
+7. **Funcionários** → cadastrar funcionários (com flag temporário, dias fixos, PIN garçom/cozinha) → enviar convites
+8. **Escala** → calendário por dia → auto-preenchido + ajustes manuais
+9. **Equipe do Dia** → quem trabalha hoje + atribuição de setores por garçom
+10. **Desempenho** → métricas por garçom (tempo médio entrega, pedidos atendidos, escalações) e por Local de Preparo (tempo médio preparo, pedidos, itens mais demorados). Filtro por período
+
+**Financeiro:**
+
+11. **Faturamento** → diário (receita, pedidos, ticket médio) | mensal (gráfico por dia) | caixa (por forma de pagamento) | taxas de garçom
+
+**Configurações:**
+
 12. **Settings** → nome/logo do estabelecimento, taxa de serviço, tema/cores do cardápio com preview
 
 ---
@@ -111,7 +129,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Dispositivo:** tablet ou monitor (landscape).
 **Navegação:** tela única por Local de Preparo. Sem navegação complexa — foco total na fila. Cada Local de Preparo (ex: Cozinha, Pizzaria, Bar) tem sua própria instância KDS.
 
-1. Tela abre direto na **fila de produção** (dark mode)
+1. **Login** → seleciona nome → informa PIN (4 dígitos) → seleciona Local de Preparo → **fila de produção** (dark mode)
 2. Pedidos aparecem como cards em grid (3-5 colunas)
 3. Cada card mostra: número do pedido, mesa, itens, timer, observações
 4. **Cores de borda mudam com o tempo:** verde (no prazo) → amarelo (atenção >10min) → vermelho (atrasado >15min)

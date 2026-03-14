@@ -14,7 +14,7 @@ O Staff se subdivide em 3 contextos com variacoes:
 
 O KDS requer autenticação de funcionário (role KITCHEN). Ao acessar, o funcionário faz login e seleciona o Local de Preparo. O operador pode acessar qualquer Local de Preparo do restaurante.
 
-**Tela de login do KDS:** reutiliza o endpoint de autenticação existente (`POST /auth/login`). Layout minimalista em dark mode (`bg-gray-900`): logotipo "OChefia KDS" centralizado, campo de e-mail, campo de senha e botão "Entrar" (`bg-green-600`). Após autenticação bem-sucedida, redireciona para a tela de seleção de Local de Preparo.
+**Tela de login do KDS:** layout minimalista em dark mode (`bg-gray-900`): logotipo "OChefia KDS" centralizado, seleção de nome (lista de funcionários com role KITCHEN do restaurante) e campo de PIN (4 dígitos numéricos). Botão "Entrar" (`bg-green-600`). Rate limiting: 5 tentativas por 15min + lockout de 15min (mesmo padrão do garçom). Após autenticação bem-sucedida, redireciona para a tela de seleção de Local de Preparo.
 
 **Fetch inicial ao conectar:** após selecionar o Local de Preparo e estabelecer conexão WebSocket, o KDS realiza `GET /preparation-locations/:id/orders?status=pending,preparing` para carregar a fila atual antes de receber novos eventos via socket. Garante que pedidos criados durante uma desconexão não sejam perdidos.
 
@@ -109,9 +109,11 @@ Ao tocar na notificação, o app abre diretamente na tela correspondente. Se o g
 
 ---
 
-## Caixa — Layout de Tablet (Referencia Futura)
+## Fase 2 — NÃO IMPLEMENTAR
 
-> **Nota:** O modulo Caixa nao faz parte da Fase 1. Esta secao e apenas referencia arquitetural para quando o modulo for implementado. Na Fase 1, o fechamento de conta e feito pelo garcom (via detalhe da mesa) ou pelo cliente (via pagamento Pix individual).
+### Caixa — Layout de Tablet (Referência Futura)
+
+> **⚠ FASE 2 — NÃO IMPLEMENTAR ATÉ AVISO EXPLÍCITO.** Esta seção é apenas referência arquitetural. Na Fase 1, o fechamento de conta é feito pelo garçom (via detalhe da mesa) ou pelo cliente (via pagamento individual).
 
 **Superficies e Cores:** mesmas do garcom (light mode), mas layout otimizado para tablet landscape.
 

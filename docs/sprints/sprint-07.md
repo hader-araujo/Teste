@@ -2,13 +2,14 @@
 
 Backend do fluxo de aprovação e cache do cardápio. Frontend na Sprint 8.
 
-**Endpoints (~6):**
+**Endpoints (~7):**
 - POST `/session/:token/join` — Solicitar entrada na sessão (cria sessão se primeira pessoa, ou cria solicitação pendente). **Pré-requisito:** WhatsApp verificado.
 - GET `/session/:token/join/pending` — Listar solicitações pendentes de aprovação.
 - PATCH `/session/:token/join/:requestId/approve` — Aprovar novo membro.
 - PATCH `/session/:token/join/:requestId/reject` — Rejeitar novo membro.
 - POST `/session/:token/join/:requestId/remind` — Reenviar notificação (cooldown 60s).
 - GET `/session/:token/join/:requestId/status` — Verificar status da solicitação.
+- DELETE `/session/:token/join/reset-limit` — Staff reseta limite de re-solicitações (body: `{ phone }`). Para casos legítimos após 3 tentativas.
 - GET `/menu/:restaurantSlug` — Cardápio público (com cache Redis).
 
 **Checklist:**
@@ -16,7 +17,8 @@ Backend do fluxo de aprovação e cache do cardápio. Frontend na Sprint 8.
 - [ ] **Timeout de aprovação:** solicitação expira após 5 minutos sem resposta. Status muda para `EXPIRED` automaticamente via job Bull.
 - [ ] **Auto-renotificação:** a cada 60 segundos sem resposta, reenviar notificação automaticamente aos membros da mesa (dentro do período de 5 minutos).
 - [ ] **Notificação via polling HTTP (sem WebSocket):** membros da mesa consultam `GET /session/:token/join/pending` a cada 10s para ver solicitações pendentes. WebSocket substituirá este polling na Sprint 12.
-- [ ] Entrante pode re-solicitar após rejeição ou expiração.
+- [ ] Entrante pode re-solicitar após rejeição ou expiração. Máximo 3 tentativas por telefone por sessão (SESSION_014).
+- [ ] Endpoint `DELETE /session/:token/join/reset-limit` para staff resetar o limite de re-solicitações em casos legítimos.
 - [ ] Reentrada: reconhecer membro já aprovado via cookie + telefone verificado.
 - [ ] Cache do cardápio no Redis com TTL de 5min + invalidação explícita no CRUD de produtos/categorias.
 - [ ] Cache stampede prevention: lock-based refresh ou stale-while-revalidate no cache do cardápio.

@@ -50,9 +50,21 @@ CARD_CREDIT
 
 ### PaymentStatus
 ```
-PENDING
-CONFIRMED
-CANCELLED
+PENDING          -- Criado, aguardando pagamento
+CONFIRMED        -- Pago e confirmado (webhook PIX ou staff confirma CASH/CARD)
+CANCELLED        -- Cancelado manualmente (garçom cancela PIX / cliente desiste)
+EXPIRED          -- PIX expirou 30min sem pagamento (automático, Bull job)
+PENDING_REFUND   -- Devolução solicitada, aguardando confirmação do staff
+REFUNDED         -- Devolução confirmada pelo staff
+```
+
+**Máquina de estados:**
+```
+PENDING → CONFIRMED       (webhook PIX ou staff confirma CASH/CARD)
+PENDING → CANCELLED       (garçom cancela PIX / cliente desiste)
+PENDING → EXPIRED         (Bull job 30min, só PIX)
+CONFIRMED → PENDING_REFUND (item cancelado após preparo)
+PENDING_REFUND → REFUNDED  (staff confirma devolução)
 ```
 
 ### JoinRequestStatus
@@ -107,6 +119,12 @@ PICKUP_POINT  -- Vai para KDS do Local de Preparo vinculado ao Ponto de Entrega
 WAITER        -- Entrega direta pelo garçom, sem KDS
 ```
 
+### OrderSource
+```
+CLIENT        -- Pedido feito pelo cliente via cardápio digital
+STAFF         -- Pedido feito pelo garçom via comanda rápida
+```
+
 ---
 
 ## Módulo Auth / Restaurant
@@ -151,6 +169,8 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | pickupEscalationTimeout | Int | Default `10`. Minutos — tempo para escalar ao nível 2 |
 | orderDelayThreshold | Int | Default `15`. Minutos — threshold para alerta de pedido atrasado |
 | idleTableThreshold | Int | Default `30`. Minutos — threshold para alerta de mesa ociosa |
+| maxPeoplePerSession | Int | Default `100`. Limite máximo de pessoas por sessão de mesa |
+| claimTimeout | Int | Default `5`. Minutos — tempo para garçom retirar grupo após claim antes de expirar |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -169,7 +189,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | email | String | Unique |
 | passwordHash | String | bcrypt |
 | role | Role | SUPER_ADMIN, OWNER, MANAGER, WAITER, KITCHEN |
-| pin | String? | Senha numérica do garçom (hash). Usado no clock-in |
+| pin | String? | PIN numérico 4 dígitos (hash). Obrigatório para WAITER e KITCHEN. Usado no login por PIN (`POST /auth/pin`) e clock-in |
 | phone | String? | |
 | temporary | Boolean | Default `false`. Funcionário temporário |
 | fixedWeekdays | Int[]? | Dias fixos da semana (0-6). Null = avulso |
@@ -186,6 +206,32 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 - SUPER_ADMIN não tem `restaurantId` — acesso cross-tenant
 - Criado via seed ou comando interno (sem registro público para SUPER_ADMIN)
 - Staff/Employee é o mesmo modelo User com roles específicas
+
+---
+
+### StaffInvite
+`@@map("staff_invites")`
+
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | UUID | PK |
+| restaurantId | UUID | FK → Restaurant |
+| email | String | Email do convidado |
+| role | Role | Role atribuída (WAITER, KITCHEN, MANAGER) |
+| token | UUID | Token único enviado no link do convite |
+| expiresAt | DateTime | Expiração (72h após criação) |
+| acceptedAt | DateTime? | Quando o convite foi aceito |
+| invalidatedAt | DateTime? | Quando invalidado por novo convite para o mesmo email |
+| createdAt | DateTime | |
+
+**Relacionamentos:** belongs to Restaurant
+
+**Índices:** `token` (unique), `restaurantId` + `email`
+
+**Notas:**
+- Convite duplicado: se já existe convite pendente (não expirado, não aceito) para o mesmo email, o anterior é invalidado automaticamente
+- Apenas o convite mais recente é válido
+- Link enviado via WhatsApp pelo admin (em dev, log no console)
 
 ---
 
@@ -286,7 +332,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | phone | String? | Número WhatsApp verificado |
 | phoneVerified | Boolean | Default `false` |
 | serviceChargeEnabled | Boolean | Default `true`. Toggle individual por garçom |
-| consentGivenAt | DateTime | Timestamp do consentimento LGPD, preenchido no momento do OTP |
+| consentGivenAt | DateTime? | Timestamp do consentimento LGPD, preenchido no momento do OTP. Null para pessoas criadas via `open-staff` (sem verificação WhatsApp) |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -311,6 +357,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | phone | String | Telefone verificado do entrante |
 | phoneLast4 | String | Últimos 4 dígitos (exibido na notificação) |
 | status | JoinRequestStatus | Default `PENDING` |
+| otpFailed | Boolean | Default `false`. True quando cliente esgotou tentativas de OTP (3x). Garçom vê na tela de aprovação com indicação diferenciada para aprovar manualmente |
 | respondedByPersonId | UUID? | FK → Person. Quem aprovou/rejeitou |
 | expiresAt | DateTime | 5 minutos após criação |
 | lastRemindedAt | DateTime? | Última notificação enviada |
@@ -501,6 +548,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | restaurantId | UUID | FK → Restaurant. Multi-tenancy |
 | sessionId | UUID | FK → TableSession |
 | orderNumber | Int | Sequencial por restaurante por dia. Exibido no KDS e notificações |
+| source | OrderSource | CLIENT ou STAFF. Default CLIENT |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -586,10 +634,18 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | status | PaymentStatus | Default `PENDING` |
 | amount | Decimal | Valor total (itens da pessoa + taxa de serviço se aplicável) |
 | serviceChargeAmount | Decimal? | Valor da taxa de serviço individual |
+| initiatedBy | OrderSource | CLIENT ou STAFF — quem iniciou o pagamento |
+| initiatedByStaffId | UUID? | FK → User. Preenchido quando staff iniciou (garçom registrou o pagamento) |
 | pixQrCode | String? | QR Code para pagamento Pix |
 | pixExternalId | String? | ID externo do provedor Pix. Usado para idempotency do webhook |
 | confirmedAt | DateTime? | |
+| confirmedByStaffId | UUID? | FK → User. Quem confirmou manualmente — CASH/CARD sempre, PIX quando webhook falha. Null se PIX confirmado via webhook (audit trail) |
 | cancelledAt | DateTime? | |
+| cancelledByStaffId | UUID? | FK → User. Quem cancelou (null se foi o próprio cliente) |
+| cancelReason | String? | Motivo do cancelamento (opcional, preenchido pelo staff) |
+| refundedByStaffId | UUID? | FK → User. Quem confirmou a devolução (audit trail) |
+| refundedAt | DateTime? | Quando a devolução foi confirmada |
+| refundMethod | PaymentMethod? | Método usado na devolução (pode diferir do original, ex: pagou PIX, devolveu CASH) |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -598,8 +654,11 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 **Índices:** `sessionId` + `personId`, `restaurantId` + `createdAt`, `pixExternalId` (unique, onde não null), `status`
 
 **Notas:**
-- Pagamento individual por pessoa
-- PIX gera QR Code; CASH e CARD são registro manual pelo staff
+- Pagamento individual por pessoa. `personId` indica quem está pagando, `amount` o valor dos itens dessa pessoa + taxa de serviço
+- Qualquer método (PIX, CASH, CARD) pode ser iniciado pelo cliente OU pelo garçom
+- `initiatedBy` registra quem iniciou: `CLIENT` (via app) ou `STAFF` (via comanda/detalhe da mesa)
+- PIX gera QR Code automaticamente. Confirmação via webhook (automática) ou garçom (manual se webhook falhar)
+- CASH e CARD: garçom sempre confirma manualmente após receber o pagamento físico
 - Taxa de garçom calculada forward-only no momento do pagamento
 - Webhook Pix: validação de assinatura síncrona + idempotency via `pixExternalId`
 

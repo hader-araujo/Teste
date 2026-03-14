@@ -167,7 +167,7 @@ Cada restaurante pode personalizar as cores do **modulo cliente (cardapio digita
 
 ### Requisitos Minimos (Fase 1)
 - **Contraste:** WCAG AA em todas as combinacoes texto/fundo. Validar com ferramenta automatica (axe-core, Lighthouse).
-- **Touch targets:** botoes e links com minimo 44x44px (recomendacao WCAG 2.5.5).
+- **Touch targets:** mínimo 44x44px para interfaces touch (Cliente, Garçom, KDS) conforme WCAG 2.5.5. Interfaces desktop (Admin, Super Admin) usam mínimo 36x36px (operadas por mouse).
 - **Labels:** todo `<input>` deve ter `<label>` associado (via `htmlFor` ou `aria-label`).
 - **Focus visible:** outline visivel em todos os elementos interativos ao navegar por teclado (`:focus-visible`).
 - **Navegacao por teclado:** todos os fluxos criticos (cardapio, carrinho, pagamento) devem ser completaveis sem mouse/touch.

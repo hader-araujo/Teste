@@ -26,9 +26,10 @@
 ## Identificacao via WhatsApp
 - Ao abrir sessao, cliente informa numero -> sistema envia OTP via WhatsApp -> confirma -> salva `phone` + `phoneVerified = true`.
 - Nenhuma acao automatica usa o numero alem do armazenamento.
-- **Rate limit especifico para OTP:** maximo 3 envios por sessao, cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp.
-- **OTP expira em 5 minutos.** Maximo 5 tentativas de verificacao por OTP. **Apos expirar ou esgotar tentativas:** o cliente pode solicitar novo OTP (conta como novo envio dentro do limite de 3 envios por sessao). Cada novo OTP gera novo counter de 5 tentativas. O OTP anterior e invalidado automaticamente ao gerar novo.
+- **Rate limit específico para OTP:** máximo 3 envios por telefone em janela de 15 minutos (global, independente de mesa/sessão). Cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp.
+- **OTP expira em 5 minutos.** Máximo 5 tentativas de verificação por OTP. **Após expirar ou esgotar tentativas:** o cliente pode solicitar novo OTP (conta como novo envio dentro do limite de 3 por telefone). Cada novo OTP gera novo counter de 5 tentativas. O OTP anterior é invalidado automaticamente ao gerar novo.
 - **Falha no envio:** se o envio via fila falhar (WhatsApp API indisponível, Redis fora), a tentativa **não é contabilizada** no rate limit. O sistema exibe mensagem "Não foi possível enviar. Tente novamente em 60s" sem consumir uma das 3 tentativas.
+- **Fallback após esgotar OTP:** após 3 tentativas sem sucesso, o sistema cria JoinRequest com `otpFailed: true`. Cliente vê mensagem "Não foi possível verificar. Peça ao garçom para aprovar sua entrada." A solicitação aparece na tela de detalhe da mesa do garçom com indicação diferenciada ("Verificação WhatsApp falhou — aprovar manualmente?"). Garçom aprova no mesmo fluxo de aprovação normal.
 
 ## Autenticacao Staff
 - JWT com access token (15min) + refresh token (7 dias).
@@ -177,5 +178,6 @@
 - `Person.name` → 'Pessoa Anonimizada'
 - `Person.phone` → null
 - `JoinRequest.phoneLast4` → null
+- `Person.consentGivenAt` → **preservado** (prova legal de que consentimento foi dado — necessário para compliance LGPD).
 - OrderItemPerson e Payment mantidos (sem dados pessoais, Person já anonimizada).
 - Pessoa que voltar após anonimização é tratada como nova — sem vínculo com dados anteriores.

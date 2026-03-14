@@ -41,7 +41,7 @@ Internet -> nginx (HTTPS/TLS) -> ochefia-web (3000)
 | `ochefia-otp-send` | Envio de OTP via WhatsApp API |
 | `ochefia-pix-process` | Processamento de confirmacoes webhook Pix |
 | `ochefia-pickup-escalation` | Verifica itens READY sem entrega + timeout de claims (5min) |
-| `ochefia-join-renotification` | Reenvia notificação de aprovação de entrada na mesa a cada 60s |
+| `ochefia-join-renotification` | Processa JoinRequests pendentes a cada 60s: reenvia notificação se não expirou, marca `EXPIRED` se passou 5min. Um job, duas responsabilidades coesas |
 
 - **Retries:** 3 tentativas com backoff exponencial. Mensagens que falharam 3x vao para estado `failed` no Bull e podem ser inspecionadas via Bull Dashboard (opcional) ou logs.
 - **Persistencia:** Bull usa Redis, entao filas sobrevivem a restart do container da API (desde que o Redis persista dados).

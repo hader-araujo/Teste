@@ -63,7 +63,7 @@ Quais docs ler **antes** de implementar cada sprint. Docs marcados com * são op
 | 4 | design-system.md, design-admin.md | — |
 | 5 | api-endpoints.md (Menu/Upload), modulos.md (Cardápio), design-admin.md | seguranca.md (upload)* |
 | 6 | api-endpoints.md (Session), seguranca.md (OTP/sessão), modulos.md (Entrada na Mesa), privacidade.md | schema.md* |
-| 7 | modulos.md (Aprovação), api-endpoints.md (join/approve), websocket-events.md (join) | seguranca.md* |
+| 7 | modulos.md (Aprovação), api-endpoints.md (join/approve) | seguranca.md*, websocket-events.md* (referência — WebSocket implementado na Sprint 12) |
 | 8 | design-cliente.md, fluxos.md (Cliente), privacidade.md | — |
 | 9 | modulos.md (Grupos de Entrega, Máquina de Estados), api-endpoints.md (Orders) | websocket-events.md* |
 | 10 | design-cliente.md (Conta/Carrinho/Pedidos), fluxos.md (Cliente) | — |

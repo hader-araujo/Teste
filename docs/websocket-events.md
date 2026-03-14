@@ -12,8 +12,8 @@ export const SOCKET_EVENTS = {
   // Servidor -> KDS (por Local de Preparo)
   KDS_NEW_ORDER: 'kds:new-order',           // Novo pedido na fila do Local de Preparo
 
-  // KDS -> Servidor
-  KDS_STATUS_UPDATE: 'kds:status-update',   // Local de Preparo mudou status (preparing/ready/delivered)
+  // KDS -> Servidor (operador do KDS emite, servidor processa e dispara eventos derivados)
+  KDS_STATUS_UPDATE: 'kds:status-update',   // Operador mudou status do item (preparing/ready/delivered)
 
   // Servidor -> Garcom
   WAITER_ORDER_READY: 'waiter:order-ready', // Grupo de entrega pronto pra retirar (inclui Pontos de Entrega). Emitido **por grupo de entrega**, não por pedido. Se um pedido tem grupo Normal e Imediato que ficam prontos em momentos diferentes, são 2 eventos separados. Payload inclui `deliveryGroup: 'normal' | 'immediate'` e lista de `pickupPoints[]` — enviado a todos do setor
@@ -29,6 +29,7 @@ export const SOCKET_EVENTS = {
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
   CLIENT_SESSION_UPDATE: 'client:session-update',  // Conta atualizada
   CLIENT_PAYMENT_CONFIRMED: 'client:payment-confirmed', // Pagamento confirmado (webhook Pix ou registro manual CASH/CARD por staff). Payload: { personId, amount, method: 'PIX' | 'CASH' | 'CARD_DEBIT' | 'CARD_CREDIT', confirmedAt }. Room: session:{token}
+  CLIENT_PAYMENT_CANCELLED: 'client:payment-cancelled', // Pagamento cancelado (garçom cancelou ou PIX expirou). Payload: { personId, paymentId, method, reason: 'staff_cancelled' | 'expired', cancelledAt }. Room: session:{token}
   CLIENT_SESSION_CLOSED: 'client:session-closed',  // Sessão fechada pelo garçom/admin. Payload: { sessionToken, closedByStaffId, closedAt }. Room: session:{token}
 
   // Aprovacao de entrada na mesa
@@ -71,7 +72,12 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | Evento | Room | Payload |
 |---|---|---|
 | `kds:new-order` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, tableNumber, sectorName, items: [{ itemId, productName, qty, notes?, pickupPointName, autoDelivery }], createdAt }` |
-| `kds:status-update` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, itemId, status: 'preparing' \| 'ready' \| 'delivered', updatedBy: staffId }` |
+
+### KDS → Servidor
+
+| Evento | Payload |
+|---|---|
+| `kds:status-update` | `{ orderId, itemId, status: 'preparing' \| 'ready' \| 'delivered', updatedBy: staffId }`. Servidor processa e emite eventos derivados: `client:order-update`, `waiter:order-ready` (quando grupo completo), etc. |
 
 ### Servidor → Garçom
 
@@ -108,6 +114,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `client:order-update` | `session:{token}` | `{ orderId, items: [{ itemId, productName, status: 'queued' \| 'preparing' \| 'ready' \| 'delivered' \| 'cancelled' }] }` |
 | `client:session-update` | `session:{token}` | `{ type: 'person-added' \| 'person-removed' \| 'bill-updated', data }` |
 | `client:payment-confirmed` | `session:{token}` | `{ personId, amount, method, confirmedAt }` |
+| `client:payment-cancelled` | `session:{token}` | `{ personId, paymentId, method, reason: 'staff_cancelled' \| 'expired', cancelledAt }` |
 | `client:session-closed` | `session:{token}` | `{ sessionToken, closedByStaffId, closedAt }` |
 
 ### Aprovação de Entrada
