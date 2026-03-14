@@ -48,3 +48,38 @@ Detalhes de cada sprint em `docs/sprints/sprint-XX.md`.
 - Para implementar uma sprint, leia `docs/sprints/sprint-XX.md` correspondente.
 - Cada arquivo contém: endpoints (se houver), checklist completo, e referências cruzadas para outros docs.
 - Sprints 27+ são apenas referência futura — não implementar até aviso explícito.
+
+## Docs por Sprint
+
+Quais docs ler **antes** de implementar cada sprint. Docs marcados com * são opcionais (referência).
+
+| Sprint | Docs obrigatórios | Docs opcionais |
+|---|---|---|
+| P | design-cliente.md, design-staff.md, design-admin.md, design-superadmin.md, design-system.md, fluxos.md | — |
+| 0 | schema.md | deploy.md* |
+| 1 | seguranca.md | observabilidade.md* |
+| 2 | seguranca.md (auth), schema.md (User/Restaurant), api-endpoints.md (Auth/Restaurant) | observabilidade.md* |
+| 3 | schema.md (Table/Sector/PrepLocation), api-endpoints.md (Tables/Sectors/Locations), modulos.md (Estrutura Operacional) | — |
+| 4 | design-system.md, design-admin.md | — |
+| 5 | api-endpoints.md (Menu/Upload), modulos.md (Cardápio), design-admin.md | seguranca.md (upload)* |
+| 6 | api-endpoints.md (Session), seguranca.md (OTP/sessão), modulos.md (Entrada na Mesa), privacidade.md | schema.md* |
+| 7 | modulos.md (Aprovação), api-endpoints.md (join/approve), websocket-events.md (join) | seguranca.md* |
+| 8 | design-cliente.md, fluxos.md (Cliente), privacidade.md | — |
+| 9 | modulos.md (Grupos de Entrega, Máquina de Estados), api-endpoints.md (Orders) | websocket-events.md* |
+| 10 | design-cliente.md (Conta/Carrinho/Pedidos), fluxos.md (Cliente) | — |
+| 11 | api-endpoints.md (Payments), seguranca.md (Pix/webhook), modulos.md (Conta e Pagamento) | — |
+| 12 | websocket-events.md (tudo), seguranca.md (CSRF) | — |
+| 13 | websocket-events.md (KDS), modulos.md (KDS) | — |
+| 14 | design-staff.md (KDS), fluxos.md (KDS) | — |
+| 15 | api-endpoints.md (Staff/Schedule/DayTeam), modulos.md (Equipe), design-admin.md | — |
+| 16 | fluxos.md (Garçom), design-staff.md (Garçom), api-endpoints.md (Shifts/Calls) | seguranca.md (PIN)* |
+| 17 | modulos.md (Claim, Taxa, Transferência, Comanda), api-endpoints.md (delivery-groups/claim) | websocket-events.md* |
+| 18 | websocket-events.md (push), modulos.md (Escalação) | — |
+| 19 | modulos.md (Faturamento), api-endpoints.md (Billing), glossario.md (Ticket Médio) | — |
+| 20 | api-endpoints.md (Dashboard/Performance), modulos.md (Dashboard) | — |
+| 21 | design-system.md, design-admin.md (Settings) | — |
+| 22 | api-endpoints.md (Super Admin Establishments/Billing), design-superadmin.md, fluxos.md (Super Admin) | — |
+| 23 | api-endpoints.md (Super Admin Modules/Monitoring), modulos.md (Sistema de Módulos) | — |
+| 24 | todos os design-*.md, fluxos.md | — |
+| 25 | deploy.md, observabilidade.md | — |
+| 26 | seguranca.md (tudo), privacidade.md | — |
