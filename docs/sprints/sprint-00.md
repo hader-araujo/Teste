@@ -2,7 +2,7 @@
 
 Setup completo da infraestrutura de desenvolvimento. Ao final, `pnpm install && docker compose up` funciona.
 
-**Pré-requisito:** ~~resolver definição pendente "Proteção contra Abertura Remota de Sessão"~~ — **resolvido:** notificação `waiter:session-opened` ao garçom do setor + atenuantes naturais. Ver `docs/modulos.md`.
+**Pré-requisito:** nenhum.
 
 **Checklist:**
 - [ ] Criar toda a estrutura de pastas do monorepo (`apps/api`, `apps/web`, `packages/shared`).

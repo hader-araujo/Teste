@@ -44,6 +44,7 @@ export const SOCKET_EVENTS = {
   ADMIN_METRICS_UPDATE: 'admin:metrics-update',    // Metricas atualizaram
   ADMIN_PICKUP_ESCALATION: 'admin:pickup-escalation', // Item sem retirada escalado (nível 2) — alerta no dashboard
   ADMIN_MAPPING_INCOMPLETE: 'admin:mapping-incomplete', // Mapeamento Setor↔Local de Preparo incompleto — alerta urgente
+  ADMIN_NO_WAITER_ALERT: 'admin:no-waiter-alert',     // Cliente tentou abrir mesa em setor sem garçom ativo — alerta severo
 
   // Garçom — alertas operacionais
   WAITER_ORDER_CANCELLED: 'waiter:order-cancelled',       // Pedido cancelado — notifica garçons do setor
@@ -136,6 +137,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `admin:metrics-update` | `restaurant:{id}:admin` | `{ activeTables, activeOrders, avgPrepTime, revenue }` |
 | `admin:pickup-escalation` | `restaurant:{id}:admin` | `{ orderId, orderNumber, tableNumber, minutesWaiting, sectorName }` |
 | `admin:mapping-incomplete` | `restaurant:{id}:admin` | `{ sectorId, sectorName, missingLocations: [{ preparationLocationId, preparationLocationName }] }` — alerta urgente de mapeamento incompleto |
+| `admin:no-waiter-alert` | `restaurant:{id}:admin` | `{ tableId, tableName, sectorId, sectorName, attemptedAt }` — alerta severo: cliente tentou abrir mesa em setor sem garçom com turno ativo |
 
 ## Rooms WebSocket
 
