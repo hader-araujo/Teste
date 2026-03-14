@@ -12,6 +12,7 @@
 - Token expira automaticamente quando a sessao e fechada. Tokens de sessoes fechadas nao podem ser reutilizados.
 - Sem login do cliente no MVP. Validado por IP + cookie como camada extra.
 - **Unicidade de telefone:** um telefone verificado só pode estar vinculado a uma sessão ativa por vez. Tentativa de entrar em outra mesa com sessão ativa retorna erro `SESSION_008`.
+- **Força bruta em tokens de sessão:** o rate limit geral por IP é suficiente para proteger contra força bruta — tokens de sessão são UUID v4 (espaço de 2^122), tornando ataques de enumeração computacionalmente inviáveis.
 
 ## Aprovacao de Entrada na Mesa
 - **QR Code fixo por mesa.** Qualquer pessoa pode escanear, mas entrar na sessao requer aprovacao.
@@ -36,7 +37,7 @@
 - **Rate limit no `/auth/refresh`:** maximo 10 requests por IP em 15 minutos. Previne abuso com refresh token vazado.
 
 ## Autenticação do KDS
-- O KDS requer autenticação de funcionário com role `KITCHEN` ou `BAR` (mesmo padrão de auth dos demais staff — JWT). Não opera como tela aberta.
+- O KDS requer autenticação de funcionário com role `KITCHEN` (mesmo padrão de auth dos demais staff — JWT). Não opera como tela aberta. O operador pode acessar qualquer Local de Preparo do restaurante.
 
 ## CSRF (Cross-Site Request Forgery)
 
@@ -72,6 +73,22 @@
 - Autenticacao via JWT igual ao staff, mas com role especial.
 - Criado apenas via seed ou comando interno (nao ha registro publico).
 
+## Gateway de Pagamento PIX
+- Interface genérica `PaymentGateway` com métodos: `createPixCharge()`, `verifyWebhook()`, `getPaymentStatus()`.
+- Fase 1: `FakePaymentGateway` que simula tudo (QR fake, webhook simulado com delay, confirmação automática).
+- Produção: implementação real (provedor definido antes do deploy). Troca só a implementação, sem mexer no resto do código.
+
+## Confirmação Manual de Pagamento
+- Garçom pode confirmar pagamento de qualquer método (PIX, CASH, CARD).
+- Toda confirmação manual registra `confirmedByStaffId` + timestamp para auditoria.
+- PIX também pode ser confirmado automaticamente via webhook (sem staffId).
+- PIX pendente expira após 30 minutos (QR Code dinâmico — padrão Banco Central). Após expirar, status volta para não pago.
+- Garçom pode cancelar PIX pendente manualmente.
+
+## Suspensão de Restaurante
+- Suspensão pelo Super Admin é gradual: bloqueia novos pedidos e novas sessões, mas sessões ativas terminam normalmente.
+- Clientes conectados não são desconectados. Pedidos em preparo continuam no KDS.
+
 ## Webhook Pix — Validacao Obrigatoria
 - **O endpoint `POST /payments/pix/webhook` DEVE validar a assinatura do provedor de pagamento** (ex: header HMAC-SHA256 ou mTLS conforme provedor).
 - Sem validacao, qualquer pessoa pode simular confirmacao de pagamento com POST falso — **risco financeiro direto**.
@@ -104,6 +121,7 @@
   - `font-src 'self' https://fonts.gstatic.com`
 - Revisar e ajustar CSP conforme integracao com provedores externos (Pix, WhatsApp).
 - Usar `report-uri` para monitorar violacoes em producao.
+- **Nota Fase 2:** se o restaurante usar domínio próprio (white-label), o CSP do frontend precisa incluir o domínio da API OChefia explicitamente em `connect-src`.
 
 ## Sanitizacao de Input
 - `class-validator` valida formato mas **nao sanitiza HTML/XSS**.
@@ -123,6 +141,11 @@
 - **Fase 1:** rotacao manual — atualizar `.env` no servidor e reiniciar containers.
 - **Fase 2 (AWS):** usar AWS Secrets Manager rotation com Lambda para rotacao automatica.
 - Nunca hardcodar secrets — mesmo em testes, usar variaveis de ambiente.
+
+### Rotação de JWT_SECRET
+- Variáveis: `JWT_SECRET` (atual) e `JWT_SECRET_OLD` (anterior).
+- Verificação: tenta o secret atual primeiro; se falhar, tenta o anterior.
+- Após período de transição (7 dias), remover `JWT_SECRET_OLD`.
 
 ## Prisma e SQL Injection
 - Prisma ORM protege contra SQL injection por padrao via queries parametrizadas.
@@ -148,3 +171,11 @@
 - **Endpoint obrigatorio (acesso):** `GET /session/:token/data` — retorna todos os dados pessoais da sessao (telefone, nomes). Requer telefone verificado. Direito de acesso (LGPD Art. 18).
 - **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados.
 - **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 26 (Segurança Avançada + LGPD).
+
+### Anonimização Automática (90 dias)
+- Cron job diário (madrugada). Após 90 dias do fechamento da sessão:
+- `Person.name` → 'Pessoa Anonimizada'
+- `Person.phone` → null
+- `JoinRequest.phoneLast4` → null
+- OrderItemPerson e Payment mantidos (sem dados pessoais, Person já anonimizada).
+- Pessoa que voltar após anonimização é tratada como nova — sem vínculo com dados anteriores.

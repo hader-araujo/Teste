@@ -31,7 +31,8 @@ Base URL: `/api/v1`
 | POST | `/tables` | Criar mesa |
 | PUT | `/tables/:id` | Atualizar mesa |
 | DELETE | `/tables/:id` | Soft delete de mesa (só se não tiver sessão ativa). Histórico preservado para métricas. Permite recriar mesa com mesmo nome/número |
-| POST | `/tables/:id/open` | Abrir sessão da mesa. Body: `{ personCount?: number, names?: string[] }`. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
+| POST | `/tables/:id/verify-phone` | Enviar OTP de verificação WhatsApp antes de criar sessão (1º cliente, mesa sem sessão ativa). Body: `{ phone }`. Não requer sessão ativa |
+| POST | `/tables/:id/open` | Abrir sessão da mesa. Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. Cria sessão + 1º membro. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
 | POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Emite evento `client:session-closed` via WebSocket |
 | POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
@@ -46,7 +47,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/session/:token` | Dados da sessão (pedidos, conta) |
-| POST | `/session/:token/join` | Solicitar entrada na sessão. Se mesa sem sessão, cria sessão (primeiro cliente). Se mesa com sessão ativa, cria solicitação pendente de aprovação. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify` antes de chamar este endpoint. Retorna erro `SESSION_007` se telefone não verificado. Retorna erro `SESSION_008` se o telefone verificado já está vinculado a outra sessão ativa. **Aprovação:** solicitação de aprovação expira em 5 minutos. Sistema renotifica membros automaticamente a cada 60 segundos. Após expirar, status muda para `EXPIRED` e entrante deve escanear QR Code novamente |
+| POST | `/session/:token/join` | Solicitar entrada em sessão existente. Apenas para mesas com sessão ativa — nunca cria sessão. Cria solicitação pendente de aprovação. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify` antes de chamar este endpoint. Retorna erro `SESSION_007` se telefone não verificado. Retorna erro `SESSION_008` se o telefone verificado já está vinculado a outra sessão ativa. **Aprovação:** solicitação de aprovação expira em 5 minutos. Sistema renotifica membros automaticamente a cada 60 segundos. Após expirar, status muda para `EXPIRED` e entrante deve escanear QR Code novamente |
 | POST | `/session/:token/phone` | Enviar OTP via WhatsApp para o número informado |
 | POST | `/session/:token/phone/verify` | Confirmar OTP e salvar número verificado na sessão |
 | GET | `/session/:token/join/pending` | Listar solicitações pendentes de aprovação (visível para membros aprovados) |
@@ -98,15 +99,16 @@ Base URL: `/api/v1`
 | GET | `/menu/categories` | Listar categorias (admin) |
 | POST | `/menu/categories` | Criar categoria |
 | PUT | `/menu/categories/:id` | Atualizar categoria |
-| DELETE | `/menu/categories/:id` | Remover categoria |
+| DELETE | `/menu/categories/:id` | Remover categoria. Bloqueia se tem produtos vinculados (retorna erro `MENU_005`). Admin deve mover ou deletar os produtos antes |
 | GET | `/menu/tags` | Listar tags de produto (ex: vegano, sem glúten, picante) |
 | POST | `/menu/tags` | Criar tag |
 | PUT | `/menu/tags/:id` | Atualizar tag |
-| DELETE | `/menu/tags/:id` | Remover tag |
+| DELETE | `/menu/tags/:id` | Remover tag. Se tem produtos vinculados, exige confirmação (`confirm: true` no body). Remove vínculo com produtos (produtos continuam sem a tag) |
 | GET | `/menu/products` | Listar produtos (admin) |
 | POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'` — **mutuamente exclusivos**, enviar exatamente um; `immediateDelivery?: bool`, e `tagIds[]`). Retorna erro `MENU_004` se ambos ou nenhum for informado |
 | PUT | `/menu/products/:id` | Atualizar produto |
-| PATCH | `/menu/products/:id/availability` | Toggle disponibilidade |
+| PATCH | `/menu/products/:id/availability` | Toggle disponibilidade. Pedidos já existentes (`QUEUED`, `PREPARING`, `READY`) não são afetados — KDS continua exibindo e cliente continua vendo na conta. O toggle só impede novos pedidos. Se não há como preparar um item já pedido, o staff cancela manualmente |
+| DELETE | `/menu/products/:id` | Soft delete de produto. Só permitido se não há itens em pedidos ativos (`QUEUED` ou `PREPARING`). Requer JWT de staff (MANAGER+) |
 
 ## Upload (Imagens)
 | Metodo | Rota | Descricao |
@@ -120,12 +122,11 @@ Base URL: `/api/v1`
 | POST | `/orders` | Criar pedido (via sessão token). Cada item inclui `personIds[]` (obrigatório, pelo menos 1) e `notes?: string` (observações do cliente, ex: "bem passado", "sem cebola" — exibidas no KDS). O pedido gera até 3 grupos de entrega: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Retorna erro se mapeamento Setor ↔ Local de Preparo estiver incompleto para algum item do pedido |
 | GET | `/orders` | Listar pedidos (admin, filtros). **Paginação:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
 | GET | `/orders/:id` | Detalhes do pedido |
-| PATCH | `/orders/:id/status` | Atualizar status (KDS/garçom) |
 | PATCH | `/orders/:id/cancel` | Cancelar pedido inteiro (somente se todos os itens estão `Na fila`). Requer JWT de staff (WAITER ou superior). Body: `{ reason?: string }`. Registra cancelamento no activity log |
 | PATCH | `/orders/items/:id/status` | Atualizar status de item individual |
 | PATCH | `/orders/items/:id/cancel` | Cancelar item individual. Cliente pode cancelar próprios itens se `Na fila`. Staff (WAITER ou superior) pode cancelar se `Na fila` ou `Preparando`. Body: `{ reason?: string }`. Registra no activity log. Itens cancelados são removidos do cálculo da conta |
 | PATCH | `/orders/:id/delivery-groups/:group/claim` | Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2 (quando o grupo está marcado como escalado pelo sistema), aceita override com `escalation: true` |
-| PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`) |
+| PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment CONFIRMED que inclua o item |
 
 ## Payments
 | Metodo | Rota | Descricao |
@@ -134,6 +135,12 @@ Base URL: `/api/v1`
 | GET | `/payments/:id/status` | Verificar status do pagamento (inclui método utilizado) |
 | POST | `/payments/pix/webhook` | Webhook de confirmação Pix. Validação de assinatura síncrona (retorna 400 se inválida). Só enfileira no Bull após validação. Idempotency via campo `externalId` do provedor (ignora duplicatas) |
 | GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método utilizado por cada pagamento) |
+
+## LGPD
+| Metodo | Rota | Descricao |
+|---|---|---|
+| POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone (primeiro passo para acesso a dados LGPD) |
+| GET | `/lgpd/data?phone=X&otp=Y` | Retorna todos os dados pessoais vinculados ao telefone após OTP verificado. Direito de acesso LGPD |
 
 ## Call Requests
 | Metodo | Rota | Descricao |
@@ -168,9 +175,9 @@ Base URL: `/api/v1`
 ## Faturamento
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/billing/daily` | Faturamento do dia (receita, pedidos, ticket médio, comparativo) |
-| GET | `/billing/monthly` | Faturamento mensal (receita acumulada, gráfico por dia, comparativo) |
-| GET | `/billing/cashier` | Fechamento de caixa (valores por forma de pagamento) |
+| GET | `/billing/daily` | Faturamento do dia (receita, pedidos, ticket médio, comparativo). Query: `date` (YYYY-MM-DD, default = hoje) |
+| GET | `/billing/monthly` | Faturamento mensal (receita acumulada, gráfico por dia, comparativo). Query: `month` (YYYY-MM, default = mês atual) |
+| GET | `/billing/cashier` | Fechamento de caixa (valores por forma de pagamento). Query: `date` (YYYY-MM-DD, default = hoje) |
 | GET | `/billing/waiter-fees` | Taxas de garçom por período (query: `from`, `to`) — valor devido a cada garçom |
 
 ## Staff
@@ -178,10 +185,11 @@ Base URL: `/api/v1`
 |---|---|---|
 | GET | `/staff` | Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100) |
 | POST | `/staff` | Criar funcionário (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` senha numérica para garçom) |
-| POST | `/staff/invite` | Enviar convite via WhatsApp (mesma infra do OTP). Gera link com token UUID v4. Expira em 72 horas. Em dev, log no console |
-| POST | `/staff/accept` | Aceitar convite e criar conta (público) |
+| POST | `/staff/invite` | Enviar convite via WhatsApp (mesma infra do OTP). Gera link com token UUID v4, expira em 72h. Link enviado via WhatsApp pelo admin. Em dev, log no console |
+| POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER |
 | PUT | `/staff/:id` | Atualizar funcionário |
 | DELETE | `/staff/:id` | Desativar funcionário |
+| POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. Garçom deve definir novo PIN no próximo clock-in |
 
 ## Turno do Garçom (Clock-in/out)
 | Metodo | Rota | Descricao |
@@ -195,15 +203,20 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/schedule` | Listar escala por período (query: `from`, `to`) |
-| GET | `/schedule/day/:date` | Equipe do dia (auto-preenchido + ajustes manuais) |
-| PUT | `/schedule/day/:date` | Definir equipe do dia (body: `{ staffIds[] }`) |
-| PATCH | `/schedule/day/:date/sectors` | Atribuir setores aos garçons do dia (body: `{ assignments: [{ staffId, sectorIds[] }] }`) |
+| GET | `/schedule/:date` | Retorna a programação para a data: quem deveria trabalhar (baseado em escala cadastrada e dias fixos) |
+
+## Equipe do Dia
+| Metodo | Rota | Descricao |
+|---|---|---|
+| GET | `/day-team/:date` | Retorna a equipe real do dia: funcionários presentes com atribuições de setor. Auto-preenchido a partir da programação, com ajustes manuais |
+| PUT | `/day-team/:date` | Definir equipe do dia (body: `{ staffIds[] }`) |
+| PATCH | `/day-team/:date/sectors` | Sobrescreve atribuições de setor (estado completo do dia). Body: `{ assignments: [{ staffId, sectorIds[] }] }` |
 
 ## Tables — Setor
 > **Nota:** Cada mesa pertence a exatamente 1 setor. O campo `sectorId` é obrigatório na criação/atualização da mesa. Ver seção Setores para CRUD de setores.
 
 ## KDS
-O KDS requer autenticação de funcionário (role KITCHEN ou BAR). Acessado via URL com parâmetro do Local de Preparo: `/kds?location={preparationLocationId}`. Se não informado, exibe tela de seleção.
+O KDS requer autenticação de funcionário (role KITCHEN). Acessado via URL com parâmetro do Local de Preparo: `/kds?location={preparationLocationId}`. Se não informado, exibe tela de seleção. O operador pode acessar qualquer Local de Preparo do restaurante.
 
 ## Super Admin — Estabelecimentos (role: SUPER_ADMIN)
 | Metodo | Rota | Descricao |

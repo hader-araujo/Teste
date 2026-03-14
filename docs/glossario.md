@@ -40,7 +40,7 @@ Termos usados na documentacao do OChefia. Ordem alfabetica dentro de cada secao.
 
 **Maquina de Estados do Pedido** — Fluxo de status de cada item: Na fila -> Preparando -> Pronto -> Entregue. Cancelamento possivel em Na fila (cliente ou staff) e Preparando (staff). Pronto/Entregue so cancelavel por OWNER/MANAGER. Sem transicao reversa.
 
-**Mesa** — Entidade fisica do restaurante identificada por nome/numero. Pertence a exatamente 1 *Setor*. Possui QR Code fixo que gera URL permanente. Status: FREE, OCCUPIED ou AWAITING_CLEANUP.
+**Mesa** — Entidade fisica do restaurante identificada por nome/numero. Pertence a exatamente 1 *Setor*. Possui QR Code fixo que gera URL permanente. Status: FREE ou OCCUPIED.
 
 **Modulo** — Unidade funcional do sistema. O modulo padrao (Fase 1) inclui cardapio, pedidos, KDS, garcom, mesas, faturamento e dashboard. Modulos extras (Fase 2) sao vendidos separadamente e habilitados pelo *Super Admin*.
 

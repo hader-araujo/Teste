@@ -17,11 +17,11 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 **Caminho A — Ver cardapio (read-only):**
 - Acessa cardapio completo com precos. Sem sessao, sem identificacao, sem poder fazer pedidos.
 
-**Caminho B — Entrar na mesa (mesa SEM sessao ativa = primeiro cliente):**
-1. **WhatsApp** → informa numero → recebe OTP 6 digitos → confirma
-2. Sessao criada. Cliente e o primeiro membro aprovado.
-3. **Pessoas** → cadastra nomes de quem esta na mesa (editavel a qualquer momento via botao no header)
-4. Segue para o fluxo normal (cardapio, pedidos, etc.)
+**Caminho B — Entrar na mesa (mesa SEM sessão ativa = primeiro cliente):**
+1. **WhatsApp** → informa número → `POST /tables/:id/verify-phone` → recebe OTP 6 dígitos → confirma
+2. `POST /tables/:id/open` → cria sessão + registra cliente como 1º membro aprovado automaticamente
+3. **Pessoas** → cadastra nomes de quem está na mesa (editável a qualquer momento via botão no header)
+4. Segue para o fluxo normal (cardápio, pedidos, etc.)
 
 **Caminho C — Entrar na mesa (mesa COM sessao ativa = novo entrante):**
 1. **WhatsApp** → informa numero → recebe OTP 6 digitos → confirma
@@ -45,7 +45,9 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 4. **Pedidos** → acompanha status em tempo real (Na fila → Preparando → Pronto → Entregue) → pode reatribuir pessoas
 5. **Conta** → 3 abas: Visao Geral (divisao por pessoa + taxa) | Por Pessoa | Historico (log de atividade) → toca numa pessoa para pagar
 6. **Pagamento** → QR Code Pix individual por pessoa
-7. **"O Chefia"** (bottom nav, qualquer tela) → modal com motivo (chamar garcom, pedir conta, outro) + mensagem → envia chamado
+   - Se a pessoa possui itens com status diferente de `DELIVERED` ou `CANCELLED`, exibe aviso: **"Você tem itens que ainda não foram entregues. Deseja pagar mesmo assim?"** — confirmação obrigatória antes de prosseguir
+7. **Sair da mesa** → pessoa pode encerrar sua participação pagando sua parte (ou R$ 0,00). Após sair, desaparece das atribuições de novos itens e da divisão de conta. Se a mesma pessoa retornar via QR Code, cria nova participação; exibição usa sufixo ordinal: "Maria ①", "Maria ②"
+8. **"O Chefia"** (bottom nav, qualquer tela) → modal com motivo (chamar garçom, pedir conta, outro) + mensagem → envia chamado
 
 ---
 
@@ -65,6 +67,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
    - Pessoas na mesa
    - Pedidos ativos com status de cada item
    - Grupos com todos os itens "Pronto" exibem botão **"Retirar Grupo"** — ao tocar, garçom assume o grupo de entrega inteiro (claim via `PATCH /orders/:id/delivery-groups/:group/claim`). Grupo some da tela dos outros garçons do setor em tempo real. Após buscar todos os itens nos Pontos de Entrega, marca **"Entregue"**
+   - Seção **"Pendentes"**: lista de entrantes aguardando aprovação. Para cada entrante, garçom pode **Aprovar** ou **Rejeitar**. Ao aprovar, registra `approvedByStaffId` no membro
    - Botão **"Novo Pedido"** → abre **Comanda**
    - Botão **"Fechar conta"**
 5. **Comanda** (a partir do detalhe da mesa):
@@ -73,8 +76,13 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
    - Toca "+" para adicionar itens
    - Barra fixa com contagem + total → "Enviar Pedido"
    - Apos enviar, volta para detalhe da mesa
-6. Recebe **notificacoes push**: item pronto para retirada (com indicacao do **Ponto de Entrega**), chamado de mesa
-7. **Turno** → "Encerrar Turno" quando termina o expediente
+6. **Pagamento (garçom):**
+   - Garçom pode confirmar pagamento de qualquer método (PIX, CASH, CARD) diretamente pelo detalhe da mesa ou comanda
+   - Para PIX: confirma após comprovante do cliente ou webhook automático
+   - Para CASH/CARD: registra manualmente indicando o valor recebido
+   - Pode **cancelar PIX pendente** de qualquer pessoa da mesa (ex: cliente desistiu ou erro na geração)
+7. Recebe **notificações push**: item pronto para retirada (com indicação do **Ponto de Entrega**), chamado de mesa
+8. **Turno** → "Encerrar Turno" quando termina o expediente
 
 ---
 
@@ -108,7 +116,7 @@ Documento de referencia com o fluxo de navegacao de cada perfil. Complementa `mo
 3. Cada card mostra: número do pedido, mesa, itens, timer, observações
 4. **Cores de borda mudam com o tempo:** verde (no prazo) → amarelo (atenção >10min) → vermelho (atrasado >15min)
 5. **Alerta sonoro** quando chega pedido novo ou pedido fica atrasado
-6. Toca no prato → ficha técnica (ingredientes, modo de preparo, foto)
+6. Toca no prato → foto ampliada do prato
 7. Toca **"Pronto"** (botão grande no card):
    - **Ponto de Entrega com `autoDelivery = false`:** card sai da fila. A notificação ao garçom depende do grupo de entrega: itens normais só notificam quando todos os normais do pedido ficarem prontos; itens `immediateDelivery` notificam quando todos os imediatos ficarem prontos. Indica o Ponto de Entrega na notificação
    - **Ponto de Entrega com `autoDelivery = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"

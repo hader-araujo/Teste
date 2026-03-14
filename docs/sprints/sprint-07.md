@@ -20,6 +20,6 @@ Backend do fluxo de aprovação e cache do cardápio. Frontend na Sprint 8.
 - [ ] Reentrada: reconhecer membro já aprovado via cookie + telefone verificado.
 - [ ] Cache do cardápio no Redis com TTL de 5min + invalidação explícita no CRUD de produtos/categorias.
 - [ ] Cache stampede prevention: lock-based refresh ou stale-while-revalidate no cache do cardápio.
-- [ ] Error codes padronizados para módulo Session — aprovação (SESSION_007 a SESSION_010). Ver `docs/observabilidade.md`.
+- [ ] Error codes padronizados para módulo Session — aprovação (SESSION_007, SESSION_014). Ver `docs/observabilidade.md`.
 
 **Referências:** `docs/modulos.md` (seção aprovação), `docs/api-endpoints.md`, `docs/seguranca.md`.

@@ -93,7 +93,7 @@ const MOCK = {
     { id: 1, name: 'Dono', email: 'dono@ze-bar.com', role: 'OWNER', phone: '(11) 99999-0000', temporary: false, weekdays: [], pin: null },
     { id: 2, name: 'Carlos Silva', email: 'carlos@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4321', temporary: false, weekdays: [], pin: '1234' },
     { id: 3, name: 'Ana Santos', email: 'ana@ze-bar.com', role: 'KITCHEN', phone: '(11) 98765-4322', temporary: false, weekdays: [], pin: null },
-    { id: 4, name: 'Bruno Costa', email: 'bruno@ze-bar.com', role: 'BAR', phone: '(11) 98765-4323', temporary: false, weekdays: [], pin: null },
+    { id: 4, name: 'Bruno Costa', email: 'bruno@ze-bar.com', role: 'KITCHEN', phone: '(11) 98765-4323', temporary: false, weekdays: [], pin: null },
     { id: 5, name: 'Fernanda Lima', email: 'fernanda@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4324', temporary: false, weekdays: [], pin: '5678' },
     { id: 6, name: 'Lucas Temp', email: 'lucas@ze-bar.com', role: 'WAITER', phone: '(11) 98765-4325', temporary: true, weekdays: ['seg', 'qua', 'sex'], pin: '0000' },
     { id: 7, name: 'Juliana Oliveira', email: 'juliana@ze-bar.com', role: 'MANAGER', phone: '(11) 98765-4326', temporary: false, weekdays: [], pin: null }

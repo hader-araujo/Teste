@@ -23,7 +23,7 @@ Detalhes de cada sprint em `docs/sprints/sprint-XX.md`.
 | 11 | Pagamento (Pix + Dinheiro + Cartão) | Backend+frontend: Pix, CASH/CARD com confirmação staff, webhook, circuit breaker |
 | 12 | WebSocket Gateway + Infraestrutura Real-Time | Socket.IO, Redis Adapter, rooms, eventos, indicador de conexão |
 | 13 | KDS Backend + WebSocket Avançado | Roteamento KDS, deduplicação, backpressure, cleanup rooms |
-| 14 | KDS Frontend | Dark mode, temporizadores, cores de status, ficha técnica |
+| 14 | KDS Frontend | Dark mode, temporizadores, cores de status, foto do prato |
 | 15 | Staff + Escala + Equipe do Dia | CRUD funcionários, escala, atribuição de setores |
 | 16 | Garçom: Clock-in + Chamados + Mesas | Turno, chamados, lista de mesas, botão "O Chefia" |
 | 17 | Garçom: Claim + Taxa de Serviço + Comanda | Claim de grupo, toggle taxa, transferência de mesa, comanda rápida |

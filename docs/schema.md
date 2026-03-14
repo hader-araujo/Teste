@@ -21,8 +21,7 @@ SUPER_ADMIN   -- Equipe interna OChefia (cross-tenant)
 OWNER         -- Dono do restaurante
 MANAGER       -- Gerente
 WAITER        -- Garçom
-KITCHEN       -- Cozinha
-BAR           -- Bar
+KITCHEN       -- Operador de KDS (acessa qualquer Local de Preparo)
 ```
 
 ### OrderItemStatus
@@ -68,7 +67,6 @@ EXPIRED
 ```
 FREE
 OCCUPIED
-AWAITING_CLEANUP
 ```
 
 ### CallReason
@@ -170,7 +168,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | name | String | |
 | email | String | Unique |
 | passwordHash | String | bcrypt |
-| role | Role | SUPER_ADMIN, OWNER, MANAGER, WAITER, KITCHEN, BAR |
+| role | Role | SUPER_ADMIN, OWNER, MANAGER, WAITER, KITCHEN |
 | pin | String? | Senha numérica do garçom (hash). Usado no clock-in |
 | phone | String? | |
 | temporary | Boolean | Default `false`. Funcionário temporário |
@@ -288,6 +286,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | phone | String? | Número WhatsApp verificado |
 | phoneVerified | Boolean | Default `false` |
 | serviceChargeEnabled | Boolean | Default `true`. Toggle individual por garçom |
+| consentGivenAt | DateTime | Timestamp do consentimento LGPD, preenchido no momento do OTP |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -298,6 +297,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 **Notas:**
 - Unicidade de telefone: um telefone verificado só pode estar em 1 sessão ativa por vez (erro `SESSION_008`)
 - Dados pessoais sujeitos a LGPD — anonimização após 90 dias
+- **Participações múltiplas:** Se uma pessoa já quitou sua parte e retorna via QR Code, é criada uma nova Person (nova participação). Exibição: se houver mais de uma participação do mesmo telefone na sessão, mostra numeração (ex: "Maria ①", "Maria ②"). Cada participação é independente com seus próprios itens e pagamentos.
 
 ---
 
@@ -533,6 +533,7 @@ WAITER        -- Entrega direta pelo garçom, sem KDS
 | cancelledByStaffId | UUID? | FK → User. Staff que cancelou (se aplicável) |
 | cancelReason | String? | Motivo do cancelamento. Obrigatório para OWNER/MANAGER cancelando Pronto/Entregue |
 | readyAt | DateTime? | Quando marcado como Pronto |
+| startedAt | DateTime? | Preenchido na transição para PREPARING. Usado para recalcular timers do KDS após restart |
 | deliveredAt | DateTime? | Quando marcado como Entregue |
 | cancelledAt | DateTime? | Quando cancelado |
 | createdAt | DateTime | |

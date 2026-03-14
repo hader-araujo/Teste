@@ -42,6 +42,7 @@ export const SOCKET_EVENTS = {
   ADMIN_MAPPING_INCOMPLETE: 'admin:mapping-incomplete', // Mapeamento Setor↔Local de Preparo incompleto — alerta urgente
 
   // Garçom — alertas operacionais
+  WAITER_ORDER_CANCELLED: 'waiter:order-cancelled',       // Pedido cancelado — notifica garçons do setor
   WAITER_MAPPING_INCOMPLETE: 'waiter:mapping-incomplete', // Mesa do setor não pode ser aberta — mapeamento incompleto
   WAITER_TABLE_TRANSFERRED: 'waiter:table-transferred', // Mesa transferida entre setores — notifica origem (remover) e destino (pedidos pendentes/prontos)
 
@@ -80,6 +81,21 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `waiter:pickup-reminder` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[] }` |
 | `waiter:pickup-escalation` | `restaurant:{id}:waiter` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[], previousClaimStaffId? }` |
 | `waiter:call` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ callId, tableNumber, reason, message?, createdAt }` |
+| `waiter:order-cancelled` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, cancelledByStaffId }` |
+| `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{originSectorId}` | `{ tableId, tableName, type: 'removed' }` — mesa saiu do setor |
+| `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{destSectorId}` | `{ tableId, tableName, sessionId, sectorId, personCount, pendingOrders: [{ orderId, orderNumber, status, deliveryGroup, itemCount }] }` — mesa chegou no setor com contexto de pedidos pendentes/prontos |
+
+### Servidor → KDS (transferência)
+
+| Evento | Room | Payload |
+|---|---|---|
+| `kds:table-transferred` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, oldTableName, newTableName }` — atualiza número da mesa nos cards |
+
+### Servidor → Cliente (transferência)
+
+| Evento | Room | Payload |
+|---|---|---|
+| `client:table-transferred` | `session:{token}` | `{ newTableId, newTableName }` — atualiza nome da mesa na tela do cliente |
 
 ### Servidor → Cliente
 
@@ -103,9 +119,10 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 | Evento | Room | Payload |
 |---|---|---|
-| `admin:table-update` | `restaurant:{id}:admin` | `{ tableId, status: 'free' \| 'occupied' \| 'awaiting-cleanup', sessionId?, occupiedSince? }` |
+| `admin:table-update` | `restaurant:{id}:admin` | `{ tableId, status: 'free' \| 'occupied', sessionId?, occupiedSince? }` |
 | `admin:metrics-update` | `restaurant:{id}:admin` | `{ activeTables, activeOrders, avgPrepTime, revenue }` |
 | `admin:pickup-escalation` | `restaurant:{id}:admin` | `{ orderId, orderNumber, tableNumber, minutesWaiting, sectorName }` |
+| `admin:mapping-incomplete` | `restaurant:{id}:admin` | `{ sectorId, sectorName, missingLocations: [{ preparationLocationId, preparationLocationName }] }` — alerta urgente de mapeamento incompleto |
 
 ## Rooms WebSocket
 
@@ -137,6 +154,8 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 - Quando desconectado, exibir banner "Reconectando..." e fazer polling HTTP a cada 10 segundos como fallback para atualizacoes criticas: `GET /session/:token` (cliente), `GET /orders?status=ready` (garçom), `GET /tables` (admin).
 - Polling continua indefinidamente até reconectar. Após **60 segundos** sem sucesso, indicador visual muda de "Reconectando..." para "Sem conexão — dados podem estar desatualizados".
 - Ao reconectar, sincronizar estado completo (fetch via REST) para garantir que nenhum evento foi perdido.
+- **Reconciliação do cliente:** ao reconectar, o cliente chama `GET /session/:token` como ponto único de reconciliação — o endpoint retorna o estado completo da sessão (pessoas, pedidos, pagamentos). Nenhum outro endpoint de reconciliação é necessário para o perfil cliente.
+- **Reconciliação do KDS:** ao conectar (ou reconectar) ao Local de Preparo, o KDS faz fetch inicial de pedidos pendentes via `GET /preparation-locations/:id/orders?status=pending,preparing` antes de processar novos eventos WebSocket. Garante fila consistente mesmo após interrupções.
 
 ## Performance e Gerenciamento de Memoria
 

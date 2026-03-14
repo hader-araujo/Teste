@@ -12,7 +12,7 @@
 
 **Checklist:**
 - [ ] Módulo Auth completo (register, login, JWT access 15min + refresh 7d, roles).
-- [ ] Roles: OWNER, MANAGER, WAITER, KITCHEN, BAR.
+- [ ] Roles: OWNER, MANAGER, WAITER, KITCHEN.
 - [ ] Adicionar role `SUPER_ADMIN` ao enum de roles no schema Prisma (será usado na Sprint 22).
 - [ ] Refresh token em httpOnly cookie com `SameSite=Strict`.
 - [ ] **Suporte a dual JWT_SECRET** para rotação: validar token com secret atual e anterior simultaneamente. Ver `docs/seguranca.md` seção Rotação de Secrets.

@@ -40,9 +40,18 @@ Internet -> nginx (HTTPS/TLS) -> ochefia-web (3000)
 | `ochefia-image-resize` | Resize de imagens apos upload (Sharp) |
 | `ochefia-otp-send` | Envio de OTP via WhatsApp API |
 | `ochefia-pix-process` | Processamento de confirmacoes webhook Pix |
+| `ochefia-pickup-escalation` | Verifica itens READY sem entrega + timeout de claims (5min) |
+| `ochefia-join-renotification` | Reenvia notificação de aprovação de entrada na mesa a cada 60s |
 
 - **Retries:** 3 tentativas com backoff exponencial. Mensagens que falharam 3x vao para estado `failed` no Bull e podem ser inspecionadas via Bull Dashboard (opcional) ou logs.
 - **Persistencia:** Bull usa Redis, entao filas sobrevivem a restart do container da API (desde que o Redis persista dados).
+
+### Cron Jobs (dentro do container `ochefia-api`)
+
+| Cron | Horário | Descrição |
+|---|---|---|
+| Anonimização LGPD | Diário, madrugada (ex: 03:00) | Anonimiza dados pessoais de sessões fechadas há mais de 90 dias (`Person.name`, `Person.phone`, `JoinRequest.phoneLast4`) |
+| Preenchimento DayTeam | Diário, 04:00 | Auto-preenche equipe do dia a partir do Schedule semanal. Não sobrescreve se admin já editou manualmente |
 
 ### Logs e Observabilidade
 - **Winston** como biblioteca de log no backend. Output em JSON estruturado para stdout.

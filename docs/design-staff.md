@@ -12,7 +12,11 @@ O Staff se subdivide em 3 contextos com variacoes:
 
 ### Autenticação e Acesso
 
-O KDS requer autenticação de funcionário (role KITCHEN ou BAR). Ao acessar, o funcionário faz login e seleciona o Local de Preparo.
+O KDS requer autenticação de funcionário (role KITCHEN). Ao acessar, o funcionário faz login e seleciona o Local de Preparo. O operador pode acessar qualquer Local de Preparo do restaurante.
+
+**Tela de login do KDS:** reutiliza o endpoint de autenticação existente (`POST /auth/login`). Layout minimalista em dark mode (`bg-gray-900`): logotipo "OChefia KDS" centralizado, campo de e-mail, campo de senha e botão "Entrar" (`bg-green-600`). Após autenticação bem-sucedida, redireciona para a tela de seleção de Local de Preparo.
+
+**Fetch inicial ao conectar:** após selecionar o Local de Preparo e estabelecer conexão WebSocket, o KDS realiza `GET /preparation-locations/:id/orders?status=pending,preparing` para carregar a fila atual antes de receber novos eventos via socket. Garante que pedidos criados durante uma desconexão não sejam perdidos.
 
 ### Tela de Seleção de Local de Preparo
 
@@ -91,6 +95,17 @@ Após o login, o funcionário é direcionado à tela de seleção de Local de Pr
 | **Bottom tabs** | 3 tabs: Chamados (principal), Mesas, Turno. Icone + texto. Ativa em orange. "Detalhe da mesa" e "Comanda" sao telas contextuais acessadas via tap na mesa, nao aparecem na bottom nav |
 
 **Tipografia:** mesma escala do cliente, mas com enfase em numeros grandes (numero da mesa, valores).
+
+### Push Notification Deep Links
+
+| Evento | Destino |
+|---|---|
+| Item pronto para retirada | `/garcom/chamados` |
+| Chamado de cliente ("O Chefia") | `/garcom/chamados` |
+| Escalação de retirada (nível 1 e 2) | `/garcom/chamados` |
+| Transferência de mesa | `/garcom/mesas` |
+
+Ao tocar na notificação, o app abre diretamente na tela correspondente. Se o garçom não estiver autenticado ou com turno ativo, redireciona para o login antes de abrir o deep link.
 
 ---
 
