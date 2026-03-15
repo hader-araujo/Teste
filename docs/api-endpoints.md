@@ -21,6 +21,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/restaurants/:slug` | Dados públicos do restaurante |
+| GET | `/restaurants/:slug/staff-list` | Público. Lista de funcionários ativos para tela de login PIN: `[{ id, name, role }]`. Retorna apenas WAITER e KITCHEN. Sem dados sensíveis (sem email, sem telefone) |
 | PUT | `/restaurants/:id` | Atualizar dados (OWNER/MANAGER) |
 | GET | `/restaurants/:id/settings` | Configurações |
 | PUT | `/restaurants/:id/settings` | Atualizar configurações. Body inclui: `serviceChargePercent` (default 10%), `themeName`, `primaryColor`, `secondaryColor`, `backgroundColor`, `pickupReminderInterval` (default 3min), `pickupEscalationTimeout` (default 10min), `orderDelayThreshold` (default 15min), `idleTableThreshold` (default 30min), `maxPeoplePerSession` (default 100), `claimTimeout` (default 5min), `waiterOfflineAlertTimeout` (default 5min) |

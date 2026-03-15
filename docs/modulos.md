@@ -246,7 +246,7 @@ Acesso: Cliente via QR Code no navegador.
 
 ### Identificação via WhatsApp
 - **Obrigatória para entrar na mesa.** OTP de 6 dígitos via WhatsApp. Salva `phone` + `phoneVerified = true`. **Armazenamento do OTP:** Redis com TTL de 5 minutos. Chave: `otp:{phone}` → `{ code, attempts, createdAt }`. Sem tabela no banco — OTP é efêmero, se Redis reiniciar o cliente solicita novo OTP.
-- **Unicidade de telefone:** um telefone verificado só pode estar vinculado a **uma sessão ativa por vez**. Se o cliente tenta entrar numa mesa nova e já está em outra sessão ativa, o sistema retorna erro `SESSION_008`: "Telefone já vinculado a outra sessão ativa."
+- **Unicidade de telefone:** um telefone verificado só pode estar vinculado a **uma sessão ativa por restaurante**. Se o cliente tenta entrar numa segunda mesa no mesmo restaurante e já está em outra sessão ativa, retorna erro `SESSION_008`: "Telefone já vinculado a outra sessão ativa neste restaurante." Pode estar em restaurantes diferentes simultaneamente.
 
 ### Pessoa Sai e Volta (Participações Múltiplas)
 - Pessoa paga sua parte (ou R$0 se não consumiu) → status "quitada" → some das atribuições de novos pedidos a partir daquele momento.

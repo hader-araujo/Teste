@@ -1,12 +1,13 @@
 # Sprint 2 — Auth + Restaurant + Seed
 
-**Endpoints (~9):**
+**Endpoints (~10):**
 - POST `/auth/register` — Registro de restaurante + owner.
 - POST `/auth/login` — Login com email+senha → JWT. Usado por Admin e Super Admin.
 - POST `/auth/pin` — Login com PIN → JWT. Usado por Garçom (WAITER) e KDS (KITCHEN). Rate limiting: 5 tentativas/15min + lockout 15min.
 - POST `/auth/refresh` — Refresh token.
 - GET `/auth/me` — Dados do usuário logado.
 - GET `/restaurants/:slug` — Dados públicos do restaurante.
+- GET `/restaurants/:slug/staff-list` — Público. Lista de funcionários ativos (WAITER/KITCHEN) para tela de login PIN.
 - PUT `/restaurants/:id` — Atualizar dados (OWNER/MANAGER).
 - GET `/restaurants/:id/settings` — Configurações.
 - PUT `/restaurants/:id/settings` — Atualizar configurações.

@@ -127,7 +127,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 | Evento | Room | Payload |
 |---|---|---|
-| `session:join-request` | `session:{token}` | `{ requestId, phoneLast4, requestedAt }` |
+| `session:join-request` | `session:{token}` | `{ requestId, name, phoneLast4, requestedAt }` |
 | `session:join-approved` | direto ao socket do entrante | `{ requestId, approvedBy, sessionToken, personId }` |
 | `session:join-rejected` | direto ao socket do entrante | `{ requestId, rejectedBy }` |
 | `session:join-remind` | `session:{token}` | `{ requestId, phoneLast4, reminderCount }` |

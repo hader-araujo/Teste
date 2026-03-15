@@ -11,7 +11,7 @@
 - **Token da sessão deve ser criptograficamente seguro:** UUID v4 (128 bits) ou `crypto.randomBytes(32).toString('hex')`. Nunca sequencial ou previsível.
 - Token expira automaticamente quando a sessão é fechada. Tokens de sessões fechadas não podem ser reutilizados.
 - **Identificação individual por cookie:** ao ser aprovado na mesa (via OTP ou pelo garçom), o backend seta cookie httpOnly `ochefia_person_id` com o `personId` da pessoa. Endpoints que operam sobre uma pessoa específica (`POST /session/:token/payments`, `DELETE /session/:token/people/:personId`, etc.) validam que o `personId` do body/path corresponde ao cookie. Impede que um membro da mesa aja como outro. Cookie com `SameSite=Strict`, `Secure`, `Path=/session`.
-- **Unicidade de telefone:** um telefone verificado só pode estar vinculado a uma sessão ativa por vez. Tentativa de entrar em outra mesa com sessão ativa retorna erro `SESSION_008`.
+- **Unicidade de telefone:** um telefone verificado só pode estar vinculado a uma sessão ativa **por restaurante**. Tentativa de entrar em outra mesa no mesmo restaurante com sessão ativa retorna erro `SESSION_008`. Pode estar em restaurantes diferentes simultaneamente.
 - **Força bruta em tokens de sessão:** o rate limit geral por IP é suficiente para proteger contra força bruta — tokens de sessão são UUID v4 (espaço de 2^122), tornando ataques de enumeração computacionalmente inviáveis.
 
 ## Aprovação de Entrada na Mesa

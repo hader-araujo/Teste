@@ -344,7 +344,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 **Índices:** `sessionId`, `phone` + `sessionId`
 
 **Notas:**
-- Unicidade de telefone: um telefone verificado só pode estar em 1 sessão ativa por vez (erro `SESSION_008`)
+- Unicidade de telefone: um telefone verificado só pode estar em 1 sessão ativa por restaurante (erro `SESSION_008`). Pode estar em restaurantes diferentes simultaneamente
 - Dados pessoais sujeitos a LGPD — anonimização após 90 dias
 - **Participações múltiplas:** Se uma pessoa já quitou sua parte e retorna via QR Code, é criada uma nova Person (nova participação). Exibição: se houver mais de uma participação do mesmo telefone na sessão, mostra numeração (ex: "Maria ①", "Maria ②"). Cada participação é independente com seus próprios itens e pagamentos.
 
@@ -357,6 +357,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 |---|---|---|
 | id | UUID | PK |
 | sessionId | UUID | FK → TableSession |
+| name | String | Nome do entrante, informado antes de solicitar aprovação. Min 1, max 50. Sanitizar HTML |
 | phone | String | Telefone verificado do entrante |
 | phoneLast4 | String | Últimos 4 dígitos (exibido na notificação) |
 | status | JoinRequestStatus | Default `PENDING` |
