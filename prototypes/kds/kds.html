@@ -176,7 +176,7 @@
         <button class="kds-bump-btn" onclick="kdsBump('43-B')">PRONTO</button>
       </article>
 
-      <!-- Pedido #49-B — Mesa 12 — 2min (green, normal) — autoDelivery (Service bar) -->
+      <!-- Pedido #49-B — Mesa 12 — 2min (green, normal) — kitchenDelivery (Service bar) -->
       <article class="kds-card" data-order-id="49-B" data-start-minutes="2" data-location="bar" style="display:none;">
         <div class="kds-card-header">
           <div>
@@ -184,7 +184,7 @@
             <span class="kds-table">Mesa 12</span>
           </div>
           <div style="display:flex; align-items:center; gap:0.5rem;">
-            <span class="badge badge-info" style="font-size:0.6875rem;">Auto-entrega</span>
+            <span class="badge badge-info" style="font-size:0.6875rem;">Entrega pela cozinha</span>
             <span class="kds-timer">2min</span>
           </div>
         </div>
@@ -198,7 +198,7 @@
             <span class="kds-item-name" style="cursor:pointer; text-decoration:underline; text-decoration-style:dotted; text-underline-offset:3px;" onclick="openFotoPrato('Chopp Pilsen')">Chopp Pilsen</span>
           </div>
         </div>
-        <div class="kds-pickup-point">→ Service bar <span style="color:var(--color-info); font-size:0.75rem; font-weight:500;">(auto-entrega)</span></div>
+        <div class="kds-pickup-point">→ Service bar <span style="color:var(--color-info); font-size:0.75rem; font-weight:500;">(entrega pela cozinha)</span></div>
         <button class="kds-bump-btn" id="btn-pronto-49B" onclick="this.style.display='none'; document.getElementById('btn-entregue-49B').style.display='block'; showToast('Pedido #49-B pronto! Aguardando entrega.', 'success');">PRONTO</button>
         <button class="kds-bump-btn" id="btn-entregue-49B" style="display:none; background-color:var(--color-info);" onclick="kdsBump('49-B'); showToast('Pedido #49-B entregue!', 'success');">ENTREGUE</button>
       </article>

@@ -134,7 +134,7 @@
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Auto-entrega</th>
+                    <th>Entrega pela cozinha</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -142,7 +142,7 @@
                   <tr>
                     <td style="font-weight:500;">Pass principal</td>
                     <td>
-                      <div class="toggle" role="switch" aria-checked="false" aria-label="Auto-entrega">
+                      <div class="toggle" role="switch" aria-checked="false" aria-label="Entrega pela cozinha">
                         <div class="toggle-handle"></div>
                       </div>
                     </td>
@@ -160,7 +160,7 @@
                   <tr>
                     <td style="font-weight:500;">Janela da cozinha</td>
                     <td>
-                      <div class="toggle" role="switch" aria-checked="false" aria-label="Auto-entrega">
+                      <div class="toggle" role="switch" aria-checked="false" aria-label="Entrega pela cozinha">
                         <div class="toggle-handle"></div>
                       </div>
                     </td>
@@ -210,7 +210,7 @@
                 <thead>
                   <tr>
                     <th>Nome</th>
-                    <th>Auto-entrega</th>
+                    <th>Entrega pela cozinha</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -218,7 +218,7 @@
                   <tr>
                     <td style="font-weight:500;">Balcão do bar</td>
                     <td>
-                      <div class="toggle" role="switch" aria-checked="false" aria-label="Auto-entrega">
+                      <div class="toggle" role="switch" aria-checked="false" aria-label="Entrega pela cozinha">
                         <div class="toggle-handle"></div>
                       </div>
                     </td>
@@ -236,7 +236,7 @@
                   <tr>
                     <td style="font-weight:500;">Service bar</td>
                     <td>
-                      <div class="toggle active" role="switch" aria-checked="true" aria-label="Auto-entrega">
+                      <div class="toggle active" role="switch" aria-checked="true" aria-label="Entrega pela cozinha">
                         <div class="toggle-handle"></div>
                       </div>
                     </td>
@@ -267,7 +267,7 @@
         <div style="padding:1rem 1.25rem; background:var(--color-primary-light); border:1px solid #FDBA74; border-radius:var(--radius-lg); display:flex; align-items:flex-start; gap:0.75rem;">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--color-primary)" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           <div style="font-size:0.875rem; color:var(--color-text-secondary); line-height:1.5;">
-            <strong style="color:var(--color-text-primary);">Como funciona:</strong> Cada Local de Preparo corresponde a uma tela KDS independente. Os Pontos de Entrega definem onde o garçom retira os itens prontos. A flag "Auto-entrega" indica que o operador entrega diretamente na mesa, sem notificar o garçom.
+            <strong style="color:var(--color-text-primary);">Como funciona:</strong> Cada Local de Preparo corresponde a uma tela KDS independente. Os Pontos de Entrega definem onde o garçom retira os itens prontos. A flag "Entrega pela cozinha" indica que o operador entrega diretamente na mesa, sem notificar o garçom.
           </div>
         </div>
 
@@ -318,10 +318,10 @@
         </div>
         <div class="input-group">
           <label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer;">
-            <div class="toggle" id="ponto-auto-entrega" role="switch" aria-checked="false" aria-label="Auto-entrega">
+            <div class="toggle" id="ponto-entrega-pela-cozinha" role="switch" aria-checked="false" aria-label="Entrega pela cozinha">
               <div class="toggle-handle"></div>
             </div>
-            Auto-entrega
+            Entrega pela cozinha
           </label>
           <p style="font-size:0.8125rem; color:var(--color-text-muted); margin-top:0.25rem; line-height:1.4;">
             Operador entrega diretamente na mesa, sem notificar garçom.

@@ -40,11 +40,11 @@ Internet -> nginx (HTTPS/TLS) -> ochefia-web (3000)
 | `ochefia-image-resize` | Resize de imagens após upload (Sharp) |
 | `ochefia-otp-send` | Envio de OTP via WhatsApp API |
 | `ochefia-pix-process` | Processamento de confirmações webhook Pix |
-| `ochefia-pix-expiration` | Job periódico: marca pagamentos PIX com status PENDING há mais de 30min como EXPIRED. Emite `client:payment-cancelled` com `reason: 'expired'` |
-| `ochefia-pickup-escalation` | Verifica itens READY sem entrega (job periódico para re-notificação e escalação nível 1/2) |
+| `ochefia-pix-expiration` | Job periódico: marca pagamentos PIX com status PAYMENT_PENDING há mais de 30min como PAYMENT_EXPIRED. Emite `client:payment-cancelled` com `reason: 'expired'` |
+| `ochefia-pickup-escalation` | Verifica itens ORDER_READY sem entrega (job periódico para re-notificação e escalação nível 1/2) |
 | `ochefia-claim-timeout` | Bull delayed job: agendado ao fazer claim, delay de `claimTimeout` minutos. Libera claim expirado, re-emite `waiter:order-ready`. Cancelado se garçom marca "Entregue" antes. Notificação `waiter:claim-expiring` 1min antes |
 | `ochefia-session-cleanup` | Job periódico: fecha sessões vazias (sem pedidos) abertas há mais de `idleTableThreshold` minutos. Sessões com pedidos nunca são fechadas automaticamente |
-| `ochefia-join-renotification` | Processa JoinRequests pendentes a cada 60s: reenvia notificação se não expirou, marca `EXPIRED` se passou 5min. Um job, duas responsabilidades coesas |
+| `ochefia-join-renotification` | Processa JoinRequests pendentes a cada 60s: reenvia notificação se não expirou, marca `JOIN_EXPIRED` se passou 5min. Um job, duas responsabilidades coesas |
 
 - **Retries:** 3 tentativas com backoff exponencial. Mensagens que falharam 3x vão para estado `failed` no Bull e podem ser inspecionadas via Bull Dashboard (opcional) ou logs.
 - **Persistência:** Bull usa Redis, então filas sobrevivem a restart do container da API (desde que o Redis persista dados).

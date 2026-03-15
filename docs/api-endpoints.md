@@ -37,7 +37,7 @@ Base URL: `/api/v1`
 | POST | `/tables/:id/open` | Abrir sessão da mesa (cliente). Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. **Bloqueia se setor não tem garçom com turno ativo** (erro `SESSION_019` + alerta `admin:no-waiter-alert`). Cria sessão + 1º membro + emite `waiter:session-opened`. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
 | POST | `/tables/:id/open-staff` | Abrir sessão da mesa (garçom). Roles: WAITER, MANAGER, OWNER. Body: `{ personCount: number, names?: string[] }`. Não exige WhatsApp/OTP. Pessoas criadas como genéricas se nomes não informados. `consentGivenAt` fica null para pessoas sem OTP. Usado para clientes sem celular ou mesas analógicas |
 | POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Roles: WAITER, MANAGER, OWNER. Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Sessão vazia (sem pedidos/pagamentos) fecha sem restrições — caminho para fechar sessão fantasma. Emite `client:session-closed` via WebSocket |
-| POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
+| POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `PAYMENT_CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
 | PATCH | `/tables/:id/transfer` | Transferir sessão para outra mesa (body: `{ targetTableId }`). Requer JWT de staff (WAITER ou superior). Mesa destino deve estar livre. Move toda a sessão (pessoas, pedidos, conta). Funciona entre setores. KDS atualiza número da mesa automaticamente. WebSocket notifica clientes conectados |
 
@@ -50,7 +50,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/session/:token` | Dados da sessão (pedidos, conta) |
-| POST | `/session/:token/join` | Solicitar entrada em sessão existente. Apenas para mesas com sessão ativa — nunca cria sessão. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify`. Retorna erro `SESSION_007` se telefone não verificado. Retorna erro `SESSION_008` se telefone vinculado a outra sessão ativa. **Auto-aprovação:** se o telefone já participou desta sessão (Person anterior com mesmo phone), pula fila de aprovação — cria nova Person imediatamente e retorna `{ status: 'auto-approved', personId }`. Exibição: "Maria ①", "Maria ②". **Aprovação normal:** se telefone é novo na sessão, cria solicitação pendente. Expira em 5 minutos. Sistema renotifica membros a cada 60 segundos. Após expirar, status muda para `EXPIRED` |
+| POST | `/session/:token/join` | Solicitar entrada em sessão existente. Apenas para mesas com sessão ativa — nunca cria sessão. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify`. Retorna erro `SESSION_007` se telefone não verificado. Retorna erro `SESSION_008` se telefone vinculado a outra sessão ativa. **Auto-aprovação:** se o telefone já participou desta sessão (Person anterior com mesmo phone), pula fila de aprovação — cria nova Person imediatamente e retorna `{ status: 'auto-approved', personId }`. Exibição: "Maria ①", "Maria ②". **Aprovação normal:** se telefone é novo na sessão, cria solicitação pendente. Expira em 5 minutos. Sistema renotifica membros a cada 60 segundos. Após expirar, status muda para `JOIN_EXPIRED` |
 | POST | `/session/:token/phone` | Enviar OTP via WhatsApp para o número informado |
 | POST | `/session/:token/phone/verify` | Confirmar OTP e salvar número verificado na sessão |
 | GET | `/session/:token/join/pending` | Listar solicitações pendentes de aprovação (visível para membros aprovados) |
@@ -62,7 +62,7 @@ Base URL: `/api/v1`
 | GET | `/session/:token/people` | Listar pessoas cadastradas na sessão |
 | POST | `/session/:token/people` | Adicionar pessoa na mesa (body: `{ name }`) |
 | PATCH | `/session/:token/people/:personId` | Atualizar nome da pessoa (body: `{ name }`) |
-| DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa (cliente "Sair da mesa" ou staff). **Só permitido se saldo da pessoa = R$ 0,00** (sem itens, ou todos os itens pagos). Retorna erro `SESSION_016` se pessoa tem saldo pendente (itens não pagos ou Payment PENDING). Retorna erro `SESSION_017` se pessoa tem OrderItems com status `QUEUED` ou `PREPARING`. Não existe reatribuição automática de itens — pessoa paga primeiro, depois sai |
+| DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa (cliente "Sair da mesa" ou staff). **Só permitido se saldo da pessoa = R$ 0,00** (sem itens, ou todos os itens pagos). Retorna erro `SESSION_016` se pessoa tem saldo pendente (itens não pagos ou Payment PAYMENT_PENDING). Retorna erro `SESSION_017` se pessoa tem OrderItems com status `ORDER_QUEUED` ou `ORDER_PREPARING`. Não existe reatribuição automática de itens — pessoa paga primeiro, depois sai |
 | PATCH | `/session/:token/service-charge` | Toggle taxa de serviço (**requer JWT de staff**, role WAITER ou superior). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos. Com `personId` = toggle individual por pessoa. Cliente não tem acesso a este endpoint |
 | GET | `/session/:token/bill` | Autenticação: session token. Conta detalhada com divisão por pessoa + taxa de serviço |
 | GET | `/session/:token/activity-log` | Autenticação: session token. Log de atividade de pedidos e reatribuições. Retorna lista de ações em formato legível (quem pediu, quem modificou, de/para). Visível para todos os membros da mesa |
@@ -75,7 +75,7 @@ Base URL: `/api/v1`
 | GET | `/preparation-locations` | Roles: OWNER, MANAGER. Listar locais de preparo do restaurante |
 | POST | `/preparation-locations` | Roles: OWNER, MANAGER. Criar local de preparo (gera 1 Ponto de Entrega default automaticamente) |
 | PUT | `/preparation-locations/:id` | Roles: OWNER, MANAGER. Atualizar local de preparo |
-| DELETE | `/preparation-locations/:id` | Roles: OWNER, MANAGER. Remover local de preparo (somente se não tem produtos vinculados) |
+| DELETE | `/preparation-locations/:id` | Roles: OWNER, MANAGER. Soft delete de local de preparo (somente se não tem produtos vinculados). **Cascade:** remove mapeamentos `SectorPickupPointMapping` do local deletado. Setores afetados ficam com mapeamento incompleto → emite `admin:mapping-incomplete` para cada setor |
 
 ## Fila do KDS (por Local de Preparo)
 | Metodo | Rota | Descricao |
@@ -86,7 +86,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/preparation-locations/:id/pickup-points` | Roles: OWNER, MANAGER. Listar pontos de entrega do local de preparo |
-| POST | `/preparation-locations/:id/pickup-points` | Roles: OWNER, MANAGER. Criar ponto de entrega (body: `{ name, autoDelivery?: bool }`) |
+| POST | `/preparation-locations/:id/pickup-points` | Roles: OWNER, MANAGER. Criar ponto de entrega (body: `{ name, kitchenDelivery?: bool }`) |
 | PUT | `/pickup-points/:id` | Roles: OWNER, MANAGER. Atualizar ponto de entrega |
 | DELETE | `/pickup-points/:id` | Roles: OWNER, MANAGER. Remover ponto de entrega (somente se não é o único do local e não tem produtos vinculados) |
 
@@ -114,10 +114,10 @@ Base URL: `/api/v1`
 | PUT | `/menu/tags/:id` | Roles: OWNER, MANAGER. Atualizar tag |
 | DELETE | `/menu/tags/:id` | Roles: OWNER, MANAGER. Remover tag. Se tem produtos vinculados, exige confirmação (`confirm: true` no body). Remove vínculo com produtos (produtos continuam sem a tag) |
 | GET | `/menu/products` | Roles: OWNER, MANAGER. Listar produtos (admin) |
-| POST | `/menu/products` | Roles: OWNER, MANAGER. Criar produto (inclui `pickupPointId` ou `destination: 'waiter'` — **mutuamente exclusivos**, enviar exatamente um; `immediateDelivery?: bool`, e `tagIds[]`). Retorna erro `MENU_004` se ambos ou nenhum for informado |
+| POST | `/menu/products` | Roles: OWNER, MANAGER. Criar produto (inclui `pickupPointId` ou `destination: 'waiter'` — **mutuamente exclusivos**, enviar exatamente um; `earlyDelivery?: bool`, e `tagIds[]`). Retorna erro `MENU_004` se ambos ou nenhum for informado |
 | PUT | `/menu/products/:id` | Roles: OWNER, MANAGER. Atualizar produto |
-| PATCH | `/menu/products/:id/availability` | Roles: OWNER, MANAGER. Toggle disponibilidade. Pedidos já existentes (`QUEUED`, `PREPARING`, `READY`) não são afetados — KDS continua exibindo e cliente continua vendo na conta. O toggle só impede novos pedidos. Se não há como preparar um item já pedido, o staff cancela manualmente |
-| DELETE | `/menu/products/:id` | Roles: OWNER, MANAGER. Soft delete de produto. Só permitido se não há itens em pedidos ativos (`QUEUED` ou `PREPARING`). Requer JWT de staff (MANAGER+) |
+| PATCH | `/menu/products/:id/availability` | Roles: OWNER, MANAGER. Toggle disponibilidade. Pedidos já existentes (`ORDER_QUEUED`, `ORDER_PREPARING`, `ORDER_READY`) não são afetados — KDS continua exibindo e cliente continua vendo na conta. O toggle só impede novos pedidos. Se não há como preparar um item já pedido, o staff cancela manualmente |
+| DELETE | `/menu/products/:id` | Roles: OWNER, MANAGER. Soft delete de produto. Só permitido se não há itens em pedidos ativos (`ORDER_QUEUED` ou `ORDER_PREPARING`). Requer JWT de staff (MANAGER+) |
 
 ## Upload (Imagens)
 | Metodo | Rota | Descricao |
@@ -128,14 +128,14 @@ Base URL: `/api/v1`
 ## Orders
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/orders` | Autenticação: session token (cliente) ou JWT (staff via comanda). Criar pedido. Cada item inclui `personIds[]` (obrigatório, pelo menos 1) e `notes?: string` (observações do cliente, ex: "bem passado", "sem cebola" — exibidas no KDS). O pedido gera até 3 grupos de entrega: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Retorna erro se mapeamento Setor ↔ Local de Preparo estiver incompleto para algum item do pedido |
+| POST | `/orders` | Autenticação: session token (cliente) ou JWT (staff via comanda). Criar pedido. Cada item inclui `personIds[]` (obrigatório, pelo menos 1) e `notes?: string` (observações do cliente, ex: "bem passado", "sem cebola" — exibidas no KDS). O pedido gera até 3 grupos de entrega: itens normais (garçom notificado quando todos ficarem prontos), itens `earlyDelivery` (notificado quando todos os antecipados ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Retorna erro se mapeamento Setor ↔ Local de Preparo estiver incompleto para algum item do pedido |
 | GET | `/orders` | Roles: OWNER, MANAGER, WAITER. Listar pedidos (admin, filtros). **Paginação:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
 | GET | `/orders/:id` | Roles: OWNER, MANAGER, WAITER. Detalhes do pedido |
 | PATCH | `/orders/:id/cancel` | Roles: WAITER, MANAGER, OWNER (WAITER+ para itens Na fila; OWNER/MANAGER para Pronto/Entregue). Cancelar pedido inteiro (somente se todos os itens estão `Na fila`). Body: `{ reason?: string }`. Registra cancelamento no activity log |
 | PATCH | `/orders/items/:id/status` | Roles: KITCHEN (preparing/ready), WAITER (delivered), OWNER/MANAGER (any status). Atualizar status de item individual |
 | PATCH | `/orders/items/:id/cancel` | Roles: WAITER, MANAGER, OWNER (WAITER+ para Na fila; OWNER/MANAGER para Pronto/Entregue). Cancelar item individual. Cliente pode cancelar próprios itens se `Na fila` via session token. Staff pode cancelar se `Na fila` ou `Preparando`. Body: `{ reason?: string }`. Registra no activity log. Itens cancelados são removidos do cálculo da conta |
-| PATCH | `/orders/:id/delivery-groups/:group/claim` | Roles: WAITER, MANAGER, OWNER. Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2, aceita override com `escalation: true`. **Concorrência:** usar `SELECT ... FOR UPDATE` (pessimistic locking via Prisma `$transaction`) para evitar race condition quando 2 garçons tocam simultaneamente |
-| PATCH | `/orders/items/:id/people` | Autenticação: session token (cliente apenas). Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment CONFIRMED que inclua o item |
+| PATCH | `/orders/:id/delivery-groups/:group/claim` | Roles: WAITER, MANAGER, OWNER. Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `early-delivery`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2, aceita override com `escalation: true`. **Concorrência:** usar `SELECT ... FOR UPDATE` (pessimistic locking via Prisma `$transaction`) para evitar race condition quando 2 garçons tocam simultaneamente |
+| PATCH | `/orders/items/:id/people` | Autenticação: session token (cliente apenas). Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment PAYMENT_CONFIRMED que inclua o item |
 
 ## Payments
 
@@ -143,14 +143,14 @@ Base URL: `/api/v1`
 
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/session/:token/payments` | **Cliente inicia pagamento.** Body: `{ personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. PIX gera QR Code. CASH/CARD ficam PENDING aguardando confirmação do garçom. Registra `initiatedBy: CLIENT`. **Bloqueia se pessoa já tem pagamento PENDING** (erro `PAY_007` — cancelar o pendente antes de iniciar outro) |
-| POST | `/payments` | **Staff inicia pagamento.** Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Mesmo comportamento. Registra `initiatedBy: STAFF` + `initiatedByStaffId`. **Mesmo bloqueio PAY_007** |
+| POST | `/session/:token/payments` | **Cliente inicia pagamento.** Body: `{ personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. PIX gera QR Code. CASH/CARD ficam PAYMENT_PENDING aguardando confirmação do garçom. Registra `initiatedBy: CLIENT`. **Bloqueia se pessoa já tem pagamento PAYMENT_PENDING** (erro `PAY_007` — cancelar o pendente antes de iniciar outro) |
+| POST | `/payments` | **Staff inicia pagamento.** Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Mesmo comportamento. Registra `initiatedBy: STAFF` + `initiatedByStaffId`. **Mesmo bloqueio PAY_007 (PAYMENT_PENDING existente)** |
 | GET | `/payments/:id/status` | Verificar status do pagamento (inclui método, quem iniciou, quem confirmou) |
-| PATCH | `/payments/:id/confirm` | **Staff confirma pagamento.** Roles: WAITER, MANAGER, OWNER. Muda status de `PENDING` para `CONFIRMED`. Registra `confirmedByStaffId` + `confirmedAt`. Obrigatório para CASH/CARD. Para PIX: só usado como fallback quando webhook falha |
+| PATCH | `/payments/:id/confirm` | **Staff confirma pagamento.** Roles: WAITER, MANAGER, OWNER. Muda status de `PAYMENT_PENDING` para `PAYMENT_CONFIRMED`. Registra `confirmedByStaffId` + `confirmedAt`. Obrigatório para CASH/CARD. Para PIX: só usado como fallback quando webhook falha |
 | POST | `/payments/pix/webhook` | Webhook de confirmação Pix (automático). Validação de assinatura síncrona (retorna 400 se inválida). Só enfileira no Bull após validação. Idempotency via `externalId` do provedor (ignora duplicatas). `confirmedByStaffId` fica null |
-| PATCH | `/payments/:id/cancel` | Staff cancela pagamento pendente (roles: WAITER, MANAGER, OWNER). Body: `{ reason?: string }`. Só status `PENDING`. Registra `cancelledAt` + `cancelledByStaffId` |
-| PATCH | `/session/:token/payments/:id/cancel` | Cliente cancela o próprio pagamento pendente para tentar outro método. Só status `PENDING`. Sem body |
-| PATCH | `/payments/:id/refund` | Confirmar devolução de pagamento (staff, WAITER+). Body: `{ method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. Valor já calculado pelo sistema no PENDING_REFUND — staff só informa o método de devolução. Registra `refundedByStaffId`, `refundedAt`, `refundMethod`. Muda status de `PENDING_REFUND` para `REFUNDED`. Registra no activity log e AuditLog |
+| PATCH | `/payments/:id/cancel` | Staff cancela pagamento pendente (roles: WAITER, MANAGER, OWNER). Body: `{ reason?: string }`. Só status `PAYMENT_PENDING`. Registra `cancelledAt` + `cancelledByStaffId` |
+| PATCH | `/session/:token/payments/:id/cancel` | Cliente cancela o próprio pagamento pendente para tentar outro método. Só status `PAYMENT_PENDING`. Sem body |
+| PATCH | `/payments/:id/refund` | Confirmar devolução de pagamento (staff, WAITER+). Body: `{ method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. Valor já calculado pelo sistema no PAYMENT_PENDING_REFUND — staff só informa o método de devolução. Registra `refundedByStaffId`, `refundedAt`, `refundMethod`. Muda status de `PAYMENT_PENDING_REFUND` para `PAYMENT_REFUNDED`. Registra no activity log e AuditLog |
 | GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método, quem iniciou, quem confirmou, devoluções pendentes e confirmadas) |
 
 ## LGPD
@@ -158,7 +158,7 @@ Base URL: `/api/v1`
 |---|---|---|
 | POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone. Body: `{ phone }`. Retorna `{ lgpdToken }` (UUID, expira em 5min) após OTP confirmado. Fluxo em 2 etapas para evitar dados sensíveis em query params |
 | POST | `/lgpd/verify/confirm` | Confirmar OTP. Body: `{ phone, otp }`. Retorna `{ lgpdToken }` (UUID, expira em 5min). lgpdToken armazenado em Redis com TTL 5min, chave: `lgpd:{token}` → `{ phone }` |
-| GET | `/lgpd/data` | Retorna todos os dados pessoais vinculados ao telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de acesso LGPD |
+| GET | `/lgpd/data` | Retorna dados pessoais vinculados ao telefone, agrupados por sessão. Header: `Authorization: Bearer {lgpdToken}`. **Paginação:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }`. Direito de acesso LGPD |
 | DELETE | `/lgpd/data` | Anonimiza dados pessoais de todas as sessões passadas do telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de exclusão LGPD. Substitui nome por "Anonimizado", phone por null, phoneLast4 por null |
 
 ## Call Requests
@@ -186,7 +186,7 @@ Base URL: `/api/v1`
 ## Desempenho da Equipe
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/staff/:id/performance` | Roles: OWNER, MANAGER. Métricas individuais do funcionário por período (query: `from`, `to` — formato `YYYY-MM-DD`, interpretados como início e fim do dia no timezone do servidor). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
+| GET | `/staff/:id/performance` | Roles: OWNER, MANAGER. Métricas individuais do funcionário por período (query: `from`, `to` — formato `YYYY-MM-DD`, interpretados como início e fim do dia em `America/Sao_Paulo` — fixo na Fase 1, mesmo padrão do `orderNumber`). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
 | GET | `/staff/performance/summary` | Roles: OWNER, MANAGER. Resumo de desempenho de todos os funcionários no período (query: `from`, `to`). Ranking por métricas |
 | GET | `/preparation-locations/:id/performance` | Roles: OWNER, MANAGER. Métricas do Local de Preparo por período (query: `from`, `to`). Tempo médio de preparo, pedidos, itens mais demorados |
 | GET | `/staff/pickup-escalations` | Roles: OWNER, MANAGER. Relatório de escalações de retirada por garçom (query: `from`, `to` — formato `YYYY-MM-DD`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período. Paginação: `page` e `limit` (default 50, max 100) |
@@ -208,7 +208,7 @@ Base URL: `/api/v1`
 | POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER ou KITCHEN |
 | PUT | `/staff/:id` | Roles: OWNER, MANAGER. Atualizar funcionário |
 | DELETE | `/staff/:id` | Roles: OWNER, MANAGER (OWNER-only para targets com role OWNER/MANAGER). Desativar funcionário |
-| POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. Garçom deve definir novo PIN no próximo clock-in |
+| POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. **Efeitos colaterais:** revoga refresh token (força re-login) e faz clock-out se houver turno ativo (fecha o Shift). Claims ativos do garçom expiram pelo timeout normal. Garçom deve fazer login com novo PIN em outro dispositivo e clock-in novamente. Caso de uso principal: garçom perdeu celular logado |
 
 ## Turno do Garçom (Clock-in/out)
 | Metodo | Rota | Descricao |

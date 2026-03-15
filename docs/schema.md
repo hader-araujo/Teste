@@ -26,17 +26,17 @@ KITCHEN       -- Operador de KDS (acessa qualquer Local de Preparo)
 
 ### OrderItemStatus
 ```
-QUEUED        -- Na fila
-PREPARING     -- Preparando
-READY         -- Pronto
-DELIVERED     -- Entregue
-CANCELLED     -- Cancelado
+ORDER_QUEUED      -- Na fila
+ORDER_PREPARING   -- Preparando
+ORDER_READY       -- Pronto
+ORDER_DELIVERED   -- Entregue
+ORDER_CANCELLED   -- Cancelado
 ```
 
 ### DeliveryGroupType
 ```
-NORMAL        -- Itens com immediateDelivery = false
-IMMEDIATE     -- Itens com immediateDelivery = true
+NORMAL        -- Itens com earlyDelivery = false
+EARLY_DELIVERY -- Itens com earlyDelivery = true
 WAITER_DIRECT -- Itens com destino "Garçom" (sem KDS)
 ```
 
@@ -50,29 +50,29 @@ CARD_CREDIT
 
 ### PaymentStatus
 ```
-PENDING          -- Criado, aguardando pagamento
-CONFIRMED        -- Pago e confirmado (webhook PIX ou staff confirma CASH/CARD)
-CANCELLED        -- Cancelado manualmente (garçom cancela PIX / cliente desiste)
-EXPIRED          -- PIX expirou 30min sem pagamento (automático, Bull job)
-PENDING_REFUND   -- Devolução solicitada, aguardando confirmação do staff
-REFUNDED         -- Devolução confirmada pelo staff
+PAYMENT_PENDING         -- Criado, aguardando pagamento
+PAYMENT_CONFIRMED       -- Pago e confirmado (webhook PIX ou staff confirma CASH/CARD)
+PAYMENT_CANCELLED       -- Tentativa de pagamento cancelada antes de pagar (garçom cancela PIX / cliente desiste / troca de método)
+PAYMENT_EXPIRED         -- PIX expirou 30min sem pagamento (automático, Bull job)
+PAYMENT_PENDING_REFUND  -- Devolução solicitada, aguardando confirmação do staff
+PAYMENT_REFUNDED        -- Devolução confirmada pelo staff
 ```
 
 **Máquina de estados:**
 ```
-PENDING → CONFIRMED       (webhook PIX ou staff confirma CASH/CARD)
-PENDING → CANCELLED       (garçom cancela PIX / cliente desiste)
-PENDING → EXPIRED         (Bull job 30min, só PIX)
-CONFIRMED → PENDING_REFUND (item cancelado após preparo)
-PENDING_REFUND → REFUNDED  (staff confirma devolução)
+PAYMENT_PENDING → PAYMENT_CONFIRMED       (webhook PIX ou staff confirma CASH/CARD)
+PAYMENT_PENDING → PAYMENT_CANCELLED       (garçom cancela PIX / cliente desiste / troca de método)
+PAYMENT_PENDING → PAYMENT_EXPIRED         (Bull job 30min, só PIX)
+PAYMENT_CONFIRMED → PAYMENT_PENDING_REFUND (item cancelado após preparo)
+PAYMENT_PENDING_REFUND → PAYMENT_REFUNDED  (staff confirma devolução)
 ```
 
 ### JoinRequestStatus
 ```
-PENDING
-APPROVED
-REJECTED
-EXPIRED
+JOIN_PENDING
+JOIN_APPROVED
+JOIN_REJECTED
+JOIN_EXPIRED
 ```
 
 ### TableStatus
@@ -80,6 +80,14 @@ EXPIRED
 FREE
 OCCUPIED
 ```
+
+**Máquina de estados:**
+```
+FREE → OCCUPIED   (POST /tables/:id/open ou POST /tables/:id/open-staff cria sessão)
+OCCUPIED → FREE   (POST /tables/:id/close ou POST /tables/:id/force-close fecha sessão)
+                   (Auto-close de sessão vazia via Bull job também transiciona para FREE)
+```
+- Transferência de mesa (`PATCH /tables/:id/transfer`) **não muda status** — a mesa de origem fica FREE (sessão saiu) e a de destino fica OCCUPIED (sessão entrou).
 
 ### CallReason
 ```
@@ -172,12 +180,13 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | maxPeoplePerSession | Int | Default `100`. Limite máximo de pessoas por sessão de mesa |
 | claimTimeout | Int | Default `5`. Minutos — tempo para garçom retirar grupo após claim antes de expirar |
 | waiterOfflineAlertTimeout | Int | Default `5`. Minutos — tempo de desconexão WebSocket de garçom com turno ativo antes de gerar alerta ao admin |
+| longSessionThreshold | Int | Default `6`. Horas — tempo de sessão aberta antes de gerar alerta no dashboard |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
 **Índices:** `restaurantId` (unique)
 
-**Constraints:** serviceChargePercent 0-100, pickupReminderInterval >= 1, pickupEscalationTimeout >= 1, orderDelayThreshold >= 1, idleTableThreshold >= 1, maxPeoplePerSession >= 1, claimTimeout >= 1, waiterOfflineAlertTimeout >= 1
+**Constraints:** serviceChargePercent 0-100, pickupReminderInterval >= 1, pickupEscalationTimeout >= 1, orderDelayThreshold >= 1, idleTableThreshold >= 1, maxPeoplePerSession >= 1, claimTimeout >= 1, waiterOfflineAlertTimeout >= 1, longSessionThreshold >= 1
 
 ---
 
@@ -193,7 +202,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | passwordHash | String | bcrypt |
 | role | Role | SUPER_ADMIN, OWNER, MANAGER, WAITER, KITCHEN |
 | pin | String? | PIN numérico 4 dígitos (hash). Obrigatório para WAITER e KITCHEN. Usado no login por PIN (`POST /auth/pin`) e clock-in |
-| phone | String? | |
+| phone | String? | Telefone WhatsApp do funcionário. Usado para envio de convite (`POST /staff/invite`) e contato interno |
 | temporary | Boolean | Default `false`. Funcionário temporário |
 | fixedWeekdays | Int[]? | Dias fixos da semana (0-6). Null = avulso |
 | active | Boolean | Default `true` |
@@ -346,7 +355,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 **Notas:**
 - Unicidade de telefone: um telefone verificado só pode estar em 1 sessão ativa por restaurante (erro `SESSION_008`). Pode estar em restaurantes diferentes simultaneamente
 - Dados pessoais sujeitos a LGPD — anonimização após 90 dias
-- **Participações múltiplas:** Se uma pessoa já quitou sua parte e retorna via QR Code, é criada uma nova Person (nova participação). Exibição: se houver mais de uma participação do mesmo telefone na sessão, mostra numeração (ex: "Maria ①", "Maria ②"). Cada participação é independente com seus próprios itens e pagamentos.
+- **Participações múltiplas:** Se uma pessoa já quitou sua parte e retorna via QR Code, é criada uma nova Person (nova participação). `consentGivenAt` é copiado da Person anterior (mesmo telefone, mesma sessão) — registra o momento real do consentimento original, não do retorno. Exibição: se houver mais de uma participação do mesmo telefone na sessão, mostra numeração (ex: "Maria ①", "Maria ②"). Cada participação é independente com seus próprios itens e pagamentos.
 
 ---
 
@@ -360,7 +369,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | name | String | Nome do entrante, informado antes de solicitar aprovação. Min 1, max 50. Sanitizar HTML |
 | phone | String | Telefone verificado do entrante |
 | phoneLast4 | String | Últimos 4 dígitos (exibido na notificação) |
-| status | JoinRequestStatus | Default `PENDING` |
+| status | JoinRequestStatus | Default `JOIN_PENDING` |
 | otpFailed | Boolean | Default `false`. True quando cliente esgotou tentativas de OTP (3x). Garçom vê na tela de aprovação com indicação diferenciada para aprovar manualmente |
 | respondedByPersonId | UUID? | FK → Person. Quem aprovou/rejeitou (quando cliente aprova) |
 | respondedByUserId | UUID? | FK → User. Quem aprovou/rejeitou (quando garçom aprova). Sempre um dos dois preenchido, nunca ambos |
@@ -432,7 +441,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | id | UUID | PK |
 | preparationLocationId | UUID | FK → PreparationLocation |
 | name | String | Ex: "Pass principal", "Balcão do bar". Default "Padrão" |
-| autoDelivery | Boolean | Default `false`. Se true, operador do KDS entrega direto na mesa |
+| kitchenDelivery | Boolean | Default `false`. Se true, operador do KDS entrega direto na mesa |
 | isDefault | Boolean | Default `false`. Criado automaticamente com o Local de Preparo |
 | deletedAt | DateTime? | Soft delete. Só se não é o único e não tem produtos vinculados |
 | createdAt | DateTime | |
@@ -496,7 +505,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | price | Decimal | Preço em BRL. Constraint: >= 0 |
 | destination | ProductDestination | `PICKUP_POINT` ou `WAITER` — mutuamente exclusivos |
 | pickupPointId | UUID? | FK → PickupPoint. Obrigatório se destination = PICKUP_POINT |
-| immediateDelivery | Boolean | Default `false`. Itens que podem ser entregues antes dos demais |
+| earlyDelivery | Boolean | Default `false`. Itens que podem ser entregues antes dos demais |
 | available | Boolean | Default `true`. Toggle de disponibilidade em tempo real |
 | sortOrder | Int | Default `0` |
 | deletedAt | DateTime? | Soft delete |
@@ -581,9 +590,9 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | productId | UUID | FK → Product |
 | quantity | Int | Default `1` |
 | unitPrice | Decimal | Preço no momento do pedido (snapshot). Constraint: >= 0 |
-| status | OrderItemStatus | Default `QUEUED` |
+| status | OrderItemStatus | Default `ORDER_QUEUED` |
 | notes | String? | Observações do cliente (ex: "bem passado", "sem cebola"). Max 200 chars. Exibido em destaque amarelo no KDS |
-| deliveryGroup | DeliveryGroupType | Calculado: NORMAL, IMMEDIATE, ou WAITER_DIRECT |
+| deliveryGroup | DeliveryGroupType | Calculado: NORMAL, EARLY_DELIVERY, ou WAITER_DIRECT |
 | pickupPointId | UUID? | FK → PickupPoint. Snapshot do destino no momento do pedido |
 | preparationLocationId | UUID? | FK → PreparationLocation. Determinado pelo PickupPoint |
 | claimedByStaffId | UUID? | FK → User. Garçom que assumiu a retirada (claim por grupo) |
@@ -591,7 +600,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | cancelledByStaffId | UUID? | FK → User. Staff que cancelou (se aplicável). Nome via JOIN — sem dados pessoais hardcoded |
 | cancelReason | String? | Motivo do cancelamento. Max 300 chars. Obrigatório para OWNER/MANAGER cancelando Pronto/Entregue |
 | readyAt | DateTime? | Quando marcado como Pronto |
-| startedAt | DateTime? | Preenchido na transição para PREPARING. Usado para recalcular timers do KDS após restart |
+| startedAt | DateTime? | Preenchido na transição para ORDER_PREPARING. Usado para recalcular timers do KDS após restart |
 | deliveredAt | DateTime? | Quando marcado como Entregue |
 | cancelledAt | DateTime? | Quando cancelado |
 | createdAt | DateTime | |
@@ -603,12 +612,12 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 
 **Máquina de estados:**
 ```
-QUEUED → PREPARING → READY → DELIVERED
-  ↓          ↓
-CANCELLED  CANCELLED (staff apenas)
+ORDER_QUEUED → ORDER_PREPARING → ORDER_READY → ORDER_DELIVERED
+  ↓                ↓
+ORDER_CANCELLED  ORDER_CANCELLED (staff apenas)
 
-Pronto/Entregue → CANCELLED (apenas OWNER/MANAGER, motivo obrigatório)
-Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
+Pronto/Entregue → ORDER_CANCELLED (apenas OWNER/MANAGER, motivo obrigatório)
+Destino "Garçom": ORDER_QUEUED → ORDER_DELIVERED (pula ORDER_PREPARING e ORDER_READY)
 ```
 
 ---
@@ -641,7 +650,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | sessionId | UUID | FK → TableSession |
 | personId | UUID | FK → Person |
 | method | PaymentMethod | PIX, CASH, CARD_DEBIT, CARD_CREDIT |
-| status | PaymentStatus | Default `PENDING` |
+| status | PaymentStatus | Default `PAYMENT_PENDING` |
 | amount | Decimal | Valor total (itens da pessoa + taxa de serviço se aplicável). Constraint: >= 0 |
 | serviceChargeAmount | Decimal? | Valor da taxa de serviço individual |
 | initiatedBy | ActorType | CLIENT ou STAFF — quem iniciou o pagamento |
@@ -656,7 +665,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | refundedByStaffId | UUID? | FK → User. Quem confirmou a devolução (audit trail) |
 | refundedAt | DateTime? | Quando a devolução foi confirmada |
 | refundMethod | PaymentMethod? | Método usado na devolução (pode diferir do original, ex: pagou PIX, devolveu CASH) |
-| refundAmount | Decimal? | Valor calculado da devolução. Fórmula: `itemPrice / numberOfPersons` (proporcional à divisão do item). Preenchido automaticamente ao criar PENDING_REFUND. Staff confirma com este valor |
+| refundAmount | Decimal? | Valor calculado da devolução. Fórmula: `itemPrice / numberOfPersons` (proporcional à divisão do item). Preenchido automaticamente ao criar PAYMENT_PENDING_REFUND. Staff confirma com este valor |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 

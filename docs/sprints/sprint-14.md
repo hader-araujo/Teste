@@ -11,7 +11,7 @@ Frontend do KDS. Zero endpoints REST novos.
 - [ ] Alertas visuais e sonoros para pedido novo/urgente.
 - [ ] Clique no prato para foto ampliada.
 - [ ] Botão "Pronto" com lógica:
-  - Ponto de Entrega com `autoDelivery = false`: notifica garçom(ns) do setor para retirada.
-  - Ponto de Entrega com `autoDelivery = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
+  - Ponto de Entrega com `kitchenDelivery = false`: notifica garçom(ns) do setor para retirada.
+  - Ponto de Entrega com `kitchenDelivery = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
 - [ ] Indicador de conexão WebSocket (componente da Sprint 12).
 - [ ] Polling HTTP fallback para atualizações KDS quando desconectado (componente da Sprint 12).

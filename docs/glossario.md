@@ -30,11 +30,11 @@ Termos usados na documentação do OChefia. Ordem alfabética dentro de cada se�
 
 **Fechamento de Caixa** — Resumo de valores recebidos no dia por forma de pagamento (Pix, dinheiro, cartão). Parte do módulo de *Faturamento*.
 
-**Force-close** — Fechamento forçado de sessão por OWNER/MANAGER (`POST /tables/:id/force-close`). Fecha mesmo com pagamentos pendentes — marca como CANCELLED. Registra em AuditLog. Usado para calote ou situações excepcionais. Diferente do fechamento normal que exige pagamentos quitados.
+**Force-close** — Fechamento forçado de sessão por OWNER/MANAGER (`POST /tables/:id/force-close`). Fecha mesmo com pagamentos pendentes — marca como PAYMENT_CANCELLED. Registra em AuditLog. Usado para calote ou situações excepcionais. Diferente do fechamento normal que exige pagamentos quitados.
 
 **Funcionário Temporário** — Staff cadastrado com flag `temporario`. Pode ter dias fixos da semana ou ser avulso. Entra na *Escala* automaticamente nos dias fixos.
 
-**Grupo de Entrega** — Agrupamento de itens de um mesmo pedido para fins de notificação e retirada. Cada pedido gera até 3 grupos: Normal (itens comuns, garçom notificado quando todos ficarem prontos), Entrega Imediata (itens `immediateDelivery`, notificado quando todos os imediatos ficarem prontos) e Garçom Direto (entrega imediata sem KDS).
+**Grupo de Entrega** — Agrupamento de itens de um mesmo pedido para fins de notificação e retirada. Cada pedido gera até 3 grupos: Normal (itens comuns, garçom notificado quando todos ficarem prontos), Entrega Antecipada (itens `earlyDelivery`, notificado quando todos os antecipados ficarem prontos) e Garçom Direto (entrega imediata sem KDS).
 
 **Local de Preparo** — Lugar físico onde itens são produzidos (ex: "Cozinha Principal", "Pizzaria", "Bar"). Cada Local de Preparo corresponde a uma tela KDS independente. Possui um ou mais *Pontos de Entrega*.
 
@@ -52,7 +52,7 @@ Termos usados na documentação do OChefia. Ordem alfabética dentro de cada se�
 
 **Pessoa** — Indivíduo cadastrado numa sessão de mesa. Não exige verificação de identidade — basta um nome. Itens do pedido são atribuídos a pessoas para divisão da conta.
 
-**Ponto de Entrega** — Local onde o garçom retira o item pronto. Pertence a um *Local de Preparo*. Exemplos: "Pass principal", "Balcão do bar". Possui flag `autoDelivery` que determina se o operador do KDS entrega direto na mesa.
+**Ponto de Entrega** — Local onde o garçom retira o item pronto. Pertence a um *Local de Preparo*. Exemplos: "Pass principal", "Balcão do bar". Possui flag `kitchenDelivery` que determina se o operador do KDS entrega direto na mesa.
 
 **PIN** — Personal Identification Number. Senha numérica de 4 dígitos usada por garçons (clock-in) e operadores KDS (login). Definida no cadastro do funcionário, armazenada com hash bcrypt. OWNER/MANAGER pode resetar via `POST /staff/:id/reset-pin`.
 
@@ -82,9 +82,43 @@ Termos usados na documentação do OChefia. Ordem alfabética dentro de cada se�
 
 ---
 
+## Mapeamento de Terminologia (Código ↔ Interface)
+
+A API e o schema usam enums em UPPER_CASE (inglês). A interface do cliente exibe em pt-BR. O frontend é responsável pela tradução.
+
+| Enum (código) | pt-BR (interface) | Contexto |
+|---|---|---|
+| `ORDER_QUEUED` | Na fila | Status do pedido |
+| `ORDER_PREPARING` | Preparando | Status do pedido |
+| `ORDER_READY` | Pronto | Status do pedido |
+| `ORDER_DELIVERED` | Entregue | Status do pedido |
+| `ORDER_CANCELLED` | Cancelado | Status do pedido (OrderItemStatus) |
+| `PAYMENT_CANCELLED` | Pagamento cancelado | Status de pagamento (tentativa cancelada antes de pagar) |
+| `FREE` | Livre | Status da mesa |
+| `OCCUPIED` | Ocupada | Status da mesa |
+| `WAITER` | Garçom | Role / motivo de chamado |
+| `KITCHEN` | Operador de KDS | Role |
+| `OWNER` | Dono | Role |
+| `MANAGER` | Gerente | Role |
+| `SUPER_ADMIN` | Super Admin | Role (equipe interna OChefia) |
+| `NORMAL` | Entrega com pedido completo | Grupo de entrega |
+| `EARLY_DELIVERY` | Entrega antecipada | Grupo de entrega |
+| `WAITER_DIRECT` | Garçom direto | Grupo de entrega |
+| `PIX` | Pix | Método de pagamento |
+| `CASH` | Dinheiro | Método de pagamento |
+| `CARD_DEBIT` | Cartão de débito | Método de pagamento |
+| `CARD_CREDIT` | Cartão de crédito | Método de pagamento |
+| `PAYMENT_PENDING` | Pendente | Status de pagamento |
+| `PAYMENT_CONFIRMED` | Confirmado | Status de pagamento |
+| `PAYMENT_EXPIRED` | Expirado | Status de pagamento |
+| `PAYMENT_PENDING_REFUND` | Devolução pendente | Status de pagamento |
+| `PAYMENT_REFUNDED` | Devolvido | Status de pagamento |
+
+---
+
 ## Termos Técnicos
 
-**autoDelivery** — Flag booleana do *Ponto de Entrega* (default `false`). Quando `true`, o operador do KDS entrega o item direto na mesa — o garçom não é notificado para retirada. Quando `false`, o garçom é notificado pelo sistema de *Grupos de Entrega*.
+**kitchenDelivery** — Flag booleana do *Ponto de Entrega* (default `false`). Quando `true`, o operador do KDS entrega o item direto na mesa (entrega pela cozinha) — o garçom não é notificado para retirada. Quando `false`, o garçom é notificado pelo sistema de *Grupos de Entrega*.
 
 **backoff exponencial** — Estratégia de reconexão do Socket.IO onde o intervalo entre tentativas aumenta progressivamente. Comportamento padrão da biblioteca.
 
@@ -100,7 +134,7 @@ Termos usados na documentação do OChefia. Ordem alfabética dentro de cada se�
 
 **idempotency** — Garantia de que processar a mesma operação múltiplas vezes produz o mesmo resultado. Aplicado ao webhook Pix via campo `pixExternalId` para ignorar notificações duplicadas.
 
-**immediateDelivery** — Flag booleana do produto (default `false`). Quando `true`, o item pode ser entregue antes dos demais do mesmo pedido (ex: drinks). Gera um *Grupo de Entrega* separado do tipo IMMEDIATE.
+**earlyDelivery** — Flag booleana do produto (default `false`). Quando `true`, o item pode ser entregue antes dos demais do mesmo pedido (ex: drinks). Gera um *Grupo de Entrega* separado do tipo EARLY_DELIVERY.
 
 **multi-tenancy** — Isolamento de dados entre restaurantes. Toda entidade vinculada a restaurante possui campo `restaurantId`. Queries sempre filtram por tenant.
 

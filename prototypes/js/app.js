@@ -22,9 +22,9 @@ const MOCK = {
   ],
 
   pickupPoints: [
-    { id: 1, name: 'Pass principal', preparationLocationId: 1, autoDelivery: false },
-    { id: 2, name: 'Balcão do bar', preparationLocationId: 2, autoDelivery: false },
-    { id: 3, name: 'Service bar', preparationLocationId: 2, autoDelivery: true }
+    { id: 1, name: 'Pass principal', preparationLocationId: 1, kitchenDelivery: false },
+    { id: 2, name: 'Balcão do bar', preparationLocationId: 2, kitchenDelivery: false },
+    { id: 3, name: 'Service bar', preparationLocationId: 2, kitchenDelivery: true }
   ],
 
   sectors: [
@@ -57,9 +57,9 @@ const MOCK = {
     { id: 7, name: 'Risoto de Cogumelos', desc: 'Risoto cremoso com mix de cogumelos frescos, parmesão e trufa', price: 56.00, categoryId: 2, pickupPointId: 1, tags: [1], available: true, image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=400&h=300&fit=crop' },
     { id: 8, name: 'Smash Burger Duplo', desc: 'Dois smash patties de 90g, queijo cheddar, cebola caramelizada, picles e molho especial', price: 42.00, categoryId: 3, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop' },
     { id: 9, name: 'Burger Vegano', desc: 'Hambúrguer de grão-de-bico e beterraba com maionese vegana e salada fresca', price: 38.00, categoryId: 3, pickupPointId: 1, tags: [1], available: true, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=300&fit=crop' },
-    { id: 10, name: 'Chopp Pilsen 500ml', desc: 'Chopp artesanal Pilsen gelado, servido na temperatura ideal', price: 16.00, categoryId: 4, pickupPointId: 2, tags: [], available: true, immediateDelivery: true, image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400&h=300&fit=crop' },
-    { id: 11, name: 'Caipirinha de Limão', desc: 'Caipirinha tradicional com cachaça artesanal, limão tahiti e açúcar', price: 22.00, categoryId: 4, pickupPointId: 2, tags: [], available: true, immediateDelivery: true, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&h=300&fit=crop' },
-    { id: 12, name: 'Suco Natural de Laranja', desc: 'Suco de laranja espremido na hora, sem adição de açúcar', price: 12.00, categoryId: 4, pickupPointId: 2, tags: [1, 2], available: true, immediateDelivery: true, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop' },
+    { id: 10, name: 'Chopp Pilsen 500ml', desc: 'Chopp artesanal Pilsen gelado, servido na temperatura ideal', price: 16.00, categoryId: 4, pickupPointId: 2, tags: [], available: true, earlyDelivery: true, image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=400&h=300&fit=crop' },
+    { id: 11, name: 'Caipirinha de Limão', desc: 'Caipirinha tradicional com cachaça artesanal, limão tahiti e açúcar', price: 22.00, categoryId: 4, pickupPointId: 2, tags: [], available: true, earlyDelivery: true, image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&h=300&fit=crop' },
+    { id: 12, name: 'Suco Natural de Laranja', desc: 'Suco de laranja espremido na hora, sem adição de açúcar', price: 12.00, categoryId: 4, pickupPointId: 2, tags: [1, 2], available: true, earlyDelivery: true, image: 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop' },
     { id: 13, name: 'Água Mineral 500ml', desc: 'Água mineral sem gás', price: 6.00, categoryId: 4, pickupPointId: null, destination: 'waiter', tags: [], available: true, image: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&h=300&fit=crop' },
     { id: 14, name: 'Petit Gâteau', desc: 'Bolinho de chocolate quente com centro cremoso, acompanha sorvete de creme', price: 34.00, categoryId: 5, pickupPointId: 1, tags: [4], available: true, image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=400&h=300&fit=crop' },
     { id: 15, name: 'Pudim de Leite', desc: 'Pudim de leite condensado com calda de caramelo, receita da casa', price: 18.00, categoryId: 5, pickupPointId: 1, tags: [], available: true, image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=300&fit=crop' }

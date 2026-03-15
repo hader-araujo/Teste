@@ -9,7 +9,11 @@ SaaS de gestão para bares/restaurantes no Brasil. Monorepo TypeScript: NestJS +
 1. **TDD inviolável.** RED → GREEN → REFACTOR. Teste primeiro, código depois. Sem exceções. Ver `.claude/rules/testing.md`.
 2. **Consultar `docs/` antes de implementar. Atualizar `docs/` depois.** Identificar docs relevantes → ler com Read → implementar → atualizar docs afetados. Se a implementação mudou um endpoint, atualizar `api-endpoints.md`. Se adicionou evento WebSocket, atualizar `websocket-events.md`. Se mudou campo no schema, atualizar `schema.md`. Se mudou fluxo de navegação, atualizar `fluxos.md`. Nenhum PR deve ser mergeado com docs desatualizados.
 3. **Planejar antes de executar tarefas complexas.** Para features novas ou refatorações grandes: apresentar plano (arquivos a criar/modificar, ordem, testes a escrever) e aguardar aprovação. O plano antecede o TDD — primeiro decide O QUE fazer, depois executa com TDD.
-4. **Nunca tomar decisões de negócio ou design sozinho.** Ao encontrar ambiguidade, furo lógico, ou necessidade de definir regra/comportamento/limite/valor — SEMPRE perguntar antes de decidir. Isso vale para docs (definição de regras, fluxos, limites, comportamentos) e para código (escolhas de implementação que afetam lógica de negócio). Listar as opções com prós/contras e aguardar escolha explícita. Nunca inventar números, comportamentos ou regras por conta própria.
+4. **Nunca tomar decisões de negócio ou design sozinho — REGRA INVIOLÁVEL.** Ao encontrar ambiguidade, furo lógico, ou necessidade de definir regra/comportamento/limite/valor — SEMPRE perguntar antes de decidir. Isso vale para TODAS as fases do projeto:
+   - **Documentação:** definição de regras, fluxos, limites, comportamentos, valores default, interações entre features.
+   - **Desenvolvimento:** escolhas de implementação que afetam lógica de negócio, UX, ou comportamento do sistema.
+   - **Qualquer fase:** se não está explicitamente definido nos docs, não assumir — perguntar.
+   Listar as opções com prós/contras e aguardar escolha explícita. Nunca inventar números, comportamentos ou regras por conta própria. Se um doc não define algo, isso é um furo a ser resolvido com o usuário, não uma lacuna a ser preenchida pela IA.
 
 ---
 

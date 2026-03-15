@@ -195,6 +195,138 @@ Cada restaurante pode personalizar as cores do **módulo cliente (cardápio digi
 
 ---
 
+## Estados Vazios (Empty States)
+
+Toda tela que exibe listas deve ter um empty state visual quando não há dados. Nunca exibir lista vazia sem explicação.
+
+| Tela | Mensagem | CTA (se aplicável) |
+|---|---|---|
+| **Cliente — Pedidos** | "Nenhum pedido ainda" | "Ver cardápio" |
+| **Cliente — Carrinho** | "Carrinho vazio" | "Ver cardápio" |
+| **Cliente — Conta (Visão Geral)** | "Nenhum item na conta" | — |
+| **Cliente — Conta (Histórico)** | "Nenhuma atividade ainda" | — |
+| **Garçom — Chamados** | "Nenhum chamado aberto" | — |
+| **Garçom — Mesas** | "Nenhuma mesa nos seus setores" | — |
+| **KDS — Fila** | "Nenhum pedido na fila" (texto centralizado, cor suave) | — |
+| **Admin — Dashboard (alertas)** | "Nenhum alerta no momento" (indicador verde) | — |
+| **Admin — Mesas** | "Nenhuma mesa cadastrada" | "Criar mesa" |
+| **Admin — Funcionários** | "Nenhum funcionário cadastrado" | "Cadastrar funcionário" |
+| **Admin — Cardápio** | "Nenhum produto cadastrado" | "Adicionar produto" |
+| **Admin — Faturamento** | "Sem dados para o período selecionado" | — |
+| **Super Admin — Estabelecimentos** | "Nenhum estabelecimento cadastrado" | "Novo estabelecimento" |
+
+**Diretriz visual:**
+- Ícone ilustrativo (outline, cor neutra `gray-400`) + texto descritivo + CTA opcional
+- Texto em `text-sm` ou `text-base`, cor `gray-500`
+- Centralizado vertical e horizontalmente no espaço disponível
+- Sem imagens pesadas — ícones SVG leves
+
+---
+
+## Estados de Carregamento (Loading/Skeleton)
+
+Toda tela que depende de dados assíncronos deve exibir feedback de carregamento. Nunca mostrar tela em branco enquanto carrega.
+
+### Tipos de loading por contexto
+
+| Contexto | Tipo | Implementação |
+|---|---|---|
+| **Navegação entre telas** | Skeleton screens | Estrutura da tela com blocos cinza animados (pulse) no lugar do conteúdo |
+| **Ações do usuário** (enviar pedido, pagar) | Botão com spinner | Botão fica desabilitado + spinner interno. Texto muda (ex: "Enviando...") |
+| **Atualizações em tempo real** (WebSocket) | Nenhum loading | Dados atualizam in-place sem loading visível |
+| **Listas com paginação** | Skeleton no fim da lista | Ao carregar próxima página, skeleton items aparecem no final |
+| **Upload de imagem** | Progress bar | Barra de progresso no card da imagem |
+
+### Skeleton por interface
+
+| Interface | Onde usar skeleton |
+|---|---|
+| **Cliente — Cardápio** | Cards de produto (foto retangular + 2 linhas de texto + preço) |
+| **Cliente — Pedidos** | Lista de items (retângulo + badge de status) |
+| **Cliente — Conta** | Linhas de itens por pessoa (texto + valor) |
+| **Garçom — Mesas** | Cards de mesa (retângulo + badge de status) |
+| **KDS — Fila** | Cards de pedido (header + linhas de itens) |
+| **Admin — Dashboard** | KPI cards (número grande + label) + tabela de alertas |
+| **Admin — Tabelas** | Linhas de tabela (células retangulares) |
+
+**Diretriz:**
+- Skeleton usa `bg-gray-200` com animação `animate-pulse` (Tailwind)
+- KDS (dark mode): skeleton usa `bg-gray-700` com pulse
+- Skeleton deve ter a mesma altura/largura aproximada do conteúdo final (evitar layout shift)
+- Tempo máximo sem feedback: **200ms**. Abaixo disso, não exibir skeleton (evitar flicker)
+
+---
+
+## Modo Offline / PWA
+
+O OChefia é uma PWA. O comportamento offline varia por interface.
+
+### Cliente (cardápio digital)
+
+| Estado | Comportamento |
+|---|---|
+| **Online** | Funcionamento normal via WebSocket + REST |
+| **Offline (cardápio)** | Cardápio cacheado pelo Service Worker é exibido em modo read-only. Banner: "Sem conexão — cardápio pode estar desatualizado" |
+| **Offline (pedidos/conta)** | Telas de pedidos e conta exibem último estado conhecido (cache local). Banner: "Sem conexão — dados podem estar desatualizados". Ações bloqueadas (enviar pedido, pagar) com toast "Sem conexão" |
+| **Reconexão** | `GET /session/:token` sincroniza estado completo. Banner some. Ações desbloqueadas |
+
+**Cache strategy (Service Worker):**
+- Cardápio público (`GET /menu/:slug`): **stale-while-revalidate** — serve do cache imediatamente, atualiza em background
+- Imagens de produtos: **cache-first** — imagens raramente mudam
+- Endpoints de sessão (`/session/:token/*`): **network-first** — sempre tenta rede, fallback pro cache se offline
+- Endpoints de escrita (POST, PATCH, DELETE): **network-only** — nunca servir do cache
+
+### Garçom (PWA)
+
+| Estado | Comportamento |
+|---|---|
+| **Offline** | Banner "Sem conexão". Lista de mesas e chamados mostra último estado. Ações bloqueadas. Push notifications continuam chegando se o Service Worker estiver ativo |
+| **Reconexão** | Fetch completo de mesas e chamados via REST |
+
+### KDS
+
+| Estado | Comportamento |
+|---|---|
+| **Offline** | Banner vermelho "SEM CONEXÃO — fila pode estar desatualizada". Fila congela no último estado. Alerta sonoro contínuo a cada 30s |
+| **Reconexão** | `GET /preparation-locations/:id/orders?status=pending,preparing` recarrega fila completa |
+
+### Admin / Super Admin
+
+| Estado | Comportamento |
+|---|---|
+| **Offline** | Banner "Sem conexão". Dashboard congela. Ações bloqueadas |
+| **Reconexão** | Refresh automático da página atual |
+
+---
+
+## Responsividade do KDS
+
+O KDS é projetado para **landscape em tablet/TV**, mas deve funcionar em outros tamanhos.
+
+### Breakpoints
+
+| Largura | Layout | Colunas do grid | Uso típico |
+|---|---|---|---|
+| < 640px (mobile portrait) | Stack vertical | 1 coluna | Celular (emergência) |
+| 640-1023px (tablet portrait) | Grid compacto | 2 colunas | Tablet em pé |
+| 1024-1439px (tablet landscape) | Grid padrão | 3 colunas | **Uso principal — tablet landscape** |
+| 1440px+ (TV/monitor) | Grid expandido | 4-5 colunas | Monitor na parede da cozinha |
+
+### Adaptações por tamanho
+
+| Elemento | Mobile (< 640px) | Tablet (640-1439px) | TV (1440px+) |
+|---|---|---|---|
+| **Cards** | Full-width, scroll vertical | Grid 2-3 colunas | Grid 4-5 colunas |
+| **Timer** | `text-base` | `text-lg` | `text-xl` |
+| **Botão "Pronto"** | Full-width, 48px altura | Full-width no card, 56px | Full-width no card, 56px |
+| **Nome do prato** | Truncado com ellipsis | Até 2 linhas | Exibe completo |
+| **Observações** | Colapsado (tap pra expandir) | Visível | Visível |
+| **Foto do prato** | Não exibe no card (só no modal) | Não exibe no card | Thumbnail no card |
+
+**Diretriz:** KDS em mobile não é o cenário ideal, mas não deve quebrar. O admin recebe aviso no cadastro: "O KDS funciona melhor em tablet ou monitor em modo paisagem."
+
+---
+
 **Specs detalhadas por interface (ler sob demanda):**
 - `docs/design-cliente.md` — superfícies, cores, componentes, tipografia do cliente
 - `docs/design-staff.md` — KDS (dark mode), garçom, caixa (referência futura)

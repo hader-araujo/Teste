@@ -14,7 +14,7 @@ Backend do fluxo de aprovação e cache do cardápio. Frontend na Sprint 8.
 
 **Checklist:**
 - [ ] **Sistema de aprovação de novos entrantes:** primeiro cliente cria sessão automaticamente; novos entrantes entram em fila de aprovação após verificação WhatsApp. Retorna erro `SESSION_007` se telefone não verificado.
-- [ ] **Timeout de aprovação:** solicitação expira após 5 minutos sem resposta. Status muda para `EXPIRED` automaticamente via job Bull.
+- [ ] **Timeout de aprovação:** solicitação expira após 5 minutos sem resposta. Status muda para `JOIN_EXPIRED` automaticamente via job Bull.
 - [ ] **Auto-renotificação:** a cada 60 segundos sem resposta, reenviar notificação automaticamente aos membros da mesa (dentro do período de 5 minutos).
 - [ ] **Notificação via polling HTTP (sem WebSocket):** membros da mesa consultam `GET /session/:token/join/pending` a cada 10s para ver solicitações pendentes. WebSocket substituirá este polling na Sprint 12.
 - [ ] Entrante pode re-solicitar após rejeição ou expiração. Máximo 3 tentativas por telefone por sessão (SESSION_014).

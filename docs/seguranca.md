@@ -38,7 +38,7 @@
 - **Rate limit no `/auth/refresh`:** máximo 10 requests por IP em 15 minutos. Previne abuso com refresh token vazado.
 - **Rate limit no `/auth/login`:** máximo 5 tentativas por IP em 15 minutos. Previne brute force de senha.
 - **Rate limit no `/auth/register`:** máximo 3 requests por IP por hora. Previne spam de criação de restaurantes.
-- **Revogação de refresh tokens:** ao desativar funcionário (`DELETE /staff/:id`), alterar role, ou resetar senha/PIN, o refresh token deve ser revogado. Implementação: denylist em Redis com TTL de 7 dias (tempo de vida do refresh token). Verificar denylist no middleware de refresh.
+- **Revogação de refresh tokens:** ao desativar funcionário (`DELETE /staff/:id`), alterar role, ou resetar senha/PIN (`POST /staff/:id/reset-pin`), o refresh token deve ser revogado. Reset de PIN também faz clock-out automático (fecha Shift ativo) — caso de uso: celular perdido. Implementação: denylist em Redis com TTL de 7 dias (tempo de vida do refresh token). Verificar denylist no middleware de refresh.
 
 ## Autenticação do KDS
 - O KDS requer autenticação de funcionário com role `KITCHEN` (mesmo padrão de auth dos demais staff — JWT). Não opera como tela aberta. O operador pode acessar qualquer Local de Preparo do restaurante.

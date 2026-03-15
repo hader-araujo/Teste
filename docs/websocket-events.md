@@ -17,7 +17,7 @@ export const SOCKET_EVENTS = {
   KDS_TABLE_TRANSFERRED: 'kds:table-transferred', // Mesa transferida — atualiza número da mesa nos cards do KDS. Room: restaurant:{id}:kds:{prepLocationId}
 
   // Servidor -> Garcom
-  WAITER_ORDER_READY: 'waiter:order-ready', // Grupo de entrega pronto pra retirar (inclui Pontos de Entrega). Emitido **por grupo de entrega**, não por pedido. Se um pedido tem grupo Normal e Imediato que ficam prontos em momentos diferentes, são 2 eventos separados. Payload inclui `deliveryGroup: 'normal' | 'immediate'` e lista de `pickupPoints[]` — enviado a todos do setor
+  WAITER_ORDER_READY: 'waiter:order-ready', // Grupo de entrega pronto pra retirar (inclui Pontos de Entrega). Emitido **por grupo de entrega**, não por pedido. Se um pedido tem grupo Normal e Antecipado que ficam prontos em momentos diferentes, são 2 eventos separados. Payload inclui `deliveryGroup: 'normal' | 'early_delivery'` e lista de `pickupPoints[]` — enviado a todos do setor
   WAITER_PICKUP_CLAIMED: 'waiter:pickup-claimed', // Garçom assumiu retirada — some da tela dos outros garçons do setor
   WAITER_PICKUP_REMINDER: 'waiter:pickup-reminder', // Re-lembrete: item pronto há X min sem retirada (nível 1)
   WAITER_PICKUP_ESCALATION: 'waiter:pickup-escalation', // URGENTE: item sem retirada há Y min — enviado a TODOS os garçons (nível 2, override do claim)
@@ -31,7 +31,7 @@ export const SOCKET_EVENTS = {
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
   CLIENT_SESSION_UPDATE: 'client:session-update',  // Conta atualizada
   CLIENT_PAYMENT_CONFIRMED: 'client:payment-confirmed', // Pagamento confirmado (webhook Pix ou registro manual CASH/CARD por staff). Payload: { personId, amount, method: 'PIX' | 'CASH' | 'CARD_DEBIT' | 'CARD_CREDIT', confirmedAt }. Room: session:{token}
-  CLIENT_PAYMENT_CANCELLED: 'client:payment-cancelled', // Pagamento cancelado (garçom cancelou ou PIX expirou). Payload: { personId, paymentId, method, reason: 'staff_cancelled' | 'expired', cancelledAt }. Room: session:{token}
+  CLIENT_PAYMENT_CANCELLED: 'client:payment-cancelled', // Tentativa de pagamento cancelada (garçom cancelou ou PIX expirou). Status muda para PAYMENT_CANCELLED ou PAYMENT_EXPIRED. Payload: { personId, paymentId, method, reason: 'staff_cancelled' | 'expired', cancelledAt }. Room: session:{token}
   CLIENT_SESSION_CLOSED: 'client:session-closed',  // Sessão fechada pelo garçom/admin. Payload: { sessionToken, closedAt }. Room: session:{token}
   CLIENT_TABLE_TRANSFERRED: 'client:table-transferred', // Mesa transferida — atualiza nome da mesa na tela do cliente. Room: session:{token}
 
@@ -76,13 +76,13 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 | Evento | Room | Payload |
 |---|---|---|
-| `kds:new-order` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, tableNumber, sectorName, items: [{ itemId, productName, qty, notes?, pickupPointName, autoDelivery }], createdAt }` |
+| `kds:new-order` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, tableNumber, sectorName, items: [{ itemId, productName, qty, notes?, pickupPointName, kitchenDelivery }], createdAt }` |
 
 ### KDS → Servidor
 
 | Evento | Payload |
 |---|---|
-| `kds:status-update` | `{ orderId, itemId, status: 'preparing' \| 'ready' \| 'delivered', updatedBy: staffId }`. Servidor processa e emite eventos derivados: `client:order-update`, `waiter:order-ready` (quando grupo completo), etc. |
+| `kds:status-update` | `{ orderId, itemId, status: 'order_preparing' \| 'order_ready' \| 'order_delivered', updatedBy: staffId }`. Servidor processa e emite eventos derivados: `client:order-update`, `waiter:order-ready` (quando grupo completo), etc. |
 
 ### Servidor → Garçom
 
@@ -90,7 +90,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 |---|---|---|
 | `waiter:session-opened` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ tableId, tableName, personCount, openedAt }`. Garçom vai até a mesa para dar boas-vindas. Se mesa estiver vazia → sessão fantasma, garçom fecha manualmente |
 | `waiter:new-order` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableId, tableName, items: [{ itemId, productName, qty, destination }] }` |
-| `waiter:order-ready` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup: 'normal' \| 'immediate', pickupPoints: [{ pointId, pointName, locationName, autoDelivery, items: [{ itemId, productName, qty }] }] }` |
+| `waiter:order-ready` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup: 'normal' \| 'early_delivery', pickupPoints: [{ pointId, pointName, locationName, kitchenDelivery, items: [{ itemId, productName, qty }] }] }` |
 | `waiter:pickup-claimed` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, deliveryGroup, claimedByStaffId, claimedByName }` |
 | `waiter:pickup-reminder` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[] }` |
 | `waiter:pickup-escalation` | `restaurant:{id}:waiter` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[], previousClaimStaffId? }` |
@@ -117,7 +117,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 | Evento | Room | Payload |
 |---|---|---|
-| `client:order-update` | `session:{token}` | `{ orderId, items: [{ itemId, productName, status: 'queued' \| 'preparing' \| 'ready' \| 'delivered' \| 'cancelled' }] }` |
+| `client:order-update` | `session:{token}` | `{ orderId, items: [{ itemId, productName, status: 'order_queued' \| 'order_preparing' \| 'order_ready' \| 'order_delivered' \| 'order_cancelled' }] }` |
 | `client:session-update` | `session:{token}` | `{ type: 'person-added' \| 'person-removed' \| 'bill-updated', data: { personId?, personName?, amount?, reason? } }` |
 | `client:payment-confirmed` | `session:{token}` | `{ personId, amount, method, confirmedAt }` |
 | `client:payment-cancelled` | `session:{token}` | `{ personId, paymentId, method, reason: 'staff_cancelled' \| 'expired', cancelledAt }` |
@@ -125,9 +125,11 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 ### Aprovação de Entrada
 
+**Nota:** o entrante **não entra na room `session:{token}`** até ser aprovado. A confirmação de que a solicitação foi criada vem via HTTP 201 do `POST /session/:token/join`. Eventos de aprovação/rejeição são enviados **direto ao socket do entrante** (não via room). Se o WebSocket do entrante cair durante a espera, o frontend usa `GET /session/:token/join/:requestId/status` como fallback de polling.
+
 | Evento | Room | Payload |
 |---|---|---|
-| `session:join-request` | `session:{token}` | `{ requestId, name, phoneLast4, requestedAt }` |
+| `session:join-request` | `session:{token}` | `{ requestId, name, phoneLast4, requestedAt }` — notifica membros aprovados |
 | `session:join-approved` | direto ao socket do entrante | `{ requestId, approvedBy, sessionToken, personId }` |
 | `session:join-rejected` | direto ao socket do entrante | `{ requestId, rejectedBy }` |
 | `session:join-remind` | `session:{token}` | `{ requestId, phoneLast4, reminderCount }` |

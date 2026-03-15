@@ -45,7 +45,7 @@ Documento de referência com o fluxo de navegação de cada perfil. Complementa 
 4. **Pedidos** → acompanha status em tempo real (Na fila → Preparando → Pronto → Entregue) → pode reatribuir pessoas
 5. **Conta** → 3 abas: Visão Geral (divisão por pessoa + taxa) | Por Pessoa | Histórico (log de atividade) → toca numa pessoa para pagar
 6. **Pagamento** → QR Code Pix individual por pessoa
-   - Se a pessoa possui itens com status diferente de `DELIVERED` ou `CANCELLED`, exibe aviso: **"Você tem itens que ainda não foram entregues. Deseja pagar mesmo assim?"** — confirmação obrigatória antes de prosseguir
+   - Se a pessoa possui itens com status diferente de `ORDER_DELIVERED` ou `ORDER_CANCELLED`, exibe aviso: **"Você tem itens que ainda não foram entregues. Deseja pagar mesmo assim?"** — confirmação obrigatória antes de prosseguir
 7. **Sair da mesa** → pessoa pode encerrar sua participação pagando sua parte (ou R$ 0,00). Após sair, desaparece das atribuições de novos itens e da divisão de conta. Se a mesma pessoa retornar via QR Code, cria nova participação; exibição usa sufixo ordinal: "Maria ①", "Maria ②"
 8. **"O Chefia"** (bottom nav, qualquer tela) → modal com motivo (chamar garçom, pedir conta, outro) + mensagem → envia chamado
 
@@ -104,7 +104,7 @@ Documento de referência com o fluxo de navegação de cada perfil. Complementa 
 **Operação:**
 
 4. **Mesas** → mapa visual com status por cor → filtros (Todas, Com problema, Ociosas) → abrir/fechar/deletar sessão. Deletar = soft delete (só mesa fechada, histórico preservado)
-5. **Locais de Preparo** → CRUD de locais (ex: Cozinha, Bar, Pizzaria) + Pontos de Entrega por local (com flag auto-entrega)
+5. **Locais de Preparo** → CRUD de locais (ex: Cozinha, Bar, Pizzaria) + Pontos de Entrega por local (com flag entrega pela cozinha)
 6. **Setores** → CRUD de setores + vincular mesas + mapeamento obrigatório de Ponto de Entrega por Local de Preparo
 
 **Equipe:**
@@ -136,8 +136,8 @@ Documento de referência com o fluxo de navegação de cada perfil. Complementa 
 5. **Alerta sonoro** quando chega pedido novo ou pedido fica atrasado
 6. Toca no prato → foto ampliada do prato
 7. Toca **"Pronto"** (botão grande no card):
-   - **Ponto de Entrega com `autoDelivery = false`:** card sai da fila. A notificação ao garçom depende do grupo de entrega: itens normais só notificam quando todos os normais do pedido ficarem prontos; itens `immediateDelivery` notificam quando todos os imediatos ficarem prontos. Indica o Ponto de Entrega na notificação
-   - **Ponto de Entrega com `autoDelivery = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"
+   - **Ponto de Entrega com `kitchenDelivery = false`:** card sai da fila. A notificação ao garçom depende do grupo de entrega: itens normais só notificam quando todos os normais do pedido ficarem prontos; itens `earlyDelivery` notificam quando todos os antecipados ficarem prontos. Indica o Ponto de Entrega na notificação
+   - **Ponto de Entrega com `kitchenDelivery = true`:** operador entrega direto. KDS exibe botões "Pronto" e "Entregue"
 
 ---
 

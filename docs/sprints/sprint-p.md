@@ -25,8 +25,8 @@ prototypes/
 │   ├── login.html              <- Tela de login
 │   ├── dashboard.html          <- Métricas dinâmicas por Local de Preparo, pedidos recentes, chamados, seção alertas
 │   ├── mesas.html              <- Mapa de mesas com status + filtros (todas/com problema/ociosas) + delete de mesa
-│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, Ponto de Entrega ou "Garçom", flag entrega imediata)
-│   ├── locais-preparo.html     <- CRUD de Locais de Preparo + Pontos de Entrega (com flag auto-entrega)
+│   ├── cardapio-admin.html     <- CRUD categorias, tags e produtos (com upload de fotos, Ponto de Entrega ou "Garçom", flag entrega antecipada)
+│   ├── locais-preparo.html     <- CRUD de Locais de Preparo + Pontos de Entrega (com flag entrega pela cozinha)
 │   ├── setores.html            <- CRUD de Setores + mesas vinculadas + mapeamento de Pontos de Entrega por Local de Preparo
 │   ├── desempenho.html         <- Desempenho da equipe: métricas por garçom e por Local de Preparo
 │   ├── faturamento.html        <- Faturamento diário, mensal e taxas de garçom
@@ -59,7 +59,7 @@ prototypes/
 **Checklist:**
 - [x] `style-guide.html` — paleta de cores, tipografia, todos os componentes base renderizados.
 - [x] Telas do **cliente** — fluxo completo: WhatsApp -> pessoas -> cardápio -> produto -> carrinho (com seleção de pessoas) -> pedidos -> conta -> pagamento.
-- [x] Telas do **admin** — login -> dashboard (KPIs dinâmicos por Local de Preparo + seção alertas) -> mesas (filtros: todas/com problema/ociosas + delete de mesa) -> cardápio CRUD (com tags, Ponto de Entrega ou "Garçom", flag entrega imediata) -> locais de preparo (CRUD + pontos de entrega com flag auto-entrega) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> desempenho da equipe (métricas por garçom e por Local de Preparo) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
+- [x] Telas do **admin** — login -> dashboard (KPIs dinâmicos por Local de Preparo + seção alertas) -> mesas (filtros: todas/com problema/ociosas + delete de mesa) -> cardápio CRUD (com tags, Ponto de Entrega ou "Garçom", flag entrega antecipada) -> locais de preparo (CRUD + pontos de entrega com flag entrega pela cozinha) -> setores (CRUD + mesas + mapeamento de pontos de entrega) -> desempenho da equipe (métricas por garçom e por Local de Preparo) -> faturamento (diário, mensal, taxas garçom, escalações) -> staff (com temporário + senha garçom) -> escala -> equipe do dia (com atribuição de setores) -> settings (com nome/logo do estabelecimento, escalação de retirada).
 - [x] Telas do **KDS** — tela única por Local de Preparo com fila, cores de status, temporizadores. Mockar pelo menos 2 locais (ex: "Cozinha Principal" e "Bar").
 - [x] Telas do **garçom** — ativação de turno (clock-in com senha) -> chamados (tab principal, com banner de notificação) -> mesas agrupadas por setor -> abrir mesa (pessoas + nomes) -> detalhe da mesa (com botão "Retirar" em itens prontos) -> comanda.
 - [x] Navegação funcional entre todas as telas (links, incluindo Super Admin).
