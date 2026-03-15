@@ -30,7 +30,7 @@ Backend puro dos módulos de estrutura operacional. Frontend na Sprint 4.
 - [ ] CRUD de mesas + sessão (open/close). Mesa com `sectorId` obrigatório. Soft delete via campo `deletedAt` (nullable timestamp). `GET /tables` retorna apenas `deletedAt IS NULL`. Só permite deletar se sem sessão ativa. Recriar = criar nova mesa (novo ID) com mesmo nome/número. Histórico preservado para métricas.
 - [ ] **Force-close de sessão:** `POST /tables/:id/force-close` (OWNER/MANAGER). Fecha sessão mesmo com pagamentos pendentes — marca pendentes como `PAYMENT_CANCELLED`. Body: `{ confirm: true }` (obrigatório, previne chamada acidental). Registra em AuditLog com motivo.
 - [ ] **Concorrência em `POST /tables/:id/open`:** usar `SELECT ... FOR UPDATE` (ou constraint unique em `sessions` com `tableId` + `status = 'ACTIVE'`) para garantir apenas uma sessão ativa por mesa. Retornar erro `SESSION_002` se mesa já tem sessão ativa.
-- [ ] CRUD de Locais de Preparo (nome). Criação gera 1 Ponto de Entrega default automaticamente.
+- [ ] CRUD de Locais de Preparo (nome). Criação gera 1 Ponto de Entrega default automaticamente. Campos `kdsWarningMinutes` (default 10) e `kdsCriticalMinutes` (default 15) — thresholds de cor no KDS, configuráveis por Local de Preparo.
 - [ ] CRUD de Pontos de Entrega (nome, `kitchenDelivery` flag, vinculado a Local de Preparo).
 - [ ] CRUD de Setores (nome). Setor default criado automaticamente com o restaurante.
 - [ ] Mapeamento obrigatório Setor ↔ Local de Preparo: para cada setor, qual Ponto de Entrega usar por Local de Preparo.

@@ -151,6 +151,8 @@ Erros retornados pela API devem incluir código estruturado para facilitar debug
 | `SECTOR_` | Setores | `SECTOR_001: Setor não encontrado`, `SECTOR_002: Setor tem mesas vinculadas (não pode ser removido)`, `SECTOR_003: Mapeamento incompleto — faltam Locais de Preparo` |
 | `KDS_` | KDS | `KDS_001: Transição de status inválida`, `KDS_002: Pedido não encontrado` |
 
+**Nota:** SESSION_009 e SESSION_013 são códigos reservados para uso futuro. A numeração não é sequencial por design — permite inserir novos códigos entre módulos sem renumerar.
+
 Formato da resposta de erro:
 ```json
 {

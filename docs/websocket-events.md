@@ -32,6 +32,7 @@ export const SOCKET_EVENTS = {
   CLIENT_SESSION_UPDATE: 'client:session-update',  // Conta atualizada
   CLIENT_PAYMENT_CONFIRMED: 'client:payment-confirmed', // Pagamento confirmado (webhook Pix ou registro manual CASH/CARD por staff). Payload: { personId, amount, method: 'PIX' | 'CASH' | 'CARD_DEBIT' | 'CARD_CREDIT', confirmedAt }. Room: session:{token}
   CLIENT_PAYMENT_CANCELLED: 'client:payment-cancelled', // Tentativa de pagamento cancelada (garçom cancelou ou PIX expirou). Status muda para PAYMENT_CANCELLED ou PAYMENT_EXPIRED. Payload: { personId, paymentId, method, reason: 'staff_cancelled' | 'expired', cancelledAt }. Room: session:{token}
+  CLIENT_PAYMENT_REFUNDED: 'client:payment-refunded',   // Devolução confirmada pelo staff. Payload: { personId, refundAmount, refundMethod, refundedAt }. Room: session:{token}
   CLIENT_SESSION_CLOSED: 'client:session-closed',  // Sessão fechada pelo garçom/admin. Payload: { sessionToken, closedAt }. Room: session:{token}
   CLIENT_TABLE_TRANSFERRED: 'client:table-transferred', // Mesa transferida — atualiza nome da mesa na tela do cliente. Room: session:{token}
 
@@ -48,6 +49,7 @@ export const SOCKET_EVENTS = {
   ADMIN_MAPPING_INCOMPLETE: 'admin:mapping-incomplete', // Mapeamento Setor↔Local de Preparo incompleto — alerta urgente
   ADMIN_NO_WAITER_ALERT: 'admin:no-waiter-alert',     // Cliente tentou abrir mesa em setor sem garçom ativo — alerta severo
   ADMIN_WAITER_OFFLINE: 'admin:waiter-offline',       // Garçom com turno ativo desconectado há mais de waiterOfflineAlertTimeout minutos
+  ADMIN_PIN_LOCKOUT: 'admin:pin-lockout',             // Funcionário bloqueado por 5 tentativas de PIN incorretas — possível brute-force ou esquecimento
 
   // Garçom — alertas operacionais
   WAITER_ORDER_CANCELLED: 'waiter:order-cancelled',       // Pedido cancelado — notifica garçons do setor
@@ -97,7 +99,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `waiter:claim-expiring` | direto ao socket do garçom | `{ orderId, orderNumber, deliveryGroup, expiresInSeconds: 60 }` |
 | `waiter:claim-expired` | direto ao socket do garçom | `{ orderId, orderNumber, deliveryGroup, expiredAt }` |
 | `waiter:call` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ callId, tableNumber, reason, message?, createdAt }` |
-| `waiter:order-cancelled` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, cancelledByStaffId }` |
+| `waiter:order-cancelled` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, cancelledByStaffId, cancelledItemIds[], reason? }` |
 | `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{originSectorId}` | `{ tableId, tableName, type: 'removed' }` — mesa saiu do setor |
 | `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{destSectorId}` | `{ tableId, tableName, sessionId, sectorId, personCount, pendingOrders: [{ orderId, orderNumber, status, deliveryGroup, itemCount }] }` — mesa chegou no setor com contexto de pedidos pendentes/prontos |
 
@@ -121,6 +123,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `client:session-update` | `session:{token}` | `{ type: 'person-added' \| 'person-removed' \| 'bill-updated', data: { personId?, personName?, amount?, reason? } }` |
 | `client:payment-confirmed` | `session:{token}` | `{ personId, amount, method, confirmedAt }` |
 | `client:payment-cancelled` | `session:{token}` | `{ personId, paymentId, method, reason: 'staff_cancelled' \| 'expired', cancelledAt }` |
+| `client:payment-refunded` | `session:{token}` | `{ personId, refundAmount, refundMethod, refundedAt }` |
 | `client:session-closed` | `session:{token}` | `{ sessionToken, closedAt }` |
 
 ### Aprovação de Entrada
@@ -144,6 +147,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `admin:mapping-incomplete` | `restaurant:{id}:admin` | `{ sectorId, sectorName, missingLocations: [{ preparationLocationId, preparationLocationName }] }` — alerta urgente de mapeamento incompleto |
 | `admin:no-waiter-alert` | `restaurant:{id}:admin` | `{ tableId, tableName, sectorId, sectorName, attemptedAt }` — alerta severo: cliente tentou abrir mesa em setor sem garçom com turno ativo |
 | `admin:waiter-offline` | `restaurant:{id}:admin` | `{ staffId, staffName, sectorIds, sectorNames, offlineSince, minutesOffline }` — garçom com turno ativo desconectado há mais de `waiterOfflineAlertTimeout` minutos |
+| `admin:pin-lockout` | `restaurant:{id}:admin` | `{ staffId, staffName, lockedUntil, attemptCount: 5 }` — funcionário bloqueado por tentativas de PIN incorretas |
 
 ## Autenticação WebSocket
 

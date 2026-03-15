@@ -7,7 +7,8 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparação para scaling horizontal na Fase 2).
 - [ ] Rooms: restaurant, kds (geral), kds:{prepLocationId} (por Local de Preparo), waiter (geral), waiter:sector:{sectorId} (por setor), admin, session.
 - [ ] Eventos client->server: order:created, call:request, payment:initiated.
-- [ ] Eventos server->KDS: kds:new-order, kds:status-update.
+- [ ] Eventos server->KDS: kds:new-order.
+- [ ] Eventos KDS->server: kds:status-update.
 - [ ] Eventos server->cliente: client:order-update, client:session-update, client:payment-confirmed, client:payment-cancelled, client:session-closed.
 - [ ] Eventos de aprovação: session:join-request, session:join-approved, session:join-rejected, session:join-remind.
 - [ ] **Migrar notificações de aprovação de polling HTTP para WebSocket:** substituir o polling de `GET /session/:token/join/pending` (Sprint 7) por eventos `session:join-request` e `session:join-remind` em tempo real.

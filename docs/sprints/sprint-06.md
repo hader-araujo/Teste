@@ -2,7 +2,7 @@
 
 Backend da sessão do cliente. Aprovação de entrantes na Sprint 7. Frontend na Sprint 8.
 
-**Endpoints (~9):**
+**Endpoints (~10):**
 - POST `/tables/:id/verify-phone` — Enviar OTP pré-sessão (1º cliente, mesa sem sessão ativa). Body: `{ phone }`. Mesma infra de OTP (fila Bull, rate limit, 6 dígitos).
 - POST `/tables/:id/open` — Estender endpoint da Sprint 3 com body opcional: `{ personCount?, names? }` para pré-cadastro de pessoas.
 - GET `/session/:token` — Dados da sessão.
@@ -11,7 +11,7 @@ Backend da sessão do cliente. Aprovação de entrantes na Sprint 7. Frontend na
 - GET `/session/:token/people` — Listar pessoas na sessão.
 - POST `/session/:token/people` — Adicionar pessoa na mesa.
 - PATCH `/session/:token/people/:personId` — Atualizar nome da pessoa (body: `{ name }`).
-- DELETE `/session/:token/people/:personId` — Remover pessoa.
+- DELETE `/session/:token/people/:personId` — Remover pessoa da mesa (só se saldo = R$ 0,00 e sem itens em fila/preparo).
 
 **Checklist:**
 - [ ] Sessão de mesa via token criptograficamente seguro (UUID v4 ou `crypto.randomBytes(32)`) na URL + cookie.

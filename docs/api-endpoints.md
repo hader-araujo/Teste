@@ -24,7 +24,7 @@ Base URL: `/api/v1`
 | GET | `/restaurants/:slug/staff-list` | Público. Lista de funcionários ativos para tela de login PIN: `[{ id, name, role }]`. Retorna apenas WAITER e KITCHEN. Sem dados sensíveis (sem email, sem telefone) |
 | PUT | `/restaurants/:id` | Atualizar dados (OWNER/MANAGER) |
 | GET | `/restaurants/:id/settings` | Configurações |
-| PUT | `/restaurants/:id/settings` | Atualizar configurações. Body inclui: `serviceChargePercent` (default 10%), `themeName`, `primaryColor`, `secondaryColor`, `backgroundColor`, `pickupReminderInterval` (default 3min), `pickupEscalationTimeout` (default 10min), `orderDelayThreshold` (default 15min), `idleTableThreshold` (default 30min), `maxPeoplePerSession` (default 100), `claimTimeout` (default 5min), `waiterOfflineAlertTimeout` (default 5min) |
+| PUT | `/restaurants/:id/settings` | Atualizar configurações. Body inclui: `serviceChargePercent` (default 10%), `themeName`, `primaryColor`, `secondaryColor`, `backgroundColor`, `pickupReminderInterval` (default 3min), `pickupEscalationTimeout` (default 10min), `orderDelayThreshold` (default 15min), `idleTableThreshold` (default 30min), `maxPeoplePerSession` (default 100), `claimTimeout` (default 5min), `waiterOfflineAlertTimeout` (default 5min), `longSessionThreshold` (default 6h), `otpMaxSendsPerPhone` (default 5) |
 
 ## Tables
 | Metodo | Rota | Descricao |
@@ -36,7 +36,7 @@ Base URL: `/api/v1`
 | POST | `/tables/:id/verify-phone` | Enviar OTP de verificação WhatsApp antes de criar sessão (1º cliente, mesa sem sessão ativa). Body: `{ phone }`. Não requer sessão ativa |
 | POST | `/tables/:id/open` | Abrir sessão da mesa (cliente). Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. **Bloqueia se setor não tem garçom com turno ativo** (erro `SESSION_019` + alerta `admin:no-waiter-alert`). Cria sessão + 1º membro + emite `waiter:session-opened`. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
 | POST | `/tables/:id/open-staff` | Abrir sessão da mesa (garçom). Roles: WAITER, MANAGER, OWNER. Body: `{ personCount: number, names?: string[] }`. Não exige WhatsApp/OTP. Pessoas criadas como genéricas se nomes não informados. `consentGivenAt` fica null para pessoas sem OTP. Usado para clientes sem celular ou mesas analógicas |
-| POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Roles: WAITER, MANAGER, OWNER. Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Sessão vazia (sem pedidos/pagamentos) fecha sem restrições — caminho para fechar sessão fantasma. Emite `client:session-closed` via WebSocket |
+| POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Roles: WAITER, MANAGER, OWNER. Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Todos os pagamentos devem estar quitados (PAYMENT_CONFIRMED, PAYMENT_CANCELLED ou PAYMENT_EXPIRED) — exceto sessão vazia que fecha sem restrições. Itens `Pronto` não entregues geram aviso mas não bloqueiam. Sessão vazia (sem pedidos/pagamentos) fecha sem restrições — caminho para fechar sessão fantasma. Emite `client:session-closed` via WebSocket |
 | POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `PAYMENT_CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
 | PATCH | `/tables/:id/transfer` | Transferir sessão para outra mesa (body: `{ targetTableId }`). Requer JWT de staff (WAITER ou superior). Mesa destino deve estar livre. Move toda a sessão (pessoas, pedidos, conta). Funciona entre setores. KDS atualiza número da mesa automaticamente. WebSocket notifica clientes conectados |
@@ -156,7 +156,7 @@ Base URL: `/api/v1`
 ## LGPD
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone. Body: `{ phone }`. Retorna `{ lgpdToken }` (UUID, expira em 5min) após OTP confirmado. Fluxo em 2 etapas para evitar dados sensíveis em query params |
+| POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone. Body: `{ phone }`. Apenas envia o OTP — não retorna token. O `lgpdToken` é obtido via `POST /lgpd/verify/confirm` após confirmar o OTP. Fluxo em 2 etapas para evitar dados sensíveis em query params |
 | POST | `/lgpd/verify/confirm` | Confirmar OTP. Body: `{ phone, otp }`. Retorna `{ lgpdToken }` (UUID, expira em 5min). lgpdToken armazenado em Redis com TTL 5min, chave: `lgpd:{token}` → `{ phone }` |
 | GET | `/lgpd/data` | Retorna dados pessoais vinculados ao telefone, agrupados por sessão. Header: `Authorization: Bearer {lgpdToken}`. **Paginação:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }`. Direito de acesso LGPD |
 | DELETE | `/lgpd/data` | Anonimiza dados pessoais de todas as sessões passadas do telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de exclusão LGPD. Substitui nome por "Anonimizado", phone por null, phoneLast4 por null |
@@ -208,7 +208,8 @@ Base URL: `/api/v1`
 | POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER ou KITCHEN |
 | PUT | `/staff/:id` | Roles: OWNER, MANAGER. Atualizar funcionário |
 | DELETE | `/staff/:id` | Roles: OWNER, MANAGER (OWNER-only para targets com role OWNER/MANAGER). Desativar funcionário |
-| POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. **Efeitos colaterais:** revoga refresh token (força re-login) e faz clock-out se houver turno ativo (fecha o Shift). Claims ativos do garçom expiram pelo timeout normal. Garçom deve fazer login com novo PIN em outro dispositivo e clock-in novamente. Caso de uso principal: garçom perdeu celular logado |
+| POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. **Efeitos colaterais:** revoga refresh token (força re-login), faz clock-out se houver turno ativo (fecha o Shift), e limpa lockout de PIN se existir. Claims ativos do garçom expiram pelo timeout normal. Garçom deve fazer login com novo PIN em outro dispositivo e clock-in novamente. Caso de uso principal: garçom perdeu celular logado |
+| POST | `/staff/:id/unlock-pin` | Roles: OWNER, MANAGER. Desbloqueia funcionário em lockout de PIN (limpa chave Redis `pin-lockout:{staffId}`). Não reseta o PIN — apenas remove o bloqueio. Usado quando funcionário errou PIN várias vezes sem intenção maliciosa |
 
 ## Turno do Garçom (Clock-in/out)
 | Metodo | Rota | Descricao |

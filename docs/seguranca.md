@@ -26,7 +26,7 @@
 ## Identificação via WhatsApp
 - Ao abrir sessão, cliente informa número -> sistema envia OTP via WhatsApp -> confirma -> salva `phone` + `phoneVerified = true`.
 - Nenhuma ação automática usa o número além do armazenamento.
-- **Rate limit específico para OTP:** máximo 3 envios por telefone em janela de 15 minutos (global, independente de mesa/sessão). Cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp.
+- **Rate limit específico para OTP:** máximo `otpMaxSendsPerPhone` envios por telefone em janela de 15 minutos (default 5, configurável em RestaurantSettings). Global — vale para todos os endpoints que enviam OTP (`/tables/:id/verify-phone`, `/session/:token/phone`, `/lgpd/verify`). Cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp (API cobra por envio).
 - **OTP expira em 5 minutos.** Máximo 5 tentativas de verificação por OTP. **Após expirar ou esgotar tentativas:** o cliente pode solicitar novo OTP (conta como novo envio dentro do limite de 3 por telefone). Cada novo OTP gera novo counter de 5 tentativas. O OTP anterior é invalidado automaticamente ao gerar novo.
 - **Falha no envio:** se o envio via fila falhar (WhatsApp API indisponível, Redis fora), a tentativa **não é contabilizada** no rate limit. O sistema exibe mensagem "Não foi possível enviar. Tente novamente em 60s" sem consumir uma das 3 tentativas.
 - **Fallback após esgotar OTP:** após 3 tentativas sem sucesso, o sistema cria JoinRequest com `otpFailed: true`. Cliente vê mensagem "Não foi possível verificar. Peça ao garçom para aprovar sua entrada." A solicitação aparece na tela de detalhe da mesa do garçom com indicação diferenciada ("Verificação WhatsApp falhou — aprovar manualmente?"). Garçom aprova no mesmo fluxo de aprovação normal.
@@ -47,7 +47,7 @@
 
 ### Staff (JWT + cookie)
 - Refresh token em httpOnly cookie exige proteção CSRF adicional além de `SameSite=Strict`.
-- Implementar **CSRF token** (sync token pattern) via `csurf` ou equivalente NestJS.
+- Implementar **CSRF token** (sync token pattern) via `csrf-csrf` ou equivalente NestJS (nota: csurf foi descontinuado em 2022).
 - Token CSRF enviado em header customizado (`X-CSRF-Token`) em toda request que modifica estado (POST, PUT, PATCH, DELETE).
 - Token gerado por sessão e validado no backend.
 - `SameSite=Strict` no cookie é camada complementar, não substitui CSRF token.
@@ -59,9 +59,12 @@
   3. **WhatsApp verificado como pré-requisito** para operações de pedido e pagamento — atacante precisaria ter acesso ao WhatsApp da vítima.
 - CSRF tradicional não se aplica porque a autenticação do cliente não é cookie-based — o token está na URL/body, não em cookie automático.
 
-## PIN do Garçom (Clock-in)
+## PIN do Garçom (Clock-in e Login)
 - **PIN numérico de 4 dígitos**, definido no cadastro do funcionário. Armazenado com hash (bcrypt). OWNER/MANAGER pode resetar o PIN de qualquer funcionário.
-- **Rate limit no endpoint `/shifts/clock-in`:** máximo 5 tentativas por staffId em 15 minutos. Após exceder, lockout de 15 minutos.
+- **Rate limit nos endpoints `/auth/pin` e `/shifts/clock-in`:** máximo 5 tentativas por staffId em 15 minutos. Após exceder, lockout de 15 minutos. Implementação: chave Redis `pin-lockout:{staffId}` com TTL de 15min.
+- **Alerta ao admin:** ao atingir lockout, o sistema emite `admin:pin-lockout` para o dashboard: "Funcionário [nome] bloqueado por 5 tentativas de PIN incorretas". Ajuda a detectar tanto brute-force externo quanto funcionário esquecido.
+- **Desbloqueio:** OWNER/MANAGER pode desbloquear via tela de funcionários (limpa a chave Redis). `POST /staff/:id/reset-pin` também limpa o lockout automaticamente (além de revogar token e fazer clock-out).
+- **Rate limit no endpoint `GET /restaurants/:slug/staff-list`:** máximo 10 requests por IP por minuto. Mitiga enumeração de staffIds para ataques de brute-force de PIN.
 - Tentativas falhas devem ser logadas com `level: warn` para auditoria.
 
 ## Diferenciação OWNER vs MANAGER

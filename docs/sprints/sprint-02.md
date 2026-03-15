@@ -21,10 +21,11 @@
 - [ ] Rate limit específico em `/auth/login` (5 tentativas por IP em 15min).
 - [ ] `POST /auth/pin` — autenticação por PIN para staff operacional (WAITER, KITCHEN). Rate limiting: 5 tentativas/15min + lockout 15min. Retorna JWT igual ao `/auth/login`.
 - [ ] Rate limit específico em `/auth/refresh` (10 tentativas por IP em 15min).
+- [ ] Rate limit `POST /auth/register`: 3 requests por IP por hora (conforme seguranca.md).
 - [ ] CSRF token (sync token pattern) para proteção de requests com cookie.
 - [ ] CRUD de restaurante. Sanitização de `Restaurant.name` contra XSS via `class-transformer`.
 - [ ] Winston logger + Correlation ID middleware.
 - [ ] ValidationPipe global + Swagger.
-- [ ] **Campos de configuração em `RestaurantSettings`** com valores default: `serviceChargePercent` (10), `pickupReminderInterval` (3min), `pickupEscalationTimeout` (10min), `orderDelayThreshold` (15min), `idleTableThreshold` (30min), `maxPeoplePerSession` (100), `claimTimeout` (5min), `waiterOfflineAlertTimeout` (5min). Tela de edição na Sprint 21 — até lá, usar defaults.
+- [ ] **Campos de configuração em `RestaurantSettings`** com valores default: `serviceChargePercent` (10), `pickupReminderInterval` (3min), `pickupEscalationTimeout` (10min), `orderDelayThreshold` (15min), `idleTableThreshold` (30min), `maxPeoplePerSession` (100), `claimTimeout` (5min), `waiterOfflineAlertTimeout` (5min), `longSessionThreshold` (6h). Tela de edição na Sprint 21 — até lá, usar defaults.
 - [ ] Seed com dados de teste (dono@ze-bar.com / senha123, slug ze-bar).
 - [ ] Error codes padronizados para módulo Auth (AUTH_001, AUTH_002, AUTH_003). Ver `docs/observabilidade.md` seção Error Codes.

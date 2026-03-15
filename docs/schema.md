@@ -181,12 +181,13 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | claimTimeout | Int | Default `5`. Minutos — tempo para garçom retirar grupo após claim antes de expirar |
 | waiterOfflineAlertTimeout | Int | Default `5`. Minutos — tempo de desconexão WebSocket de garçom com turno ativo antes de gerar alerta ao admin |
 | longSessionThreshold | Int | Default `6`. Horas — tempo de sessão aberta antes de gerar alerta no dashboard |
+| otpMaxSendsPerPhone | Int | Default `5`. Máximo de envios de OTP por telefone em janela de 15 minutos (global, todos os endpoints que enviam OTP) |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
 **Índices:** `restaurantId` (unique)
 
-**Constraints:** serviceChargePercent 0-100, pickupReminderInterval >= 1, pickupEscalationTimeout >= 1, orderDelayThreshold >= 1, idleTableThreshold >= 1, maxPeoplePerSession >= 1, claimTimeout >= 1, waiterOfflineAlertTimeout >= 1, longSessionThreshold >= 1
+**Constraints:** serviceChargePercent 0-100, pickupReminderInterval >= 1, pickupEscalationTimeout >= 1, orderDelayThreshold >= 1, idleTableThreshold >= 1, maxPeoplePerSession >= 1, claimTimeout >= 1, waiterOfflineAlertTimeout >= 1, longSessionThreshold >= 1, otpMaxSendsPerPhone >= 1
 
 ---
 
