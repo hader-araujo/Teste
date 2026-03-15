@@ -17,3 +17,4 @@ Infraestrutura de tempo real. Zero endpoints REST novos.
 - [ ] **Propagação de `correlationId`** nos eventos WebSocket para tracing end-to-end.
 - [ ] Atualizar **CSP** no Helmet para incluir `connect-src 'self' wss://*.ochefia.com.br` (WebSocket).
 - [ ] **Componente reutilizável de indicador de conexão** WebSocket + **polling HTTP como fallback** quando desconectado (banner "Reconectando..." + fetch REST a cada 10s). Ver `docs/websocket-events.md` seção Reconexão.
+- [ ] **Job Bull `ochefia-session-cleanup`:** fecha sessões vazias (sem pedidos) abertas há mais de `idleTableThreshold` minutos. Job periódico. Sessões com pedidos nunca são fechadas automaticamente.

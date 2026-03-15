@@ -19,5 +19,6 @@
 - [ ] Frontend garçom: chamados abertos.
 - [ ] Botão "O Chefia" no cliente: modal com motivo + mensagem + enviar (usa `POST /calls`).
 - [ ] Evento `admin:no-waiter-alert` — alerta severo ao admin quando cliente tenta abrir mesa em setor sem garçom com turno ativo (SESSION_019).
+- [ ] **Detecção de garçom offline:** monitorar desconexão WebSocket de garçons com turno ativo. Após `waiterOfflineAlertTimeout` minutos (default 5), emitir `admin:waiter-offline`. Indicador online/offline na lista de garçons do dashboard admin.
 - [ ] Indicador de conexão WebSocket no garçom (componente da Sprint 12).
 - [ ] Polling HTTP fallback no garçom quando desconectado (componente da Sprint 12).

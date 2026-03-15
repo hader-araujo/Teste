@@ -3,7 +3,7 @@
 Backend do fluxo de aprovação e cache do cardápio. Frontend na Sprint 8.
 
 **Endpoints (~7):**
-- POST `/session/:token/join` — Solicitar entrada na sessão (cria sessão se primeira pessoa, ou cria solicitação pendente). **Pré-requisito:** WhatsApp verificado.
+- POST `/session/:token/join` — Solicitar entrada em sessão existente (nunca cria sessão). Auto-aprova se telefone já participou, senão cria solicitação pendente. **Pré-requisito:** WhatsApp verificado.
 - GET `/session/:token/join/pending` — Listar solicitações pendentes de aprovação.
 - PATCH `/session/:token/join/:requestId/approve` — Aprovar novo membro.
 - PATCH `/session/:token/join/:requestId/reject` — Rejeitar novo membro.

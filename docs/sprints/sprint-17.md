@@ -12,4 +12,4 @@
 - [ ] **Transferência de mesa:** `PATCH /tables/:id/transfer` — permite mover sessão ativa para outra mesa, incluindo cross-sector. Atualiza o setor da sessão e notifica garçons envolvidos via WebSocket.
 - [ ] Frontend garçom: comanda rápida.
 - [ ] Eventos WebSocket de transferência: `kds:table-transferred`, `client:table-transferred`, `waiter:table-transferred` (origin + dest sector).
-- [ ] Eventos WebSocket de claim timeout: `waiter:claim-expiring` (1min antes, direto ao socket do garçom), `waiter:claim-expired` (re-emite `waiter:order-ready` para o setor).
+- [ ] **Job Bull `ochefia-claim-timeout`:** delayed job agendado ao fazer claim, delay de `claimTimeout` minutos. Cancelado se garçom marca "Entregue". Dispara eventos `waiter:claim-expiring` (1min antes) e `waiter:claim-expired` (re-emite `waiter:order-ready` para o setor).

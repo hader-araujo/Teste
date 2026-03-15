@@ -101,6 +101,7 @@ Permite mover uma sessão inteira de uma mesa para outra:
 - A **mesa de destino deve estar livre** (sem sessão ativa).
 - Funciona **entre setores diferentes** — não há restrição de setor.
 - **Claims ativos** de garçons do setor de origem são **liberados automaticamente** na transferência.
+- **Escalações ativas** são redirecionadas para o setor de destino, mantendo o tempo acumulado. Se há itens prontos aguardando retirada, garçons do setor B recebem `waiter:order-ready` imediatamente com a urgência proporcional ao tempo já esperado. Jobs Bull de escalação (pickup-escalation, claim-timeout) são atualizados para apontar para o novo setor.
 - **Notificações de transferência via WebSocket:**
   - `waiter:table-transferred` para garçons do **setor de destino**: inclui lista de pedidos pendentes/prontos para retirada.
   - `waiter:table-transferred` para garçons do **setor de origem**: para remover a mesa da visualização.

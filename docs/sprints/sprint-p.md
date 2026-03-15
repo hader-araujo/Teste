@@ -19,7 +19,8 @@ prototypes/
 │   ├── carrinho.html           <- Carrinho com seleção de pessoas por item
 │   ├── pedidos.html            <- Meus Pedidos (agrupado, com status e reatribuição)
 │   ├── conta.html              <- Conta com divisão por pessoa + taxa de serviço
-│   └── pagamento.html          <- QR Code Pix individual por pessoa
+│   ├── pagamento.html          <- QR Code Pix individual por pessoa
+│   └── privacidade.html       <- Política de Privacidade (LGPD)
 ├── admin/
 │   ├── login.html              <- Tela de login
 │   ├── dashboard.html          <- Métricas dinâmicas por Local de Preparo, pedidos recentes, chamados, seção alertas
@@ -34,6 +35,8 @@ prototypes/
 │   ├── equipe-do-dia.html      <- Equipe trabalhando hoje + atribuição de setores por garçom
 │   └── settings.html           <- Configurações (nome/logo do estabelecimento, taxa de serviço, tema/cores com preview)
 ├── kds/
+│   ├── login.html              <- Login do KDS (nome + PIN, dark mode)
+│   ├── selecao-local.html      <- Seleção de Local de Preparo
 │   └── kds.html                <- Fila de produção por Local de Preparo (dark mode, temporizadores, cores)
 ├── garcom/
 │   ├── clock-in.html           <- Ativação de turno (senha do garçom)
@@ -48,7 +51,7 @@ prototypes/
     ├── estabelecimentos.html   <- Listagem de todos os estabelecimentos com filtros (status, inadimplente) + paginação
     ├── estabelecimento-novo.html    <- Cadastro de novo estabelecimento (nome, slug, CNPJ, responsável, email, telefone)
     ├── estabelecimento-detalhe.html <- Detalhes do estabelecimento (dados, status, módulos ativos, histórico de cobrança)
-    ├── cobranca.html           <- Gestão de cobrança: valor do plano, registro de pagamentos mensais, histórico, status (pago/pendente/atrasado)
+    ├── (cobrança integrada como tab em estabelecimento-detalhe.html)
     ├── modulos.html            <- Gestão de módulos: listar módulos disponíveis, habilitar/desabilitar por estabelecimento, valores (global e override)
     └── monitoramento.html      <- Métricas de uso, últimos acessos, pedidos/mês por estabelecimento
 ```

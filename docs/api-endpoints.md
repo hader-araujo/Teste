@@ -23,7 +23,7 @@ Base URL: `/api/v1`
 | GET | `/restaurants/:slug` | Dados públicos do restaurante |
 | PUT | `/restaurants/:id` | Atualizar dados (OWNER/MANAGER) |
 | GET | `/restaurants/:id/settings` | Configurações |
-| PUT | `/restaurants/:id/settings` | Atualizar configurações. Body inclui: `serviceChargePercent` (default 10%), `themeName`, `primaryColor`, `secondaryColor`, `backgroundColor`, `pickupReminderInterval` (default 3min), `pickupEscalationTimeout` (default 10min), `orderDelayThreshold` (default 15min — threshold para alerta de pedido atrasado), `idleTableThreshold` (default 30min — threshold para alerta de mesa ociosa) |
+| PUT | `/restaurants/:id/settings` | Atualizar configurações. Body inclui: `serviceChargePercent` (default 10%), `themeName`, `primaryColor`, `secondaryColor`, `backgroundColor`, `pickupReminderInterval` (default 3min), `pickupEscalationTimeout` (default 10min), `orderDelayThreshold` (default 15min), `idleTableThreshold` (default 30min), `maxPeoplePerSession` (default 100), `claimTimeout` (default 5min), `waiterOfflineAlertTimeout` (default 5min) |
 
 ## Tables
 | Metodo | Rota | Descricao |
@@ -133,7 +133,7 @@ Base URL: `/api/v1`
 | PATCH | `/orders/:id/cancel` | Cancelar pedido inteiro (somente se todos os itens estão `Na fila`). Requer JWT de staff (WAITER ou superior). Body: `{ reason?: string }`. Registra cancelamento no activity log |
 | PATCH | `/orders/items/:id/status` | Atualizar status de item individual |
 | PATCH | `/orders/items/:id/cancel` | Cancelar item individual. Cliente pode cancelar próprios itens se `Na fila`. Staff (WAITER ou superior) pode cancelar se `Na fila` ou `Preparando`. Body: `{ reason?: string }`. Registra no activity log. Itens cancelados são removidos do cálculo da conta |
-| PATCH | `/orders/:id/delivery-groups/:group/claim` | Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2 (quando o grupo está marcado como escalado pelo sistema), aceita override com `escalation: true` |
+| PATCH | `/orders/:id/delivery-groups/:group/claim` | Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2, aceita override com `escalation: true`. **Concorrência:** usar `SELECT ... FOR UPDATE` (pessimistic locking via Prisma `$transaction`) para evitar race condition quando 2 garçons tocam simultaneamente |
 | PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment CONFIRMED que inclua o item |
 
 ## Payments

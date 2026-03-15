@@ -21,4 +21,5 @@
 - [ ] Frontend admin: tela de funcionários com CRUD (cadastro, edição, desativação, flag temporário, dias fixos, senha garçom).
 - [ ] Frontend admin: tela de escala — calendário por dia, auto-preenchimento com permanentes + temporários com dia pré-definido, ajustes manuais.
 - [ ] Frontend admin: tela equipe do dia — equipe ativa + atribuição de setores por garçom (um garçom pode ter mais de 1 setor). Toggle para desmarcar/marcar. Adicionar temporários avulsos.
+- [ ] **Cron job "Preenchimento DayTeam":** diário às 04:00, auto-preenche equipe do dia a partir do Schedule semanal (permanentes + temporários com dia fixo). Não sobrescreve se admin já editou manualmente.
 - [ ] Error codes padronizados para módulo Staff (STAFF_001 a STAFF_003). Ver `docs/observabilidade.md`.

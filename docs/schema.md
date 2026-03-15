@@ -333,7 +333,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | phone | String? | Número WhatsApp verificado |
 | phoneVerified | Boolean | Default `false` |
 | serviceChargeEnabled | Boolean | Default `true`. Toggle individual por garçom |
-| consentGivenAt | DateTime? | Timestamp do consentimento LGPD, preenchido no momento do OTP. Null para pessoas criadas via `open-staff` (sem verificação WhatsApp) |
+| consentGivenAt | DateTime? | Timestamp do consentimento LGPD, preenchido no momento do OTP. Null para pessoas criadas via `open-staff` — sem dados pessoais identificáveis (sem telefone, sem OTP, nome pode ser genérico), não requer base legal adicional para retenção |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -583,8 +583,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | preparationLocationId | UUID? | FK → PreparationLocation. Determinado pelo PickupPoint |
 | claimedByStaffId | UUID? | FK → User. Garçom que assumiu a retirada (claim por grupo) |
 | claimedAt | DateTime? | Quando o claim foi feito |
-| cancelledByName | String? | Nome de quem cancelou |
-| cancelledByStaffId | UUID? | FK → User. Staff que cancelou (se aplicável) |
+| cancelledByStaffId | UUID? | FK → User. Staff que cancelou (se aplicável). Nome via JOIN — sem dados pessoais hardcoded |
 | cancelReason | String? | Motivo do cancelamento. Obrigatório para OWNER/MANAGER cancelando Pronto/Entregue |
 | readyAt | DateTime? | Quando marcado como Pronto |
 | startedAt | DateTime? | Preenchido na transição para PREPARING. Usado para recalcular timers do KDS após restart |
