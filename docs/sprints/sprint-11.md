@@ -1,14 +1,15 @@
 # Sprint 11 — Pagamento (Pix + Dinheiro + Cartão)
 
-**Endpoints (~8):**
+**Endpoints (~9):**
 - POST `/session/:token/payments` — Cliente inicia pagamento. Body: `{ personId, method }`. Registra `initiatedBy: CLIENT`.
 - POST `/payments` — Staff inicia pagamento. Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Registra `initiatedBy: STAFF` + `initiatedByStaffId`.
 - GET `/payments/:id/status` — Verificar status (inclui quem iniciou, quem confirmou).
+- GET `/payments/session/:token` — Listar pagamentos da sessão (quem pagou, quem falta, método, quem iniciou, quem confirmou, devoluções).
 - PATCH `/payments/:id/confirm` — Staff confirma pagamento. Qualquer método. Obrigatório para CASH/CARD, fallback manual para PIX.
 - POST `/payments/pix/webhook` — Webhook de confirmação Pix (automático).
 - PATCH `/payments/:id/cancel` — Staff cancela pagamento pendente. Body: `{ reason? }`.
 - PATCH `/session/:token/payments/:id/cancel` — Cliente cancela o próprio pagamento pendente.
-- PATCH `/payments/:id/refund` — Staff confirma devolução. Body: `{ method, amount }`.
+- PATCH `/payments/:id/refund` — Staff confirma devolução. Body: `{ method }`. Valor já calculado pelo sistema.
 
 **Checklist:**
 - [ ] **Fluxo unificado de pagamento (todos os métodos):**

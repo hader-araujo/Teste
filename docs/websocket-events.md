@@ -14,6 +14,7 @@ export const SOCKET_EVENTS = {
 
   // KDS -> Servidor (operador do KDS emite, servidor processa e dispara eventos derivados)
   KDS_STATUS_UPDATE: 'kds:status-update',   // Operador mudou status do item (preparing/ready/delivered)
+  KDS_TABLE_TRANSFERRED: 'kds:table-transferred', // Mesa transferida — atualiza número da mesa nos cards do KDS. Room: restaurant:{id}:kds:{prepLocationId}
 
   // Servidor -> Garcom
   WAITER_ORDER_READY: 'waiter:order-ready', // Grupo de entrega pronto pra retirar (inclui Pontos de Entrega). Emitido **por grupo de entrega**, não por pedido. Se um pedido tem grupo Normal e Imediato que ficam prontos em momentos diferentes, são 2 eventos separados. Payload inclui `deliveryGroup: 'normal' | 'immediate'` e lista de `pickupPoints[]` — enviado a todos do setor
@@ -32,6 +33,7 @@ export const SOCKET_EVENTS = {
   CLIENT_PAYMENT_CONFIRMED: 'client:payment-confirmed', // Pagamento confirmado (webhook Pix ou registro manual CASH/CARD por staff). Payload: { personId, amount, method: 'PIX' | 'CASH' | 'CARD_DEBIT' | 'CARD_CREDIT', confirmedAt }. Room: session:{token}
   CLIENT_PAYMENT_CANCELLED: 'client:payment-cancelled', // Pagamento cancelado (garçom cancelou ou PIX expirou). Payload: { personId, paymentId, method, reason: 'staff_cancelled' | 'expired', cancelledAt }. Room: session:{token}
   CLIENT_SESSION_CLOSED: 'client:session-closed',  // Sessão fechada pelo garçom/admin. Payload: { sessionToken, closedByStaffId, closedAt }. Room: session:{token}
+  CLIENT_TABLE_TRANSFERRED: 'client:table-transferred', // Mesa transferida — atualiza nome da mesa na tela do cliente. Room: session:{token}
 
   // Aprovacao de entrada na mesa
   SESSION_JOIN_REQUEST: 'session:join-request',     // Novo entrante quer entrar na mesa (notifica membros aprovados)
@@ -45,6 +47,7 @@ export const SOCKET_EVENTS = {
   ADMIN_PICKUP_ESCALATION: 'admin:pickup-escalation', // Item sem retirada escalado (nível 2) — alerta no dashboard
   ADMIN_MAPPING_INCOMPLETE: 'admin:mapping-incomplete', // Mapeamento Setor↔Local de Preparo incompleto — alerta urgente
   ADMIN_NO_WAITER_ALERT: 'admin:no-waiter-alert',     // Cliente tentou abrir mesa em setor sem garçom ativo — alerta severo
+  ADMIN_WAITER_OFFLINE: 'admin:waiter-offline',       // Garçom com turno ativo desconectado há mais de waiterOfflineAlertTimeout minutos
 
   // Garçom — alertas operacionais
   WAITER_ORDER_CANCELLED: 'waiter:order-cancelled',       // Pedido cancelado — notifica garçons do setor
@@ -138,6 +141,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `admin:pickup-escalation` | `restaurant:{id}:admin` | `{ orderId, orderNumber, tableNumber, minutesWaiting, sectorName }` |
 | `admin:mapping-incomplete` | `restaurant:{id}:admin` | `{ sectorId, sectorName, missingLocations: [{ preparationLocationId, preparationLocationName }] }` — alerta urgente de mapeamento incompleto |
 | `admin:no-waiter-alert` | `restaurant:{id}:admin` | `{ tableId, tableName, sectorId, sectorName, attemptedAt }` — alerta severo: cliente tentou abrir mesa em setor sem garçom com turno ativo |
+| `admin:waiter-offline` | `restaurant:{id}:admin` | `{ staffId, staffName, sectorIds, sectorNames, offlineSince, minutesOffline }` — garçom com turno ativo desconectado há mais de `waiterOfflineAlertTimeout` minutos |
 
 ## Rooms WebSocket
 

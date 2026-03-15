@@ -7,6 +7,7 @@
 - GET `/billing/waiter-fees` — Taxas de garçom por período.
 
 **Checklist:**
+- [ ] **Lógica de criação de WaiterFee:** ao confirmar pagamento (`PATCH /payments/:id/confirm` ou webhook PIX), se pessoa tem `serviceChargeEnabled = true`: buscar garçons ativos no setor da mesa (via DayTeamSectorAssignment + shift ativo), dividir taxa igualmente, criar 1 WaiterFee por garçom. Itens com `autoDelivery = true` também geram taxa (garçom atendeu a mesa como um todo).
 - [ ] Faturamento diário: receita, pedidos, ticket médio, comparativo.
 - [ ] Faturamento mensal: receita acumulada, gráfico por dia, comparativo.
 - [ ] Fechamento de caixa: valores por forma de pagamento.

@@ -1,8 +1,9 @@
 # Sprint 2 — Auth + Restaurant + Seed
 
-**Endpoints (~8):**
+**Endpoints (~9):**
 - POST `/auth/register` — Registro de restaurante + owner.
-- POST `/auth/login` — Login -> retorna JWT.
+- POST `/auth/login` — Login com email+senha → JWT. Usado por Admin e Super Admin.
+- POST `/auth/pin` — Login com PIN → JWT. Usado por Garçom (WAITER) e KDS (KITCHEN). Rate limiting: 5 tentativas/15min + lockout 15min.
 - POST `/auth/refresh` — Refresh token.
 - GET `/auth/me` — Dados do usuário logado.
 - GET `/restaurants/:slug` — Dados públicos do restaurante.
@@ -17,6 +18,7 @@
 - [ ] Refresh token em httpOnly cookie com `SameSite=Strict`.
 - [ ] **Suporte a dual JWT_SECRET** para rotação: validar token com secret atual e anterior simultaneamente. Ver `docs/seguranca.md` seção Rotação de Secrets.
 - [ ] Rate limit específico em `/auth/login` (5 tentativas por IP em 15min).
+- [ ] `POST /auth/pin` — autenticação por PIN para staff operacional (WAITER, KITCHEN). Rate limiting: 5 tentativas/15min + lockout 15min. Retorna JWT igual ao `/auth/login`.
 - [ ] Rate limit específico em `/auth/refresh` (10 tentativas por IP em 15min).
 - [ ] CSRF token (sync token pattern) para proteção de requests com cookie.
 - [ ] CRUD de restaurante. Sanitização de `Restaurant.name` contra XSS via `class-transformer`.

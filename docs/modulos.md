@@ -40,12 +40,13 @@ Cada pedido gera até **3 grupos de entrega** independentes:
 
 | Grupo | Itens | Quando notifica garçom |
 |---|---|---|
-| **Normal** | Produtos com `immediateDelivery = false` | Quando **todos** ficarem prontos |
-| **Entrega imediata** | Produtos com `immediateDelivery = true` | Quando **todos os imediatos** ficarem prontos |
+| **Normal** | Produtos com `immediateDelivery = false` | Quando **todos os não-cancelados** ficarem prontos |
+| **Entrega imediata** | Produtos com `immediateDelivery = true` | Quando **todos os imediatos não-cancelados** ficarem prontos |
 | **Garçom direto** | Produtos com destino "Garçom" | Imediatamente (não passa por KDS) |
 
 - Pedidos diferentes (feitos em momentos diferentes) são **independentes** — não esperam entre si.
 - O agrupamento é por **pedido**, não por mesa.
+- **Itens cancelados em grupo:** itens cancelados são excluídos da verificação "todos prontos". Se um grupo Normal tem 3 itens e 1 é cancelado, o garçom é notificado quando os 2 restantes ficarem prontos. Se todos os itens de um grupo são cancelados, o grupo não gera notificação.
 - **Notificações por grupo:** cada grupo gera notificação independente para o garçom. Se um pedido tem grupo Normal e Imediato, o garçom recebe **2 notificações separadas** em momentos diferentes (imediato primeiro, normal depois). Cada notificação lista os Pontos de Entrega relevantes àquele grupo.
 - **UX do cliente:** na tela "Meus Pedidos", itens são exibidos agrupados por grupo de entrega com label visual: "Entrega imediata" (badge verde) ou "Entrega com pedido completo" (sem badge). O cliente vê claramente que drinks serão entregues antes da picanha. Na aba "Conta", os itens aparecem por pessoa (independente do grupo).
 
@@ -71,7 +72,7 @@ Cancelado  Cancelado
 **Restrições:**
 - Itens com status **Pronto** ou **Entregue** podem ser cancelados **apenas por OWNER/MANAGER** (motivo obrigatório, registrado em AuditLog). Se o item tinha claim ativo de garçom, o claim é liberado automaticamente.
 - **Não existe transição reversa** — um item nunca volta para um status anterior (exceto cancelamento por OWNER/MANAGER).
-- **Itens com destino "Garçom"** (entrega direta, sem preparo): seguem fluxo simplificado `Na fila → Entregue`, pulando os estados `Preparando` e `Pronto`.
+- **Itens com destino "Garçom"** (entrega direta, sem preparo): seguem fluxo simplificado `Na fila → Entregue`, pulando os estados `Preparando` e `Pronto`. **Sem claim:** a notificação `waiter:new-order` é informativa — o primeiro garçom que atende marca como Entregue. Se dois forem, o segundo vê o status atualizado via WebSocket. Itens "Garçom direto" são ações rápidas (sachê, bebida pronta), risco de duplicação é baixo.
 
 ### Observações por Item (notes)
 
@@ -112,7 +113,8 @@ Permite mover uma sessão inteira de uma mesa para outra:
 Acesso: Dono/Gerente via computador ou tablet.
 
 - **Mapa de mesas em tempo real** (livres, ocupadas, tempo de permanência). Filtros: "Todas", "Com problema", "Ociosas". Indicadores visuais de alerta: pedido atrasado, chamado sem resposta, tempo sem novo pedido. Botão deletar mesa (soft delete — só se não tiver sessão ativa; histórico preservado para métricas; permite recriar mesa com mesmo nome/número).
-- **Métricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados com tempo na fila acima do `orderDelayThreshold` — default 15min, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído).
+- **Métricas no dashboard**: tempo médio de preparo por **Local de Preparo** (dinâmico, baseado nos cadastrados), tempo médio de entrega por garçom (entre "Pronto" e "Entregue"), mesas ativas, alertas em tempo real (pedidos atrasados com tempo na fila acima do `orderDelayThreshold` — default 15min, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído, garçons offline).
+- **Garçom offline:** garçom com turno ativo mas desconectado do WebSocket há mais de `waiterOfflineAlertTimeout` minutos (default 5, configurável em RestaurantSettings) gera alerta no dashboard: "Garçom X offline há Y min — setor Z". Indicador visual de online/offline na lista de garçons ativos. **Sem auto-clock-out** — garçom pode estar carregando celular ou em área sem sinal. Escalação de retirada (níveis 1 e 2) já cobre o operacional. Admin decide se intervém.
 - **`orderDelayThreshold`** (configurável em Settings, default 15min): tempo máximo que um pedido pode ficar na fila (status "Na fila") sem mudar de status antes de gerar alerta de "pedido atrasado" no dashboard. Diferente de `pickupEscalationTimeout`, que se aplica após o item ser marcado como "Pronto".
 - **Mesa ociosa:** sessão ativa sem novo pedido (`POST /orders`) há mais de `idleTableThreshold` minutos (default 30min). Chamados (`POST /calls`) e outras interações não resetam o contador — apenas novos pedidos. Gera alerta no dashboard para admin.
 - **Tela "Desempenho da Equipe"** (rota `/admin/desempenho`): métricas individuais por funcionário.
@@ -170,7 +172,7 @@ O claim (assumir entrega) é por **grupo de entrega**, não por item individual.
 5. Garçom vai a cada Ponto de Entrega, pega os itens, entrega na mesa → marca **"Entregue"**.
 6. Se o garçom que assumiu não marcar "Entregue", o sistema de escalação continua funcionando normalmente — mas agora com garçom responsável identificado.
 7. Na escalação nível 2 (admin + todos), o grupo reaparece para todos os garçons — o `claimedByStaffId` original é **mantido** para auditoria, mas qualquer garçom pode fazer novo claim (sobrescreve o anterior). Não existe endpoint de "unclaim" — a escalação nível 2 funciona como override implícito.
-8. **Claim timeout:** se o garçom que assumiu o claim **não marcar "Entregue" em 5 minutos**, o claim é liberado automaticamente — o grupo volta a aparecer para todos os garçons do setor como se nenhum claim tivesse sido feito. O `claimedByStaffId` original é registrado em log para auditoria.
+8. **Claim timeout:** se o garçom que assumiu o claim **não marcar "Entregue" em `claimTimeout` minutos** (default 5, configurável em RestaurantSettings), o claim é liberado automaticamente — o grupo volta a aparecer para todos os garçons do setor como se nenhum claim tivesse sido feito. O `claimedByStaffId` original é registrado em log para auditoria. **Mecanismo:** Bull delayed job — ao fazer claim, agenda job com delay de `claimTimeout` minutos. Ao marcar "Entregue", cancela o job. Mesmo padrão da expiração de PIX (Sprint 11).
    - **Notificação antes do timeout:** aos **4 minutos** (1 minuto antes do timeout), o garçom que fez o claim recebe push notification + alerta in-app: "Grupo do Pedido #42 será liberado em 1 minuto — marque como Entregue".
    - **Notificação no momento do timeout:** quando o claim expira, o garçom original recebe: "Claim do Pedido #42 expirado — grupo liberado para outros garçons". Simultaneamente, evento `waiter:order-ready` é re-emitido para todos os garçons do setor (mesmo evento da notificação original), permitindo novo claim.
    - **Auditoria:** o evento de timeout registra `claimTimeoutAt`, `originalStaffId`, `orderId`, `deliveryGroup` no log. Se outro garçom fizer novo claim, o `claimedByStaffId` é sobrescrito mas o original fica no log.
@@ -210,9 +212,10 @@ Acesso: Cliente via QR Code no navegador.
 - **Abertura pelo staff:** `POST /tables/:id/open-staff` (garçom abrindo a mesa) **não** é bloqueado por essa regra — o garçom já está presente fisicamente.
 
 ### Notificação de Mesa Aberta
-- **Com garçom ativo no setor:** ao abrir sessão pelo cliente, o sistema emite `waiter:session-opened` para os garçons do setor. Garçom vai até a mesa para dar boas-vindas e explicar o sistema. Se a mesa estiver fisicamente vazia → sessão fantasma → garçom fecha manualmente via force-close.
+- **Com garçom ativo no setor:** ao abrir sessão pelo cliente, o sistema emite `waiter:session-opened` para os garçons do setor. Garçom vai até a mesa para dar boas-vindas e explicar o sistema. Se a mesa estiver fisicamente vazia → sessão fantasma → garçom fecha via `POST /tables/:id/close` (sessão vazia fecha sem restrições).
 - **Atenuantes contra sessão fantasma:**
-  - Mesa ociosa: sessão ativa sem pedido há mais de `idleTableThreshold` minutos (default 30min) gera alerta no dashboard do admin.
+  - **Auto-close de sessão vazia:** sessão sem nenhum pedido há mais de `idleTableThreshold` minutos (default 30min) é fechada automaticamente pelo sistema. Job Bull periódico verifica sessões vazias e fecha via `POST /tables/:id/close`. Garçom já foi notificado via `waiter:session-opened`, admin já viu alerta de mesa ociosa — se ninguém agiu, o sistema limpa. **Sessões com pedidos nunca são fechadas automaticamente** — só humano fecha (risco de dinheiro envolvido).
+  - Mesa ociosa com pedidos: sessão ativa sem pedido **novo** há mais de `idleTableThreshold` minutos gera alerta no dashboard do admin (mas não fecha).
   - Pedido sem retirada: se alguém fizer pedido remoto, comida fica pronta e ninguém retira → escalação notifica garçons → garçom percebe mesa vazia → fecha sessão.
 - **Fase futura (se necessário):** código diário de 4 dígitos exibido na mesa, GPS opcional.
 
@@ -288,7 +291,7 @@ Acesso: Cliente via QR Code no navegador.
   - **Cálculo da taxa em itens divididos:** a taxa incide sobre a **fatia de cada pessoa**, não sobre o item inteiro. Se Pessoa A (sem taxa) e Pessoa B (com taxa) dividem um item de R$100: Pessoa A paga R$50,00 (sem taxa), Pessoa B paga R$50,00 + R$5,00 (10% de taxa) = R$55,00. Cada fatia é independente.
   - **Toggle geral após toggle individual:** se o garçom desabilita a taxa para Pessoa A individualmente, e depois reabilita o toggle geral, Pessoa A **volta a ter taxa ativa** (toggle geral sobrescreve todos). Se desabilitar o geral, todos desligam. O estado "parcial" (checkbox indeterminado) só existe enquanto há divergência entre pessoas — qualquer ação no toggle geral resolve a divergência.
   - **Arredondamento de divisão igualitária:** ao dividir um valor entre N pessoas, as N-1 primeiras recebem `floor(valor / N)` e a última recebe `total - soma_das_anteriores` (absorve o centavo residual). A última pessoa da lista ordenada paga o arredondamento.
-- **Pagamento individual por pessoa.** Tipos de pagamento aceitos:
+- **Pagamento individual por pessoa.** Cada pessoa paga o total da sua parte com **um único método** (limitação intencional da Fase 1). Não há pagamento parcial — se quiser trocar de método, cancela o PENDING e inicia outro. Cobre 95%+ dos casos reais em bares/restaurantes brasileiros. Tipos de pagamento aceitos:
   - **`PIX`** — gera QR Code para pagamento. Confirmação via webhook (simulado na Fase 1).
   - **`CASH`** (dinheiro) — registro manual pelo staff após receber o pagamento físico.
   - **`CARD_DEBIT`** (cartão de débito) — registro manual pelo staff após receber o pagamento físico.
@@ -302,9 +305,9 @@ Acesso: Cliente via QR Code no navegador.
 - **Por pessoa** (não por mesa): quando uma pessoa (ou o garçom por ela) inicia o pagamento, se essa pessoa tem itens com status diferente de DELIVERED ou CANCELLED, o sistema exibe um aviso de confirmação antes de prosseguir. O pagamento não é bloqueado — apenas requer confirmação explícita.
 
 ### Fechamento de Sessão (pré-condições)
-- Para fechar a sessão: **não pode haver itens com status Na fila ou Preparando** — é necessário cancelá-los ou aguardar a conclusão.
-- Itens com status **Pronto** que ainda não foram entregues geram um **aviso** ao staff, mas **não bloqueiam** o fechamento da sessão.
-- Todos os pagamentos devem estar quitados antes do fechamento.
+- **Fechamento normal** (`POST /tables/:id/close`, roles: WAITER+): não pode haver itens com status Na fila ou Preparando — cancelar ou aguardar. Itens Pronto não entregues geram aviso mas não bloqueiam. Todos os pagamentos devem estar quitados.
+- **Fechamento forçado** (`POST /tables/:id/force-close`, roles: OWNER/MANAGER): fecha mesmo com pagamentos pendentes — marca como CANCELLED. Registra em AuditLog com motivo. Usado para calote ou situações excepcionais.
+- **Workflow de calote:** garçom identifica que cliente saiu sem pagar → garçom não tem permissão de force-close → chama gerente/dono → gerente faz force-close com `{ confirm: true }` → sistema cancela pagamentos pendentes, registra em AuditLog, emite `client:session-closed`. Reflete a operação real de restaurantes.
 
 ### Botão "O Chefia"
 - **(REGRA CRÍTICA — deve ser funcional em TODAS as telas do cliente):** 4ª tab da bottom nav (Cardápio, Pedidos, Conta, **O Chefia**). Ao clicar, **abre modal (bottom sheet)** sem navegar — mantém o contexto da tela atual. Modal com seleção de motivo (ex: "Chamar garçom", "Pedir a conta", "Outro") + campo de mensagem opcional + botão "Enviar chamado". Não é um link decorativo — deve ter interação funcional no protótipo e no código.
@@ -357,7 +360,11 @@ Acesso: Equipe interna OChefia (role `SUPER_ADMIN`). **Não acessível por estab
 ### Gestão de Estabelecimentos
 - **Listagem** de todos os estabelecimentos com status: ativo, suspenso, inadimplente.
 - **Cadastro** de novo estabelecimento: nome, slug, CNPJ, responsável, email, telefone.
-- **Editar/suspender** estabelecimento. **Suspensão gradual:** bloqueia criação de novas sessões e novos pedidos; sessões e pedidos já ativos continuam até conclusão normal.
+- **Editar/suspender** estabelecimento. **Suspensão gradual:**
+  - **Bloqueado:** criação de novas sessões (`POST /tables/:id/open` e `open-staff`), novos pedidos (`POST /orders`).
+  - **Permitido:** processar pagamentos de sessões ativas (cliente já consumiu, precisa pagar), clock-in de garçom (precisa de staff para encerrar sessões), acesso ao dashboard admin (precisa monitorar), fechamento de sessões (normal e force-close).
+  - **QR Code:** cliente que escaneia QR de restaurante suspenso vê mensagem "Estabelecimento temporariamente indisponível". Cardápio read-only também bloqueado.
+  - Sessões e pedidos já ativos continuam até conclusão normal.
 
 ### Cobrança e Pagamentos
 - **Valor do plano base** por estabelecimento (campo editável).

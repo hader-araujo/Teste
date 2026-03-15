@@ -11,3 +11,5 @@
 - [ ] **Toggle taxa de serviço** por pessoa ou por mesa toda (garçom). Toggle geral como atalho + toggle individual por pessoa na tela de detalhe da mesa. Se desliga o geral, todos desligam. Se religa, todos religam. Individual altera o geral para estado parcial (checkbox indeterminado). Usa endpoint `PATCH /session/:token/service-charge`.
 - [ ] **Transferência de mesa:** `PATCH /tables/:id/transfer` — permite mover sessão ativa para outra mesa, incluindo cross-sector. Atualiza o setor da sessão e notifica garçons envolvidos via WebSocket.
 - [ ] Frontend garçom: comanda rápida.
+- [ ] Eventos WebSocket de transferência: `kds:table-transferred`, `client:table-transferred`, `waiter:table-transferred` (origin + dest sector).
+- [ ] Eventos WebSocket de claim timeout: `waiter:claim-expiring` (1min antes, direto ao socket do garçom), `waiter:claim-expired` (re-emite `waiter:order-ready` para o setor).

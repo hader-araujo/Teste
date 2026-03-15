@@ -1,10 +1,11 @@
 # Sprint 5 — Menu CRUD Backend + Upload de Imagens
 
-**Endpoints (~14):**
+**Endpoints (~16):**
 - GET `/menu/categories` — Listar categorias (admin).
 - POST `/menu/categories` — Criar categoria.
 - PUT `/menu/categories/:id` — Atualizar categoria.
 - DELETE `/menu/categories/:id` — Remover categoria.
+- PATCH `/menu/categories/:id/availability` — Toggle disponibilidade da categoria (oculta/exibe todos os produtos).
 - GET `/menu/tags` — Listar tags de produto.
 - POST `/menu/tags` — Criar tag.
 - PUT `/menu/tags/:id` — Atualizar tag.
@@ -12,6 +13,7 @@
 - GET `/menu/products` — Listar produtos (admin).
 - POST `/menu/products` — Criar produto (inclui `pickupPointId` ou `destination: 'waiter'`, `immediateDelivery?: bool`, e `tagIds[]`).
 - PUT `/menu/products/:id` — Atualizar produto.
+- DELETE `/menu/products/:id` — Remover produto (soft delete, só se não tem pedidos ativos vinculados).
 - PATCH `/menu/products/:id/availability` — Toggle disponibilidade.
 - POST `/upload/product-images` — Upload de imagens (multipart, max 5).
 - DELETE `/upload/product-images/:imageId` — Remover imagem.

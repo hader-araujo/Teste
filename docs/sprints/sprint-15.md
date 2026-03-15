@@ -1,16 +1,19 @@
 # Sprint 15 — Staff + Escala + Equipe do Dia
 
-**Endpoints (~10):**
+**Endpoints (~13):**
 - GET `/staff` — Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100).
 - POST `/staff` — Criar funcionário (temporary, fixedWeekdays, pin).
 - POST `/staff/invite` — Enviar convite.
 - POST `/staff/accept` — Aceitar convite.
 - PUT `/staff/:id` — Atualizar funcionário.
 - DELETE `/staff/:id` — Desativar funcionário.
+- POST `/staff/:id/reset-pin` — Resetar PIN do funcionário (OWNER/MANAGER).
 - GET `/schedule` — Listar escala por período.
-- GET `/schedule/day/:date` — Equipe do dia.
-- PUT `/schedule/day/:date` — Definir equipe do dia.
-- PATCH `/schedule/day/:date/sectors` — Atribuir setores aos garçons do dia.
+- GET `/schedule/:date` — Programação do dia (quem deveria trabalhar).
+- PUT `/schedule/:date` — Definir/atualizar escala do dia.
+- GET `/day-team/:date` — Equipe real do dia (quem está trabalhando).
+- PUT `/day-team/:date` — Definir equipe do dia.
+- PATCH `/day-team/:date/sectors` — Atribuir setores aos garçons do dia.
 
 **Checklist:**
 - [ ] CRUD de funcionários com flag temporário, dias fixos, senha garçom.

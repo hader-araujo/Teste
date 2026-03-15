@@ -30,6 +30,8 @@ Termos usados na documentação do OChefia. Ordem alfabética dentro de cada se�
 
 **Fechamento de Caixa** — Resumo de valores recebidos no dia por forma de pagamento (Pix, dinheiro, cartão). Parte do módulo de *Faturamento*.
 
+**Force-close** — Fechamento forçado de sessão por OWNER/MANAGER (`POST /tables/:id/force-close`). Fecha mesmo com pagamentos pendentes — marca como CANCELLED. Registra em AuditLog. Usado para calote ou situações excepcionais. Diferente do fechamento normal que exige pagamentos quitados.
+
 **Funcionário Temporário** — Staff cadastrado com flag `temporario`. Pode ter dias fixos da semana ou ser avulso. Entra na *Escala* automaticamente nos dias fixos.
 
 **Grupo de Entrega** — Agrupamento de itens de um mesmo pedido para fins de notificação e retirada. Cada pedido gera até 3 grupos: Normal (itens comuns, garçom notificado quando todos ficarem prontos), Entrega Imediata (itens `immediateDelivery`, notificado quando todos os imediatos ficarem prontos) e Garçom Direto (entrega imediata sem KDS).
@@ -46,13 +48,19 @@ Termos usados na documentação do OChefia. Ordem alfabética dentro de cada se�
 
 **Notes (Observações)** — Campo de texto livre em cada item de pedido para instruções especiais do cliente (ex: "bem passado", "sem cebola"). Exibido em destaque amarelo no KDS.
 
+**Modo Read-only** — Visualização do cardápio sem sessão ativa (Caminho A do fluxo do cliente). Cliente escaneia QR Code e escolhe "Ver cardápio" sem entrar na mesa. Pode ver produtos e preços, mas não pode adicionar ao carrinho nem fazer pedidos.
+
 **Pessoa** — Indivíduo cadastrado numa sessão de mesa. Não exige verificação de identidade — basta um nome. Itens do pedido são atribuídos a pessoas para divisão da conta.
 
 **Ponto de Entrega** — Local onde o garçom retira o item pronto. Pertence a um *Local de Preparo*. Exemplos: "Pass principal", "Balcão do bar". Possui flag `autoDelivery` que determina se o operador do KDS entrega direto na mesa.
 
+**PIN** — Personal Identification Number. Senha numérica de 4 dígitos usada por garçons (clock-in) e operadores KDS (login). Definida no cadastro do funcionário, armazenada com hash bcrypt. OWNER/MANAGER pode resetar via `POST /staff/:id/reset-pin`.
+
 **QR Code** — Código impresso e fixo em cada mesa. Gera URL permanente `/{slug}/mesa/{mesaId}`. Ponto de entrada do cliente no sistema.
 
 **Reatribuição de Pessoas** — Ação de alterar quais pessoas dividem um item já pedido. Feita exclusivamente pelo cliente na tela "Meus Pedidos". Registrada no *Activity Log*.
+
+**Sessão Fantasma** — Sessão aberta por alguém que escaneou o QR Code remotamente (ex: foto do QR Code) sem estar fisicamente na mesa. Detectada quando garçom vai até a mesa e encontra vazia. Mitigação: auto-close de sessão vazia após `idleTableThreshold` minutos, alertas de mesa ociosa, garçom fecha via `POST /tables/:id/close`.
 
 **Sessão de Mesa** — Período entre a abertura e o fechamento de uma mesa. Vincula pessoas, pedidos, pagamentos e activity log. Identificada por token criptográfico. Pode ser transferida entre mesas.
 

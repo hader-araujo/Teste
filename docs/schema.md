@@ -119,10 +119,10 @@ PICKUP_POINT  -- Vai para KDS do Local de Preparo vinculado ao Ponto de Entrega
 WAITER        -- Entrega direta pelo garçom, sem KDS
 ```
 
-### OrderSource
+### ActorType
 ```
-CLIENT        -- Pedido feito pelo cliente via cardápio digital
-STAFF         -- Pedido feito pelo garçom via comanda rápida
+CLIENT        -- Ação feita pelo cliente
+STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 ```
 
 ---
@@ -171,6 +171,7 @@ STAFF         -- Pedido feito pelo garçom via comanda rápida
 | idleTableThreshold | Int | Default `30`. Minutos — threshold para alerta de mesa ociosa |
 | maxPeoplePerSession | Int | Default `100`. Limite máximo de pessoas por sessão de mesa |
 | claimTimeout | Int | Default `5`. Minutos — tempo para garçom retirar grupo após claim antes de expirar |
+| waiterOfflineAlertTimeout | Int | Default `5`. Minutos — tempo de desconexão WebSocket de garçom com turno ativo antes de gerar alerta ao admin |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -328,7 +329,7 @@ STAFF         -- Pedido feito pelo garçom via comanda rápida
 |---|---|---|
 | id | UUID | PK |
 | sessionId | UUID | FK → TableSession |
-| name | String | Sanitizar HTML. Pode ser genérico ("Pessoa 1") |
+| name | String | Min 1, max 50 caracteres. Sanitizar HTML. Pode ser genérico ("Pessoa 1") |
 | phone | String? | Número WhatsApp verificado |
 | phoneVerified | Boolean | Default `false` |
 | serviceChargeEnabled | Boolean | Default `true`. Toggle individual por garçom |
@@ -358,14 +359,15 @@ STAFF         -- Pedido feito pelo garçom via comanda rápida
 | phoneLast4 | String | Últimos 4 dígitos (exibido na notificação) |
 | status | JoinRequestStatus | Default `PENDING` |
 | otpFailed | Boolean | Default `false`. True quando cliente esgotou tentativas de OTP (3x). Garçom vê na tela de aprovação com indicação diferenciada para aprovar manualmente |
-| respondedByPersonId | UUID? | FK → Person. Quem aprovou/rejeitou |
+| respondedByPersonId | UUID? | FK → Person. Quem aprovou/rejeitou (quando cliente aprova) |
+| respondedByUserId | UUID? | FK → User. Quem aprovou/rejeitou (quando garçom aprova). Sempre um dos dois preenchido, nunca ambos |
 | expiresAt | DateTime | 5 minutos após criação |
 | lastRemindedAt | DateTime? | Última notificação enviada |
 | reminderCount | Int | Default `0` |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
-**Relacionamentos:** belongs to TableSession, belongs to Person (respondedBy)
+**Relacionamentos:** belongs to TableSession, belongs to Person (respondedByPerson), belongs to User (respondedByUser)
 
 **Índices:** `sessionId` + `status`, `phone` + `status`
 
@@ -378,17 +380,21 @@ STAFF         -- Pedido feito pelo garçom via comanda rápida
 |---|---|---|
 | id | UUID | PK |
 | sessionId | UUID | FK → TableSession |
-| action | String | Ex: "order_created", "person_reassigned", "item_cancelled" |
-| description | String | Texto legível para exibição (pt-BR) |
-| actorName | String? | Nome de quem executou a ação |
-| metadata | Json? | Dados estruturados (personIds, de/para, motivo, etc.) |
+| actorPersonId | UUID? | FK → Person. Quem executou a ação (nome via JOIN — anonimização automática por cascata) |
+| actorStaffId | UUID? | FK → User. Se ação foi executada por staff |
+| action | String | Convenção: `{módulo}_{ação}` em snake_case. Valores conhecidos: `order_created`, `order_cancelled`, `item_cancelled`, `person_added`, `person_removed`, `person_reassigned`, `payment_initiated`, `payment_confirmed`, `payment_cancelled`, `payment_refunded`, `service_charge_toggled`, `session_opened`, `session_closed` |
+| metadata | Json | Dados estruturados para renderização no frontend: `{ productName?, quantity?, personIds?, fromPersonId?, toPersonId?, reason? }`. Nunca armazena nomes de pessoas — usa IDs e resolve via JOIN |
 | createdAt | DateTime | |
 
-**Relacionamentos:** belongs to TableSession
+**Relacionamentos:** belongs to TableSession, belongs to Person (actorPerson), belongs to User (actorStaff)
 
 **Índices:** `sessionId` + `createdAt`
 
-**Notas:** Log de atividade da sessão, visível para todos os membros da mesa. Registra pedidos, reatribuições, cancelamentos. Formato legível para leigos.
+**Notas:**
+- Log de atividade da sessão, visível para todos os membros da mesa. Registra pedidos, reatribuições, cancelamentos.
+- Sem `actorName` nem `description` em texto livre — evita dados pessoais hardcoded.
+- Frontend renderiza a mensagem combinando `action` + `metadata` + nome da Person (via JOIN).
+- Quando Person é anonimizada (90 dias), ActivityLog automaticamente mostra "Pessoa Anonimizada" sem job extra.
 
 ---
 
@@ -547,8 +553,8 @@ STAFF         -- Pedido feito pelo garçom via comanda rápida
 | id | UUID | PK |
 | restaurantId | UUID | FK → Restaurant. Multi-tenancy |
 | sessionId | UUID | FK → TableSession |
-| orderNumber | Int | Sequencial por restaurante por dia. Exibido no KDS e notificações |
-| source | OrderSource | CLIENT ou STAFF. Default CLIENT |
+| orderNumber | Int | Sequencial por restaurante por dia. Reseta à meia-noite `America/Sao_Paulo` (fixo na Fase 1). Exibido no KDS e notificações. Sessão pode cruzar meia-noite — orderNumber é do pedido, não da sessão |
+| source | ActorType | CLIENT ou STAFF. Default CLIENT |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -556,7 +562,7 @@ STAFF         -- Pedido feito pelo garçom via comanda rápida
 
 **Índices:** `restaurantId` + `createdAt`, `sessionId`, `restaurantId` + `orderNumber`
 
-**Notas:** Cada envio do carrinho = 1 Order. Pedidos diferentes são independentes entre si.
+**Notas:** Cada envio do carrinho = 1 Order. Pedidos diferentes são independentes entre si. **Pedido enviado é imutável** — não existe edição de quantidade, produto ou observações após envio. Para corrigir, cancelar o item (se ainda Na fila) e refazer via novo pedido. Limitação intencional da Fase 1.
 
 ---
 
@@ -634,7 +640,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | status | PaymentStatus | Default `PENDING` |
 | amount | Decimal | Valor total (itens da pessoa + taxa de serviço se aplicável) |
 | serviceChargeAmount | Decimal? | Valor da taxa de serviço individual |
-| initiatedBy | OrderSource | CLIENT ou STAFF — quem iniciou o pagamento |
+| initiatedBy | ActorType | CLIENT ou STAFF — quem iniciou o pagamento |
 | initiatedByStaffId | UUID? | FK → User. Preenchido quando staff iniciou (garçom registrou o pagamento) |
 | pixQrCode | String? | QR Code para pagamento Pix |
 | pixExternalId | String? | ID externo do provedor Pix. Usado para idempotency do webhook |
@@ -894,7 +900,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 |---|---|---|
 | id | UUID | PK |
 | userId | UUID | FK → User. Quem executou a ação |
-| action | String | Ex: "establishment_suspended", "role_changed", "data_deleted", "force_close_session", "item_cancelled_by_owner" |
+| action | String | Convenção: `{módulo}_{ação}` em snake_case. Valores conhecidos: `establishment_suspended`, `establishment_activated`, `role_changed`, `data_deleted`, `force_close_session`, `item_cancelled_by_owner`, `module_enabled`, `module_disabled`, `plan_changed`, `billing_payment_registered`, `staff_pin_reset` |
 | targetType | String | Ex: "Restaurant", "User", "OrderItem", "TableSession" |
 | targetId | UUID | ID da entidade alvo |
 | metadata | Json? | Dados adicionais (antes/depois, motivo, etc.) |
@@ -907,7 +913,8 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 
 **Notas:**
 - Registra ações administrativas críticas: suspensão/ativação de estabelecimento, alteração de plano/cobrança, habilitar/desabilitar módulos, alteração de roles, exclusão LGPD, force-close de sessão, cancelamento de item Pronto/Entregue
-- **Imutável** — nunca deletar ou alterar registros
+- **Imutável** — nunca deletar ou alterar registros. Base legal LGPD: Art. 16, I e II (obrigação legal de rastreabilidade de ações administrativas + exercício regular de direitos)
+- **Sem dados pessoais de clientes:** metadata nunca armazena nomes/telefones de clientes, apenas IDs de entidades (personId, sessionId, etc.). Quando Person é anonimizada, o JOIN retorna "Pessoa Anonimizada". Mesma regra do ActivityLog
 - Ações no KDS registradas com `source: 'kds'` e `preparationLocationId` no metadata
 
 ---

@@ -35,7 +35,7 @@ Base URL: `/api/v1`
 | POST | `/tables/:id/verify-phone` | Enviar OTP de verificação WhatsApp antes de criar sessão (1º cliente, mesa sem sessão ativa). Body: `{ phone }`. Não requer sessão ativa |
 | POST | `/tables/:id/open` | Abrir sessão da mesa (cliente). Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. **Bloqueia se setor não tem garçom com turno ativo** (erro `SESSION_019` + alerta `admin:no-waiter-alert`). Cria sessão + 1º membro + emite `waiter:session-opened`. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
 | POST | `/tables/:id/open-staff` | Abrir sessão da mesa (garçom). Roles: WAITER, MANAGER, OWNER. Body: `{ peopleCount: number, names?: string[] }`. Não exige WhatsApp/OTP. Pessoas criadas como genéricas se nomes não informados. `consentGivenAt` fica null para pessoas sem OTP. Usado para clientes sem celular ou mesas analógicas |
-| POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Emite evento `client:session-closed` via WebSocket |
+| POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Roles: WAITER, MANAGER, OWNER. Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Sessão vazia (sem pedidos/pagamentos) fecha sem restrições — caminho para fechar sessão fantasma. Emite `client:session-closed` via WebSocket |
 | POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
 | PATCH | `/tables/:id/transfer` | Transferir sessão para outra mesa (body: `{ targetTableId }`). Requer JWT de staff (WAITER ou superior). Mesa destino deve estar livre. Move toda a sessão (pessoas, pedidos, conta). Funciona entre setores. KDS atualiza número da mesa automaticamente. WebSocket notifica clientes conectados |
@@ -49,7 +49,7 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | GET | `/session/:token` | Dados da sessão (pedidos, conta) |
-| POST | `/session/:token/join` | Solicitar entrada em sessão existente. Apenas para mesas com sessão ativa — nunca cria sessão. Cria solicitação pendente de aprovação. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify` antes de chamar este endpoint. Retorna erro `SESSION_007` se telefone não verificado. Retorna erro `SESSION_008` se o telefone verificado já está vinculado a outra sessão ativa. **Aprovação:** solicitação de aprovação expira em 5 minutos. Sistema renotifica membros automaticamente a cada 60 segundos. Após expirar, status muda para `EXPIRED` e entrante deve escanear QR Code novamente |
+| POST | `/session/:token/join` | Solicitar entrada em sessão existente. Apenas para mesas com sessão ativa — nunca cria sessão. **Pré-requisito:** WhatsApp verificado via `/session/:token/phone` + `/session/:token/phone/verify`. Retorna erro `SESSION_007` se telefone não verificado. Retorna erro `SESSION_008` se telefone vinculado a outra sessão ativa. **Auto-aprovação:** se o telefone já participou desta sessão (Person anterior com mesmo phone), pula fila de aprovação — cria nova Person imediatamente e retorna `{ status: 'auto-approved', personId }`. Exibição: "Maria ①", "Maria ②". **Aprovação normal:** se telefone é novo na sessão, cria solicitação pendente. Expira em 5 minutos. Sistema renotifica membros a cada 60 segundos. Após expirar, status muda para `EXPIRED` |
 | POST | `/session/:token/phone` | Enviar OTP via WhatsApp para o número informado |
 | POST | `/session/:token/phone/verify` | Confirmar OTP e salvar número verificado na sessão |
 | GET | `/session/:token/join/pending` | Listar solicitações pendentes de aprovação (visível para membros aprovados) |
@@ -142,22 +142,23 @@ Base URL: `/api/v1`
 
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/session/:token/payments` | **Cliente inicia pagamento.** Body: `{ personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. PIX gera QR Code. CASH/CARD ficam PENDING aguardando confirmação do garçom. Registra `initiatedBy: CLIENT` |
-| POST | `/payments` | **Staff inicia pagamento.** Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Mesmo comportamento. Registra `initiatedBy: STAFF` + `initiatedByStaffId` |
+| POST | `/session/:token/payments` | **Cliente inicia pagamento.** Body: `{ personId, method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. PIX gera QR Code. CASH/CARD ficam PENDING aguardando confirmação do garçom. Registra `initiatedBy: CLIENT`. **Bloqueia se pessoa já tem pagamento PENDING** (erro `PAY_007` — cancelar o pendente antes de iniciar outro) |
+| POST | `/payments` | **Staff inicia pagamento.** Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Mesmo comportamento. Registra `initiatedBy: STAFF` + `initiatedByStaffId`. **Mesmo bloqueio PAY_007** |
 | GET | `/payments/:id/status` | Verificar status do pagamento (inclui método, quem iniciou, quem confirmou) |
 | PATCH | `/payments/:id/confirm` | **Staff confirma pagamento.** Roles: WAITER, MANAGER, OWNER. Muda status de `PENDING` para `CONFIRMED`. Registra `confirmedByStaffId` + `confirmedAt`. Obrigatório para CASH/CARD. Para PIX: só usado como fallback quando webhook falha |
 | POST | `/payments/pix/webhook` | Webhook de confirmação Pix (automático). Validação de assinatura síncrona (retorna 400 se inválida). Só enfileira no Bull após validação. Idempotency via `externalId` do provedor (ignora duplicatas). `confirmedByStaffId` fica null |
 | PATCH | `/payments/:id/cancel` | Staff cancela pagamento pendente (roles: WAITER, MANAGER, OWNER). Body: `{ reason?: string }`. Só status `PENDING`. Registra `cancelledAt` + `cancelledByStaffId` |
 | PATCH | `/session/:token/payments/:id/cancel` | Cliente cancela o próprio pagamento pendente para tentar outro método. Só status `PENDING`. Sem body |
-| PATCH | `/payments/:id/refund` | Confirmar devolução de pagamento (staff, WAITER+). Body: `{ method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT', amount }`. Registra `refundedByStaffId`, `refundedAt`, `refundMethod`. Muda status de `PENDING_REFUND` para `REFUNDED`. Registra no activity log e AuditLog |
+| PATCH | `/payments/:id/refund` | Confirmar devolução de pagamento (staff, WAITER+). Body: `{ method: 'PIX' \| 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT' }`. Valor já calculado pelo sistema no PENDING_REFUND — staff só informa o método de devolução. Registra `refundedByStaffId`, `refundedAt`, `refundMethod`. Muda status de `PENDING_REFUND` para `REFUNDED`. Registra no activity log e AuditLog |
 | GET | `/payments/session/:token` | Listar pagamentos da sessão (quem já pagou, quem falta, método, quem iniciou, quem confirmou, devoluções pendentes e confirmadas) |
 
 ## LGPD
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone (primeiro passo para acesso a dados LGPD) |
-| GET | `/lgpd/data?phone=X&otp=Y` | Retorna todos os dados pessoais vinculados ao telefone após OTP verificado. Direito de acesso LGPD |
-| DELETE | `/lgpd/data?phone=X&otp=Y` | Anonimiza dados pessoais de todas as sessões passadas do telefone após OTP verificado. Direito de exclusão LGPD. Substitui nome por "Anonimizado", phone por null, phoneLast4 por null |
+| POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone. Body: `{ phone }`. Retorna `{ lgpdToken }` (UUID, expira em 5min) após OTP confirmado. Fluxo em 2 etapas para evitar dados sensíveis em query params |
+| POST | `/lgpd/verify/confirm` | Confirmar OTP. Body: `{ phone, otp }`. Retorna `{ lgpdToken }` (UUID, expira em 5min) |
+| GET | `/lgpd/data` | Retorna todos os dados pessoais vinculados ao telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de acesso LGPD |
+| DELETE | `/lgpd/data` | Anonimiza dados pessoais de todas as sessões passadas do telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de exclusão LGPD. Substitui nome por "Anonimizado", phone por null, phoneLast4 por null |
 
 ## Call Requests
 | Metodo | Rota | Descricao |

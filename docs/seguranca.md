@@ -61,6 +61,22 @@
 - **Rate limit no endpoint `/shifts/clock-in`:** máximo 5 tentativas por staffId em 15 minutos. Após exceder, lockout de 15 minutos.
 - Tentativas falhas devem ser logadas com `level: warn` para auditoria.
 
+## Diferenciação OWNER vs MANAGER
+
+OWNER e MANAGER têm permissões quase idênticas. A distinção existe para operações sensíveis que só o dono do restaurante deve executar:
+
+| Operação | OWNER | MANAGER |
+|---|---|---|
+| Criar/remover OWNER ou MANAGER | Sim | **Não** |
+| Excluir restaurante | Sim | **Não** |
+| Alterar dados sensíveis (CNPJ, slug) | Sim | **Não** |
+| Force-close de sessão | Sim | Sim |
+| CRUD de staff (WAITER, KITCHEN) | Sim | Sim |
+| Dashboard, faturamento, settings | Sim | Sim |
+| Todas as outras operações admin | Sim | Sim |
+
+MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MANAGER. Essa restrição é validada no `POST /staff` e `DELETE /staff/:id`.
+
 ## Rate Limits — Endpoints do Cliente
 - Rate limits são por **cliente** (telefone verificado), não por sessão/mesa. Justificativa: mesas grandes (30+ pessoas) precisam de rate limit individual para não bloquear pedidos simultâneos legítimos.
 - `POST /orders`: máximo 3 requests por minuto por cliente.
@@ -177,6 +193,7 @@
 - Cron job diário (madrugada). Após 90 dias do fechamento da sessão:
 - `Person.name` → 'Pessoa Anonimizada'
 - `Person.phone` → null
+- `JoinRequest.phone` → null
 - `JoinRequest.phoneLast4` → null
 - `Person.consentGivenAt` → **preservado** (prova legal de que consentimento foi dado — necessário para compliance LGPD).
 - OrderItemPerson e Payment mantidos (sem dados pessoais, Person já anonimizada).
