@@ -147,7 +147,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
-**Relacionamentos:** has many User, Table, Sector, PreparationLocation, Category, Tag, Product, Order, Payment, TableSession, Call, Staff/Employee, Schedule, DayTeam, Shift
+**Relacionamentos:** has many User, Table, Sector, PreparationLocation, Category, Tag, Product, Order, Payment, TableSession, Call, Staff/Employee, Schedule, DayTeam, Shift, StaffInvite, PickupEscalation, WaiterFee
 
 **Índices:** `slug` (unique)
 
@@ -177,6 +177,8 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 
 **Índices:** `restaurantId` (unique)
 
+**Constraints:** serviceChargePercent 0-100, pickupReminderInterval >= 1, pickupEscalationTimeout >= 1, orderDelayThreshold >= 1, idleTableThreshold >= 1, maxPeoplePerSession >= 1, claimTimeout >= 1, waiterOfflineAlertTimeout >= 1
+
 ---
 
 ### User
@@ -199,7 +201,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
-**Relacionamentos:** belongs to Restaurant (opcional para SUPER_ADMIN). Has many Shift, OrderItem (via claimedByStaffId), AuditLog
+**Relacionamentos:** belongs to Restaurant (opcional para SUPER_ADMIN). Has many Shift, Schedule, OrderItem (via claimedByStaffId), AuditLog
 
 **Índices:** `email` (unique), `restaurantId` + `role`, `restaurantId` + `active`
 
@@ -318,7 +320,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 
 **Relacionamentos:** belongs to Restaurant, belongs to Table, has many Person, has many Order, has many Payment, has many JoinRequest, has many ActivityLog
 
-**Índices:** `token` (unique), `restaurantId` + `active`, `tableId` + `active`
+**Índices:** `token` (unique), `restaurantId` + `active`, `tableId` + `active` (unique parcial WHERE active = true — garante apenas 1 sessão ativa por mesa)
 
 ---
 
@@ -488,7 +490,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | categoryId | UUID | FK → Category |
 | name | String | Sanitizar HTML |
 | description | String? | Sanitizar HTML |
-| price | Decimal | Preço em BRL |
+| price | Decimal | Preço em BRL. Constraint: >= 0 |
 | destination | ProductDestination | `PICKUP_POINT` ou `WAITER` — mutuamente exclusivos |
 | pickupPointId | UUID? | FK → PickupPoint. Obrigatório se destination = PICKUP_POINT |
 | immediateDelivery | Boolean | Default `false`. Itens que podem ser entregues antes dos demais |
@@ -560,7 +562,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 
 **Relacionamentos:** belongs to Restaurant, belongs to TableSession, has many OrderItem
 
-**Índices:** `restaurantId` + `createdAt`, `sessionId`, `restaurantId` + `orderNumber`
+**Índices:** `restaurantId` + `DATE(createdAt)` + `orderNumber` (unique — garante unicidade diária), `sessionId`, `restaurantId` + `createdAt`
 
 **Notas:** Cada envio do carrinho = 1 Order. Pedidos diferentes são independentes entre si. **Pedido enviado é imutável** — não existe edição de quantidade, produto ou observações após envio. Para corrigir, cancelar o item (se ainda Na fila) e refazer via novo pedido. Limitação intencional da Fase 1.
 
@@ -575,7 +577,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | orderId | UUID | FK → Order |
 | productId | UUID | FK → Product |
 | quantity | Int | Default `1` |
-| unitPrice | Decimal | Preço no momento do pedido (snapshot) |
+| unitPrice | Decimal | Preço no momento do pedido (snapshot). Constraint: >= 0 |
 | status | OrderItemStatus | Default `QUEUED` |
 | notes | String? | Observações do cliente (ex: "bem passado", "sem cebola"). Exibido em destaque amarelo no KDS |
 | deliveryGroup | DeliveryGroupType | Calculado: NORMAL, IMMEDIATE, ou WAITER_DIRECT |
@@ -637,7 +639,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | personId | UUID | FK → Person |
 | method | PaymentMethod | PIX, CASH, CARD_DEBIT, CARD_CREDIT |
 | status | PaymentStatus | Default `PENDING` |
-| amount | Decimal | Valor total (itens da pessoa + taxa de serviço se aplicável) |
+| amount | Decimal | Valor total (itens da pessoa + taxa de serviço se aplicável). Constraint: >= 0 |
 | serviceChargeAmount | Decimal? | Valor da taxa de serviço individual |
 | initiatedBy | ActorType | CLIENT ou STAFF — quem iniciou o pagamento |
 | initiatedByStaffId | UUID? | FK → User. Preenchido quando staff iniciou (garçom registrou o pagamento) |
@@ -651,12 +653,13 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | refundedByStaffId | UUID? | FK → User. Quem confirmou a devolução (audit trail) |
 | refundedAt | DateTime? | Quando a devolução foi confirmada |
 | refundMethod | PaymentMethod? | Método usado na devolução (pode diferir do original, ex: pagou PIX, devolveu CASH) |
+| refundAmount | Decimal? | Valor calculado da devolução. Preenchido automaticamente ao criar PENDING_REFUND (proporcional ao item cancelado). Staff confirma com este valor |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
-**Relacionamentos:** belongs to Restaurant, belongs to TableSession, belongs to Person
+**Relacionamentos:** belongs to Restaurant, belongs to TableSession, belongs to Person, belongs to User (multiple FKs: initiatedByStaffId, confirmedByStaffId, cancelledByStaffId, refundedByStaffId)
 
-**Índices:** `sessionId` + `personId`, `restaurantId` + `createdAt`, `pixExternalId` (unique, onde não null), `status`
+**Índices:** `sessionId` + `personId`, `restaurantId` + `createdAt`, `pixExternalId` (unique, onde não null), `status`, `method` + `status` + `createdAt` (para job de expiração PIX)
 
 **Notas:**
 - Pagamento individual por pessoa. `personId` indica quem está pagando, `amount` o valor dos itens dessa pessoa + taxa de serviço
@@ -686,7 +689,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 
 **Relacionamentos:** belongs to Restaurant, belongs to User
 
-**Índices:** `restaurantId` + `staffId` + `clockInAt`, `staffId` + `clockOutAt` (para encontrar turno ativo: clockOutAt IS NULL)
+**Índices:** `restaurantId` + `staffId` + `clockInAt`, `staffId` + `clockOutAt` (para encontrar turno ativo: clockOutAt IS NULL), `restaurantId` + `clockOutAt` (para buscar garçons com turno ativo)
 
 ---
 
@@ -935,6 +938,10 @@ Restaurant 1──N Call
 Restaurant 1──N Shift
 Restaurant 1──N Schedule
 Restaurant 1──N DayTeam
+Restaurant 1──N StaffInvite
+Restaurant 1──N TableSession
+Restaurant 1──N PickupEscalation
+Restaurant 1──N WaiterFee
 
 Sector 1──N Table
 Sector 1──N SectorPickupPointMapping
@@ -959,13 +966,17 @@ Product 1──N OrderItem
 
 Order 1──N OrderItem
 OrderItem N──N Person (via OrderItemPerson)
+OrderItem N──1 PickupPoint
+OrderItem N──1 PreparationLocation
 
 Person 1──N Payment
 
 User 1──N Shift
+User 1──N Schedule
 User 1──N DayTeam
 User 1──N WaiterFee
 User 1──N AuditLog
+Payment N──1 User (multiple FKs: initiatedByStaffId, confirmedByStaffId, cancelledByStaffId, refundedByStaffId)
 
 DayTeam 1──N DayTeamSectorAssignment
 

@@ -28,13 +28,13 @@ Base URL: `/api/v1`
 ## Tables
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/tables` | Listar mesas do restaurante |
-| POST | `/tables` | Criar mesa |
-| PUT | `/tables/:id` | Atualizar mesa |
-| DELETE | `/tables/:id` | Soft delete de mesa (só se não tiver sessão ativa). Histórico preservado para métricas. Permite recriar mesa com mesmo nome/número |
+| GET | `/tables` | Roles: OWNER, MANAGER, WAITER. Listar mesas do restaurante |
+| POST | `/tables` | Roles: OWNER, MANAGER. Criar mesa |
+| PUT | `/tables/:id` | Roles: OWNER, MANAGER. Atualizar mesa |
+| DELETE | `/tables/:id` | Roles: OWNER, MANAGER. Soft delete de mesa (só se não tiver sessão ativa). Histórico preservado para métricas. Permite recriar mesa com mesmo nome/número |
 | POST | `/tables/:id/verify-phone` | Enviar OTP de verificação WhatsApp antes de criar sessão (1º cliente, mesa sem sessão ativa). Body: `{ phone }`. Não requer sessão ativa |
 | POST | `/tables/:id/open` | Abrir sessão da mesa (cliente). Body: `{ personCount?: number, names?: string[] }`. Requer telefone verificado via `/tables/:id/verify-phone`. **Bloqueia se setor não tem garçom com turno ativo** (erro `SESSION_019` + alerta `admin:no-waiter-alert`). Cria sessão + 1º membro + emite `waiter:session-opened`. Nomes são opcionais — se não informados, cria pessoas genéricas ("Pessoa 1", "Pessoa 2"...) com base em `personCount`. Pelo menos 1 pessoa é sempre criada |
-| POST | `/tables/:id/open-staff` | Abrir sessão da mesa (garçom). Roles: WAITER, MANAGER, OWNER. Body: `{ peopleCount: number, names?: string[] }`. Não exige WhatsApp/OTP. Pessoas criadas como genéricas se nomes não informados. `consentGivenAt` fica null para pessoas sem OTP. Usado para clientes sem celular ou mesas analógicas |
+| POST | `/tables/:id/open-staff` | Abrir sessão da mesa (garçom). Roles: WAITER, MANAGER, OWNER. Body: `{ personCount: number, names?: string[] }`. Não exige WhatsApp/OTP. Pessoas criadas como genéricas se nomes não informados. `consentGivenAt` fica null para pessoas sem OTP. Usado para clientes sem celular ou mesas analógicas |
 | POST | `/tables/:id/close` | Fechar sessão (encerrar conta). Roles: WAITER, MANAGER, OWNER. Pré-condições: não pode ter itens com status `Na fila` ou `Preparando` (cancelar ou aguardar). Itens `Pronto` não entregues geram aviso mas não bloqueiam. Sessão vazia (sem pedidos/pagamentos) fecha sem restrições — caminho para fechar sessão fantasma. Emite `client:session-closed` via WebSocket |
 | POST | `/tables/:id/force-close` | Forçar fechamento de sessão (OWNER/MANAGER). Body: `{ confirm: true }`. Fecha mesmo com pagamentos pendentes (marca como `CANCELLED`). Registra em AuditLog. Emite `client:session-closed` via WebSocket |
 | GET | `/tables/:id/session` | Sessão ativa da mesa |
@@ -63,78 +63,78 @@ Base URL: `/api/v1`
 | PATCH | `/session/:token/people/:personId` | Atualizar nome da pessoa (body: `{ name }`) |
 | DELETE | `/session/:token/people/:personId` | Remover pessoa da mesa (cliente "Sair da mesa" ou staff). **Só permitido se saldo da pessoa = R$ 0,00** (sem itens, ou todos os itens pagos). Retorna erro `SESSION_016` se pessoa tem saldo pendente (itens não pagos ou Payment PENDING). Retorna erro `SESSION_017` se pessoa tem OrderItems com status `QUEUED` ou `PREPARING`. Não existe reatribuição automática de itens — pessoa paga primeiro, depois sai |
 | PATCH | `/session/:token/service-charge` | Toggle taxa de serviço (**requer JWT de staff**, role WAITER ou superior). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos. Com `personId` = toggle individual por pessoa. Cliente não tem acesso a este endpoint |
-| GET | `/session/:token/bill` | Conta detalhada com divisão por pessoa + taxa de serviço |
-| GET | `/session/:token/activity-log` | Log de atividade de pedidos e reatribuições. Retorna lista de ações em formato legível (quem pediu, quem modificou, de/para). Visível para todos os membros da mesa |
+| GET | `/session/:token/bill` | Autenticação: session token. Conta detalhada com divisão por pessoa + taxa de serviço |
+| GET | `/session/:token/activity-log` | Autenticação: session token. Log de atividade de pedidos e reatribuições. Retorna lista de ações em formato legível (quem pediu, quem modificou, de/para). Visível para todos os membros da mesa |
 | GET | `/session/:token/data` | LGPD: retornar todos os dados pessoais da sessão (telefone, nomes). Direito de acesso via telefone verificado |
 | DELETE | `/session/:token/data` | LGPD: exclui dados pessoais da sessão (telefone, nomes). Pedidos/pagamentos são anonimizados |
 
 ## Locais de Preparo
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/preparation-locations` | Listar locais de preparo do restaurante |
-| POST | `/preparation-locations` | Criar local de preparo (gera 1 Ponto de Entrega default automaticamente) |
-| PUT | `/preparation-locations/:id` | Atualizar local de preparo |
-| DELETE | `/preparation-locations/:id` | Remover local de preparo (somente se não tem produtos vinculados) |
+| GET | `/preparation-locations` | Roles: OWNER, MANAGER. Listar locais de preparo do restaurante |
+| POST | `/preparation-locations` | Roles: OWNER, MANAGER. Criar local de preparo (gera 1 Ponto de Entrega default automaticamente) |
+| PUT | `/preparation-locations/:id` | Roles: OWNER, MANAGER. Atualizar local de preparo |
+| DELETE | `/preparation-locations/:id` | Roles: OWNER, MANAGER. Remover local de preparo (somente se não tem produtos vinculados) |
 
 ## Fila do KDS (por Local de Preparo)
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/preparation-locations/:id/orders?status=pending,preparing` | Pedidos pendentes/em preparo roteados para o local. Carga inicial do KDS antes do WebSocket assumir. Roles: WAITER, KITCHEN, OWNER, MANAGER |
+| GET | `/preparation-locations/:id/orders?status=pending,preparing` | Roles: KITCHEN, WAITER, OWNER, MANAGER. Pedidos pendentes/em preparo roteados para o local. Carga inicial do KDS antes do WebSocket assumir |
 
 ## Pontos de Entrega
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/preparation-locations/:id/pickup-points` | Listar pontos de entrega do local de preparo |
-| POST | `/preparation-locations/:id/pickup-points` | Criar ponto de entrega (body: `{ name, autoDelivery?: bool }`) |
-| PUT | `/pickup-points/:id` | Atualizar ponto de entrega |
-| DELETE | `/pickup-points/:id` | Remover ponto de entrega (somente se não é o único do local e não tem produtos vinculados) |
+| GET | `/preparation-locations/:id/pickup-points` | Roles: OWNER, MANAGER. Listar pontos de entrega do local de preparo |
+| POST | `/preparation-locations/:id/pickup-points` | Roles: OWNER, MANAGER. Criar ponto de entrega (body: `{ name, autoDelivery?: bool }`) |
+| PUT | `/pickup-points/:id` | Roles: OWNER, MANAGER. Atualizar ponto de entrega |
+| DELETE | `/pickup-points/:id` | Roles: OWNER, MANAGER. Remover ponto de entrega (somente se não é o único do local e não tem produtos vinculados) |
 
 ## Setores
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/sectors` | Listar setores do restaurante (inclui mesas vinculadas) |
-| POST | `/sectors` | Criar setor (body: `{ name }`) |
-| PUT | `/sectors/:id` | Atualizar setor (nome) |
-| DELETE | `/sectors/:id` | Remover setor (somente se não tem mesas vinculadas) |
-| PUT | `/sectors/:id/pickup-point-mappings` | Definir mapeamento obrigatório: para cada Local de Preparo ativo, qual Ponto de Entrega. Body: `{ mappings: [{ preparationLocationId, pickupPointId }] }`. **Comportamento:** sobrescreve todos os mapeamentos do setor (replace, não merge). Se faltar algum Local de Preparo ativo no array, retorna erro `SECTOR_003: Mapeamento incompleto — faltam Locais de Preparo: [nomes]`. Validação: cada `pickupPointId` deve pertencer ao `preparationLocationId` informado |
-| GET | `/sectors/:id/pickup-point-mappings` | Listar mapeamentos do setor (inclui flag `complete: boolean` indicando se todos os Locais de Preparo ativos estão mapeados) |
+| GET | `/sectors` | Roles: OWNER, MANAGER. Listar setores do restaurante (inclui mesas vinculadas) |
+| POST | `/sectors` | Roles: OWNER, MANAGER. Criar setor (body: `{ name }`) |
+| PUT | `/sectors/:id` | Roles: OWNER, MANAGER. Atualizar setor (nome) |
+| DELETE | `/sectors/:id` | Roles: OWNER, MANAGER. Remover setor (somente se não tem mesas vinculadas) |
+| PUT | `/sectors/:id/pickup-point-mappings` | Roles: OWNER, MANAGER. Definir mapeamento obrigatório: para cada Local de Preparo ativo, qual Ponto de Entrega. Body: `{ mappings: [{ preparationLocationId, pickupPointId }] }`. **Comportamento:** sobrescreve todos os mapeamentos do setor (replace, não merge). Se faltar algum Local de Preparo ativo no array, retorna erro `SECTOR_003: Mapeamento incompleto — faltam Locais de Preparo: [nomes]`. Validação: cada `pickupPointId` deve pertencer ao `preparationLocationId` informado |
+| GET | `/sectors/:id/pickup-point-mappings` | Roles: OWNER, MANAGER. Listar mapeamentos do setor (inclui flag `complete: boolean` indicando se todos os Locais de Preparo ativos estão mapeados) |
 
 ## Menu
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/menu/:restaurantSlug` | Cardápio público (com cache Redis) |
-| GET | `/menu/categories` | Listar categorias (admin) |
-| POST | `/menu/categories` | Criar categoria |
-| PUT | `/menu/categories/:id` | Atualizar categoria |
-| PATCH | `/menu/categories/:id/availability` | Toggle disponibilidade da categoria. Desabilitar: todos os produtos da categoria ficam indisponíveis no cardápio (pedidos existentes não são afetados). Reabilitar: todos os produtos da categoria voltam a ficar disponíveis (incluindo os que estavam desabilitados individualmente antes) |
-| DELETE | `/menu/categories/:id` | Remover categoria (soft delete). Bloqueia se tem produtos vinculados (retorna erro `MENU_005`). Admin deve mover ou deletar os produtos antes |
-| GET | `/menu/tags` | Listar tags de produto (ex: vegano, sem glúten, picante) |
-| POST | `/menu/tags` | Criar tag |
-| PUT | `/menu/tags/:id` | Atualizar tag |
-| DELETE | `/menu/tags/:id` | Remover tag. Se tem produtos vinculados, exige confirmação (`confirm: true` no body). Remove vínculo com produtos (produtos continuam sem a tag) |
-| GET | `/menu/products` | Listar produtos (admin) |
-| POST | `/menu/products` | Criar produto (inclui `pickupPointId` ou `destination: 'waiter'` — **mutuamente exclusivos**, enviar exatamente um; `immediateDelivery?: bool`, e `tagIds[]`). Retorna erro `MENU_004` se ambos ou nenhum for informado |
-| PUT | `/menu/products/:id` | Atualizar produto |
-| PATCH | `/menu/products/:id/availability` | Toggle disponibilidade. Pedidos já existentes (`QUEUED`, `PREPARING`, `READY`) não são afetados — KDS continua exibindo e cliente continua vendo na conta. O toggle só impede novos pedidos. Se não há como preparar um item já pedido, o staff cancela manualmente |
-| DELETE | `/menu/products/:id` | Soft delete de produto. Só permitido se não há itens em pedidos ativos (`QUEUED` ou `PREPARING`). Requer JWT de staff (MANAGER+) |
+| GET | `/menu/:restaurantSlug` | Público, sem autenticação. Cardápio público (com cache Redis) |
+| GET | `/menu/categories` | Roles: OWNER, MANAGER. Listar categorias (admin) |
+| POST | `/menu/categories` | Roles: OWNER, MANAGER. Criar categoria |
+| PUT | `/menu/categories/:id` | Roles: OWNER, MANAGER. Atualizar categoria |
+| PATCH | `/menu/categories/:id/availability` | Roles: OWNER, MANAGER. Toggle disponibilidade da categoria. Desabilitar: todos os produtos da categoria ficam indisponíveis no cardápio (pedidos existentes não são afetados). Reabilitar: todos os produtos da categoria voltam a ficar disponíveis (incluindo os que estavam desabilitados individualmente antes) |
+| DELETE | `/menu/categories/:id` | Roles: OWNER, MANAGER. Remover categoria (soft delete). Bloqueia se tem produtos vinculados (retorna erro `MENU_005`). Admin deve mover ou deletar os produtos antes |
+| GET | `/menu/tags` | Roles: OWNER, MANAGER. Listar tags de produto (ex: vegano, sem glúten, picante) |
+| POST | `/menu/tags` | Roles: OWNER, MANAGER. Criar tag |
+| PUT | `/menu/tags/:id` | Roles: OWNER, MANAGER. Atualizar tag |
+| DELETE | `/menu/tags/:id` | Roles: OWNER, MANAGER. Remover tag. Se tem produtos vinculados, exige confirmação (`confirm: true` no body). Remove vínculo com produtos (produtos continuam sem a tag) |
+| GET | `/menu/products` | Roles: OWNER, MANAGER. Listar produtos (admin) |
+| POST | `/menu/products` | Roles: OWNER, MANAGER. Criar produto (inclui `pickupPointId` ou `destination: 'waiter'` — **mutuamente exclusivos**, enviar exatamente um; `immediateDelivery?: bool`, e `tagIds[]`). Retorna erro `MENU_004` se ambos ou nenhum for informado |
+| PUT | `/menu/products/:id` | Roles: OWNER, MANAGER. Atualizar produto |
+| PATCH | `/menu/products/:id/availability` | Roles: OWNER, MANAGER. Toggle disponibilidade. Pedidos já existentes (`QUEUED`, `PREPARING`, `READY`) não são afetados — KDS continua exibindo e cliente continua vendo na conta. O toggle só impede novos pedidos. Se não há como preparar um item já pedido, o staff cancela manualmente |
+| DELETE | `/menu/products/:id` | Roles: OWNER, MANAGER. Soft delete de produto. Só permitido se não há itens em pedidos ativos (`QUEUED` ou `PREPARING`). Requer JWT de staff (MANAGER+) |
 
 ## Upload (Imagens)
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/upload/product-images` | Upload de imagens de produto (multipart, max 5 por request) |
-| DELETE | `/upload/product-images/:imageId` | Remover imagem de produto |
+| POST | `/upload/product-images` | Roles: OWNER, MANAGER. Upload de imagens de produto (multipart, max 5 por request) |
+| DELETE | `/upload/product-images/:imageId` | Roles: OWNER, MANAGER. Remover imagem de produto |
 
 ## Orders
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/orders` | Criar pedido (via sessão token). Cada item inclui `personIds[]` (obrigatório, pelo menos 1) e `notes?: string` (observações do cliente, ex: "bem passado", "sem cebola" — exibidas no KDS). O pedido gera até 3 grupos de entrega: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Retorna erro se mapeamento Setor ↔ Local de Preparo estiver incompleto para algum item do pedido |
-| GET | `/orders` | Listar pedidos (admin, filtros). **Paginação:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
-| GET | `/orders/:id` | Detalhes do pedido |
-| PATCH | `/orders/:id/cancel` | Cancelar pedido inteiro (somente se todos os itens estão `Na fila`). Requer JWT de staff (WAITER ou superior). Body: `{ reason?: string }`. Registra cancelamento no activity log |
-| PATCH | `/orders/items/:id/status` | Atualizar status de item individual |
-| PATCH | `/orders/items/:id/cancel` | Cancelar item individual. Cliente pode cancelar próprios itens se `Na fila`. Staff (WAITER ou superior) pode cancelar se `Na fila` ou `Preparando`. Body: `{ reason?: string }`. Registra no activity log. Itens cancelados são removidos do cálculo da conta |
-| PATCH | `/orders/:id/delivery-groups/:group/claim` | Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2, aceita override com `escalation: true`. **Concorrência:** usar `SELECT ... FOR UPDATE` (pessimistic locking via Prisma `$transaction`) para evitar race condition quando 2 garçons tocam simultaneamente |
-| PATCH | `/orders/items/:id/people` | Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment CONFIRMED que inclua o item |
+| POST | `/orders` | Autenticação: session token (cliente) ou JWT (staff via comanda). Criar pedido. Cada item inclui `personIds[]` (obrigatório, pelo menos 1) e `notes?: string` (observações do cliente, ex: "bem passado", "sem cebola" — exibidas no KDS). O pedido gera até 3 grupos de entrega: itens normais (garçom notificado quando todos ficarem prontos), itens `immediateDelivery` (notificado quando todos os imediatos ficarem prontos), itens destino "Garçom" (entrega direta). Internamente, itens são roteados para o KDS do Local de Preparo correspondente. Retorna erro se mapeamento Setor ↔ Local de Preparo estiver incompleto para algum item do pedido |
+| GET | `/orders` | Roles: OWNER, MANAGER, WAITER. Listar pedidos (admin, filtros). **Paginação:** query `page` e `limit` (default 20, max 100). Retorna `{ data, total, page, totalPages }` |
+| GET | `/orders/:id` | Roles: OWNER, MANAGER, WAITER. Detalhes do pedido |
+| PATCH | `/orders/:id/cancel` | Roles: WAITER, MANAGER, OWNER (WAITER+ para itens Na fila; OWNER/MANAGER para Pronto/Entregue). Cancelar pedido inteiro (somente se todos os itens estão `Na fila`). Body: `{ reason?: string }`. Registra cancelamento no activity log |
+| PATCH | `/orders/items/:id/status` | Roles: KITCHEN (preparing/ready), WAITER (delivered), OWNER/MANAGER (any status). Atualizar status de item individual |
+| PATCH | `/orders/items/:id/cancel` | Roles: WAITER, MANAGER, OWNER (WAITER+ para Na fila; OWNER/MANAGER para Pronto/Entregue). Cancelar item individual. Cliente pode cancelar próprios itens se `Na fila` via session token. Staff pode cancelar se `Na fila` ou `Preparando`. Body: `{ reason?: string }`. Registra no activity log. Itens cancelados são removidos do cálculo da conta |
+| PATCH | `/orders/:id/delivery-groups/:group/claim` | Roles: WAITER, MANAGER, OWNER. Garçom assume retirada do grupo de entrega inteiro (body: `{ staffId, escalation?: boolean }`). `group` = `normal` ou `immediate`. Registra `claimedByStaffId` em todos os itens do grupo, emite `waiter:pickup-claimed` para remover da tela dos outros garçons. Claim normal rejeita se já houver claim ativo (retorna 409 com `ORDER_004`). Durante escalação nível 2, aceita override com `escalation: true`. **Concorrência:** usar `SELECT ... FOR UPDATE` (pessimistic locking via Prisma `$transaction`) para evitar race condition quando 2 garçons tocam simultaneamente |
+| PATCH | `/orders/items/:id/people` | Autenticação: session token (cliente apenas). Reatribuir pessoas a um item (body: `{ personIds[] }`). Bloqueia reatribuição se qualquer pessoa já tem Payment CONFIRMED que inclua o item |
 
 ## Payments
 
@@ -156,16 +156,16 @@ Base URL: `/api/v1`
 | Metodo | Rota | Descricao |
 |---|---|---|
 | POST | `/lgpd/verify` | Enviar OTP de verificação para o telefone. Body: `{ phone }`. Retorna `{ lgpdToken }` (UUID, expira em 5min) após OTP confirmado. Fluxo em 2 etapas para evitar dados sensíveis em query params |
-| POST | `/lgpd/verify/confirm` | Confirmar OTP. Body: `{ phone, otp }`. Retorna `{ lgpdToken }` (UUID, expira em 5min) |
+| POST | `/lgpd/verify/confirm` | Confirmar OTP. Body: `{ phone, otp }`. Retorna `{ lgpdToken }` (UUID, expira em 5min). lgpdToken armazenado em Redis com TTL 5min, chave: `lgpd:{token}` → `{ phone }` |
 | GET | `/lgpd/data` | Retorna todos os dados pessoais vinculados ao telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de acesso LGPD |
 | DELETE | `/lgpd/data` | Anonimiza dados pessoais de todas as sessões passadas do telefone. Header: `Authorization: Bearer {lgpdToken}`. Direito de exclusão LGPD. Substitui nome por "Anonimizado", phone por null, phoneLast4 por null |
 
 ## Call Requests
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/calls` | Criar chamado (cliente) |
-| GET | `/calls` | Listar chamados abertos (garçom) |
-| PATCH | `/calls/:id/resolve` | Garçom resolveu |
+| POST | `/calls` | Autenticação: session token (cliente). Criar chamado |
+| GET | `/calls` | Roles: WAITER, MANAGER, OWNER. Listar chamados abertos |
+| PATCH | `/calls/:id/resolve` | Roles: WAITER, MANAGER, OWNER. Resolver chamado |
 
 ## Stock (Fase 2 — NÃO IMPLEMENTAR)
 | Metodo | Rota | Descricao |
@@ -178,35 +178,35 @@ Base URL: `/api/v1`
 ## Dashboard
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/dashboard/overview` | Métricas gerais em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas |
-| GET | `/dashboard/popular-items` | Itens mais vendidos |
-| GET | `/dashboard/alerts` | Alertas em tempo real: pedidos atrasados (tempo na fila > threshold configurável, default 15min), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), setores sem garçom atribuído |
+| GET | `/dashboard/overview` | Roles: OWNER, MANAGER. Métricas gerais em tempo real: tempo médio de preparo por Local de Preparo (dinâmico), tempo médio de entrega por garçom, mesas ativas |
+| GET | `/dashboard/popular-items` | Roles: OWNER, MANAGER. Itens mais vendidos |
+| GET | `/dashboard/alerts` | Roles: OWNER, MANAGER. Alertas em tempo real: pedidos atrasados (tempo na fila > threshold configurável, default 15min), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), setores sem garçom atribuído |
 
 ## Desempenho da Equipe
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/staff/:id/performance` | Métricas individuais do funcionário por período (query: `from`, `to` — formato `YYYY-MM-DD`, interpretados como início e fim do dia no timezone do servidor). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
-| GET | `/staff/performance/summary` | Resumo de desempenho de todos os funcionários no período (query: `from`, `to`). Ranking por métricas |
-| GET | `/preparation-locations/:id/performance` | Métricas do Local de Preparo por período (query: `from`, `to`). Tempo médio de preparo, pedidos, itens mais demorados |
-| GET | `/staff/pickup-escalations` | Relatório de escalações de retirada por garçom (query: `from`, `to` — formato `YYYY-MM-DD`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período. Paginação: `page` e `limit` (default 50, max 100) |
+| GET | `/staff/:id/performance` | Roles: OWNER, MANAGER. Métricas individuais do funcionário por período (query: `from`, `to` — formato `YYYY-MM-DD`, interpretados como início e fim do dia no timezone do servidor). Garçom: tempo médio de entrega, pedidos atendidos, escalações. Cozinha: tempo médio de preparo, pedidos produzidos |
+| GET | `/staff/performance/summary` | Roles: OWNER, MANAGER. Resumo de desempenho de todos os funcionários no período (query: `from`, `to`). Ranking por métricas |
+| GET | `/preparation-locations/:id/performance` | Roles: OWNER, MANAGER. Métricas do Local de Preparo por período (query: `from`, `to`). Tempo médio de preparo, pedidos, itens mais demorados |
+| GET | `/staff/pickup-escalations` | Roles: OWNER, MANAGER. Relatório de escalações de retirada por garçom (query: `from`, `to` — formato `YYYY-MM-DD`, `staffId?`). Retorna contagem de escalações nível 1 e nível 2 por garçom no período. Paginação: `page` e `limit` (default 50, max 100) |
 
 ## Faturamento
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/billing/daily` | Faturamento do dia (receita, pedidos, ticket médio, comparativo). Query: `date` (YYYY-MM-DD, default = hoje) |
-| GET | `/billing/monthly` | Faturamento mensal (receita acumulada, gráfico por dia, comparativo). Query: `month` (YYYY-MM, default = mês atual) |
-| GET | `/billing/cashier` | Fechamento de caixa (valores por forma de pagamento). Query: `date` (YYYY-MM-DD, default = hoje) |
-| GET | `/billing/waiter-fees` | Taxas de garçom por período (query: `from`, `to`) — valor devido a cada garçom |
+| GET | `/billing/daily` | Roles: OWNER, MANAGER. Faturamento do dia (receita, pedidos, ticket médio, comparativo). Query: `date` (YYYY-MM-DD, default = hoje) |
+| GET | `/billing/monthly` | Roles: OWNER, MANAGER. Faturamento mensal (receita acumulada, gráfico por dia, comparativo). Query: `month` (YYYY-MM, default = mês atual) |
+| GET | `/billing/cashier` | Roles: OWNER, MANAGER. Fechamento de caixa (valores por forma de pagamento). Query: `date` (YYYY-MM-DD, default = hoje) |
+| GET | `/billing/waiter-fees` | Roles: OWNER, MANAGER. Taxas de garçom por período (query: `from`, `to`) — valor devido a cada garçom |
 
 ## Staff
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/staff` | Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100) |
-| POST | `/staff` | Criar funcionário (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` PIN numérico 4 dígitos, obrigatório para WAITER e KITCHEN) |
+| GET | `/staff` | Roles: OWNER, MANAGER. Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100) |
+| POST | `/staff` | Roles: OWNER, MANAGER. Criar funcionário (body inclui `temporary: bool`, `fixedWeekdays?: number[]`, `pin: string` PIN numérico 4 dígitos, obrigatório para WAITER e KITCHEN) |
 | POST | `/staff/invite` | Enviar convite via WhatsApp (mesma infra do OTP). Gera link com token UUID v4, expira em 72h. Link enviado via WhatsApp pelo admin. Em dev, log no console. **Convite duplicado:** se já existe convite pendente (não expirado, não aceito) para o mesmo email, o convite anterior é invalidado e um novo é gerado. Apenas o convite mais recente é válido |
 | POST | `/staff/accept` | Aceitar convite e criar conta (público). Body: `{ token, name, password, pin? }`. Senha obrigatória para todos. PIN obrigatório se role WAITER ou KITCHEN |
-| PUT | `/staff/:id` | Atualizar funcionário |
-| DELETE | `/staff/:id` | Desativar funcionário |
+| PUT | `/staff/:id` | Roles: OWNER, MANAGER. Atualizar funcionário |
+| DELETE | `/staff/:id` | Roles: OWNER, MANAGER (OWNER-only para targets com role OWNER/MANAGER). Desativar funcionário |
 | POST | `/staff/:id/reset-pin` | Reseta PIN do funcionário. Requer JWT de OWNER/MANAGER. Garçom deve definir novo PIN no próximo clock-in |
 
 ## Turno do Garçom (Clock-in/out)
@@ -214,22 +214,22 @@ Base URL: `/api/v1`
 |---|---|---|
 | POST | `/shifts/clock-in` | Garçom inicia turno (body: `{ staffId, pin }`) — salva hora de início |
 | POST | `/shifts/clock-out` | Garçom encerra turno (body: `{ staffId, pin }`) — salva hora de fim |
-| GET | `/shifts` | Listar turnos por período (query: `from`, `to`, `staffId?`) |
-| GET | `/shifts/active` | Garçons com turno ativo no momento |
+| GET | `/shifts` | Roles: OWNER, MANAGER. Listar turnos por período (query: `from`, `to`, `staffId?`) |
+| GET | `/shifts/active` | Roles: OWNER, MANAGER, WAITER. Garçons com turno ativo no momento |
 
 ## Escala (Programação de Equipe)
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/schedule` | Listar escala por período (query: `from`, `to`) |
-| GET | `/schedule/:date` | Retorna a programação para a data: quem deveria trabalhar (baseado em escala cadastrada e dias fixos) |
+| GET | `/schedule` | Roles: OWNER, MANAGER. Listar escala por período (query: `from`, `to`) |
+| GET | `/schedule/:date` | Roles: OWNER, MANAGER. Retorna a programação para a data: quem deveria trabalhar (baseado em escala cadastrada e dias fixos) |
 | PUT | `/schedule/:date` | Definir/atualizar escala do dia (idempotente, sobrescreve). Body: `{ entries: [{ staffId, role }] }`. Roles: OWNER, MANAGER |
 
 ## Equipe do Dia
 | Metodo | Rota | Descricao |
 |---|---|---|
-| GET | `/day-team/:date` | Retorna a equipe real do dia: funcionários presentes com atribuições de setor. Auto-preenchido a partir da programação, com ajustes manuais |
+| GET | `/day-team/:date` | Roles: OWNER, MANAGER. Retorna a equipe real do dia: funcionários presentes com atribuições de setor. Auto-preenchido a partir da programação, com ajustes manuais |
 | PUT | `/day-team/:date` | Definir equipe do dia (body: `{ staffIds[] }`) |
-| PATCH | `/day-team/:date/sectors` | Sobrescreve atribuições de setor (estado completo do dia). Body: `{ assignments: [{ staffId, sectorIds[] }] }` |
+| PATCH | `/day-team/:date/sectors` | Roles: OWNER, MANAGER. Sobrescreve atribuições de setor (estado completo do dia). Body: `{ assignments: [{ staffId, sectorIds[] }] }` |
 
 ## Tables — Setor
 > **Nota:** Cada mesa pertence a exatamente 1 setor. O campo `sectorId` é obrigatório na criação/atualização da mesa. Ver seção Setores para CRUD de setores.

@@ -10,7 +10,7 @@
 - Não usa JWT. Usa token único da `TableSession` na URL + cookie.
 - **Token da sessão deve ser criptograficamente seguro:** UUID v4 (128 bits) ou `crypto.randomBytes(32).toString('hex')`. Nunca sequencial ou previsível.
 - Token expira automaticamente quando a sessão é fechada. Tokens de sessões fechadas não podem ser reutilizados.
-- Sem login do cliente no MVP. Validado por IP + cookie como camada extra.
+- **Identificação individual por cookie:** ao ser aprovado na mesa (via OTP ou pelo garçom), o backend seta cookie httpOnly `ochefia_person_id` com o `personId` da pessoa. Endpoints que operam sobre uma pessoa específica (`POST /session/:token/payments`, `DELETE /session/:token/people/:personId`, etc.) validam que o `personId` do body/path corresponde ao cookie. Impede que um membro da mesa aja como outro. Cookie com `SameSite=Strict`, `Secure`, `Path=/session`.
 - **Unicidade de telefone:** um telefone verificado só pode estar vinculado a uma sessão ativa por vez. Tentativa de entrar em outra mesa com sessão ativa retorna erro `SESSION_008`.
 - **Força bruta em tokens de sessão:** o rate limit geral por IP é suficiente para proteger contra força bruta — tokens de sessão são UUID v4 (espaço de 2^122), tornando ataques de enumeração computacionalmente inviáveis.
 
@@ -36,6 +36,9 @@
 - Refresh token em httpOnly cookie com `SameSite=Strict` (proteção CSRF).
 - Access token **nunca** armazenado em cookie — apenas em memória (variável JS). Enviado via header `Authorization: Bearer`.
 - **Rate limit no `/auth/refresh`:** máximo 10 requests por IP em 15 minutos. Previne abuso com refresh token vazado.
+- **Rate limit no `/auth/login`:** máximo 5 tentativas por IP em 15 minutos. Previne brute force de senha.
+- **Rate limit no `/auth/register`:** máximo 3 requests por IP por hora. Previne spam de criação de restaurantes.
+- **Revogação de refresh tokens:** ao desativar funcionário (`DELETE /staff/:id`), alterar role, ou resetar senha/PIN, o refresh token deve ser revogado. Implementação: denylist em Redis com TTL de 7 dias (tempo de vida do refresh token). Verificar denylist no middleware de refresh.
 
 ## Autenticação do KDS
 - O KDS requer autenticação de funcionário com role `KITCHEN` (mesmo padrão de auth dos demais staff — JWT). Não opera como tela aberta. O operador pode acessar qualquer Local de Preparo do restaurante.
@@ -125,7 +128,8 @@ MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MA
 - **LGPD:** Dados sensíveis criptografados. Endpoint de exclusão de dados do cliente obrigatório (ver seção LGPD abaixo).
 - **HTTPS/TLS 1.3** obrigatório em produção (nginx + Let's Encrypt na Fase 1, ACM + ALB na Fase 2).
 - **WAF:** Web Application Firewall contra injeção SQL, XSS e DDoS (Fase 2 — AWS WAF. Na Fase 1, proteção via Helmet + rate limiting + validação de input).
-- **Helmet:** Headers de segurança HTTP (X-Content-Type-Options, X-Frame-Options, CSP, etc).
+- **Helmet:** Headers de segurança HTTP (X-Content-Type-Options, X-Frame-Options, CSP, Referrer-Policy, etc).
+- **Referrer-Policy:** `strict-origin-when-cross-origin` — mitiga leaking de session tokens em URLs via header Referer ao clicar links externos.
 - **CORS:** Configurado para aceitar apenas origens conhecidas (domínio do frontend).
 
 ## Content Security Policy (CSP)
@@ -144,7 +148,7 @@ MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MA
 - `class-validator` valida formato mas **não sanitiza HTML/XSS**.
 - Usar `class-transformer` com sanitização para campos de texto livre (nome do restaurante, descrição de produto, nomes de pessoas na mesa).
 - Remover tags HTML e caracteres perigosos antes de persistir.
-- Campos que aceitam texto livre: `Restaurant.name`, `Product.name`, `Product.description`, `Person.name`, `Category.name`, `Tag.name`.
+- Campos que aceitam texto livre: `Restaurant.name`, `Product.name`, `Product.description`, `Person.name`, `Category.name`, `Tag.name`, `OrderItem.notes`, `Call.message`, `OrderItem.cancelReason`, `Payment.cancelReason`.
 
 ## Dependency Scanning
 - Configurar **Dependabot** (GitHub) ou **Snyk** para scanning automático de vulnerabilidades em dependências.

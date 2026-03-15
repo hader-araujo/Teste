@@ -16,9 +16,9 @@
 - PATCH `/day-team/:date/sectors` — Atribuir setores aos garçons do dia.
 
 **Checklist:**
-- [ ] CRUD de funcionários com flag temporário, dias fixos, senha garçom.
+- [ ] CRUD de funcionários com flag temporário, dias fixos, PIN garçom.
 - [ ] Sistema de convites (log no console em dev).
-- [ ] Frontend admin: tela de funcionários com CRUD (cadastro, edição, desativação, flag temporário, dias fixos, senha garçom).
+- [ ] Frontend admin: tela de funcionários com CRUD (cadastro, edição, desativação, flag temporário, dias fixos, PIN garçom).
 - [ ] Frontend admin: tela de escala — calendário por dia, auto-preenchimento com permanentes + temporários com dia pré-definido, ajustes manuais.
 - [ ] Frontend admin: tela equipe do dia — equipe ativa + atribuição de setores por garçom (um garçom pode ter mais de 1 setor). Toggle para desmarcar/marcar. Adicionar temporários avulsos.
 - [ ] **Cron job "Preenchimento DayTeam":** diário às 04:00, auto-preenche equipe do dia a partir do Schedule semanal (permanentes + temporários com dia fixo). Não sobrescreve se admin já editou manualmente.

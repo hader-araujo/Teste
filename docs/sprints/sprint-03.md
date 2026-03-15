@@ -7,7 +7,7 @@ Backend puro dos módulos de estrutura operacional. Frontend na Sprint 4.
 - POST `/tables` — Criar mesa (body inclui `sectorId` obrigatório).
 - PUT `/tables/:id` — Atualizar mesa.
 - DELETE `/tables/:id` — Soft delete de mesa (só se fechada, histórico preservado, permite recriar com mesmo nome).
-- POST `/tables/:id/open` — Abrir sessão da mesa (versão básica sem body; Sprint 6 estende com `{ personCount?, names? }`).
+- POST `/tables/:id/open` — Abrir sessão da mesa (estrutura base). Sprint 6 adiciona OTP + body `{ personCount?, names? }`. Sprint 16 adiciona `open-staff`.
 - POST `/tables/:id/close` — Fechar sessão (requer pagamentos quitados).
 - POST `/tables/:id/force-close` — Forçar fechamento de sessão (OWNER/MANAGER). Cancela pagamentos pendentes.
 - GET `/tables/:id/session` — Sessão ativa da mesa.

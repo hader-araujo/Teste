@@ -245,7 +245,7 @@ Acesso: Cliente via QR Code no navegador.
 - **Na tela de pessoas**, exibir entrantes pendentes com opção de aprovar/rejeitar.
 
 ### Identificação via WhatsApp
-- **Obrigatória para entrar na mesa.** OTP de 6 dígitos via WhatsApp. Salva `phone` + `phoneVerified = true`.
+- **Obrigatória para entrar na mesa.** OTP de 6 dígitos via WhatsApp. Salva `phone` + `phoneVerified = true`. **Armazenamento do OTP:** Redis com TTL de 5 minutos. Chave: `otp:{phone}` → `{ code, attempts, createdAt }`. Sem tabela no banco — OTP é efêmero, se Redis reiniciar o cliente solicita novo OTP.
 - **Unicidade de telefone:** um telefone verificado só pode estar vinculado a **uma sessão ativa por vez**. Se o cliente tenta entrar numa mesa nova e já está em outra sessão ativa, o sistema retorna erro `SESSION_008`: "Telefone já vinculado a outra sessão ativa."
 
 ### Pessoa Sai e Volta (Participações Múltiplas)
