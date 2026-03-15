@@ -143,6 +143,13 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 | `admin:no-waiter-alert` | `restaurant:{id}:admin` | `{ tableId, tableName, sectorId, sectorName, attemptedAt }` — alerta severo: cliente tentou abrir mesa em setor sem garçom com turno ativo |
 | `admin:waiter-offline` | `restaurant:{id}:admin` | `{ staffId, staffName, sectorIds, sectorNames, offlineSince, minutesOffline }` — garçom com turno ativo desconectado há mais de `waiterOfflineAlertTimeout` minutos |
 
+## Autenticação WebSocket
+
+- **Staff (JWT):** token JWT enviado no handshake via `auth.token` no objeto de opções do Socket.IO (`io(url, { auth: { token } })`). Middleware do gateway valida JWT, extrai `restaurantId` e `role`, e associa ao socket. Socket inválido é desconectado com erro `AUTH_002`.
+- **Cliente (session token):** token da sessão enviado no handshake via `auth.sessionToken`. Middleware valida que a sessão existe e está ativa. Socket inválido é desconectado com erro `SESSION_001`.
+- **Após autenticação:** servidor insere o socket nas rooms apropriadas com base no role/sessão. Staff entra em rooms do restaurante; cliente entra na room `session:{token}`.
+- **Reconexão:** Socket.IO reenvia `auth` automaticamente no reconnect. Servidor revalida e re-insere nas rooms.
+
 ## Rooms WebSocket
 
 | Room | Formato | Quem entra |

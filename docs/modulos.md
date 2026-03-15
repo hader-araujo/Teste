@@ -86,6 +86,7 @@ Cada item de pedido pode conter o campo **`notes?: string`** — observações d
 - Todo cancelamento é registrado no **histórico/activity-log da sessão**, incluindo: quem cancelou, quando, e motivo (obrigatório se cancelado por staff).
 - **Item cancelado sai do cálculo da conta** — não é cobrado.
 - **Devolução por cancelamento de item já pago:** quando OWNER/MANAGER cancela um item com status Entregue e esse item já está coberto por um Payment CONFIRMED, o sistema gera um **registro de devolução pendente** (`PENDING_REFUND`) vinculado à(s) pessoa(s) que pagaram. O restaurante devolve o dinheiro por fora (pix, dinheiro, cartão) e o staff confirma no sistema via `PATCH /payments/:id/refund` com método e responsável. Não existe "crédito interno" — é sempre devolução real.
+  - **Cálculo proporcional para itens compartilhados:** `refundAmount = itemPrice / numberOfPersons`. Se um item de R$60 estava atribuído a 3 pessoas (A, B, C) e apenas A já pagou, o sistema cria `PENDING_REFUND` de R$20 apenas para o Payment de A. Pessoas B e C simplesmente deixam de ser cobradas (o item sai da conta). Se A e B já pagaram, ambos recebem `PENDING_REFUND` de R$20 cada.
   - **Status da devolução:** `PENDING_REFUND` → `REFUNDED`.
   - **Confirmação:** staff informa método (`PIX`, `CASH`, `CARD_DEBIT`, `CARD_CREDIT`), valor, e o sistema registra `refundedByStaffId` + `refundedAt` + `refundMethod`.
   - **Visibilidade:** devoluções aparecem no activity log da sessão ("Picanha cancelada — devolução de R$30,00 via Pix confirmada por João às 14:32"), na aba "Histórico" da conta, e no AuditLog.
@@ -209,6 +210,7 @@ Acesso: Cliente via QR Code no navegador.
 
 ### Proteção contra Abertura sem Atendimento
 - **Bloqueio:** `POST /tables/:id/open` (abertura pelo cliente) verifica se o setor da mesa tem pelo menos 1 garçom com turno ativo (clock-in feito). Se não tem, retorna erro `SESSION_019: Mesa sem atendimento no momento` + mensagem amigável: "Esta mesa ainda não tem atendimento. Aguarde ou procure um funcionário."
+- **OTP não é "gasto" pelo bloqueio:** se o cliente já verificou o telefone via `POST /tables/:id/verify-phone` e o `open` falha com SESSION_019, a verificação do telefone permanece válida em Redis (TTL de 5min). O cliente pode retentar `POST /tables/:id/open` sem refazer OTP enquanto a verificação não expirar. Frontend exibe botão "Tentar novamente" na tela de erro.
 - **Alerta ao admin:** simultaneamente, o sistema emite `admin:no-waiter-alert` para o admin/gerente com severidade alta: "Cliente tentou abrir mesa X — setor Y sem garçom ativo." Badge vermelho no dashboard, som de alerta.
 - **Abertura pelo staff:** `POST /tables/:id/open-staff` (garçom abrindo a mesa) **não** é bloqueado por essa regra — o garçom já está presente fisicamente.
 
@@ -222,7 +224,7 @@ Acesso: Cliente via QR Code no navegador.
 
 ### Abertura de Sessão (primeiro cliente)
 - Se a mesa não tem sessão ativa, o primeiro cliente a escolher "Entrar na mesa" inicia o fluxo de abertura:
-  1. Informa número de WhatsApp → `POST /tables/:id/verify-phone` (endpoint público, não requer sessão) → recebe OTP 6 dígitos → confirma.
+  1. Informa número de WhatsApp → `POST /tables/:id/verify-phone` (endpoint público, não requer sessão) → recebe OTP 6 dígitos → confirma. **Estado de verificação armazenado em Redis:** chave `verified:{tableId}:{phone}` com TTL de 5 minutos. O endpoint `open` consulta essa chave para confirmar que o telefone foi verificado.
   2. Após verificação, o sistema chama `POST /tables/:id/open` que cria a sessão, registra o primeiro membro aprovado e retorna o `sessionToken` criptograficamente seguro.
   3. Cadastra nomes de quem está na mesa (incluindo o próprio).
 - **Nota:** o endpoint `POST /session/:token/join` **nunca cria sessão**. Ele é utilizado exclusivamente por clientes subsequentes que entram em uma sessão já existente. `POST /tables/:id/open` só pode ser chamado pelo primeiro cliente (mesa sem sessão ativa).

@@ -3,7 +3,7 @@
 Infraestrutura de tempo real. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] WebSocket gateway (Socket.IO).
+- [ ] WebSocket gateway (Socket.IO). Autenticação via `auth.token` (JWT para staff) ou `auth.sessionToken` (token de sessão para cliente) no handshake. Middleware valida e insere socket nas rooms apropriadas. Ver `docs/websocket-events.md` seção Autenticação.
 - [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparação para scaling horizontal na Fase 2).
 - [ ] Rooms: restaurant, kds (geral), kds:{prepLocationId} (por Local de Preparo), waiter (geral), waiter:sector:{sectorId} (por setor), admin, session.
 - [ ] Eventos client->server: order:created, call:request, payment:initiated.

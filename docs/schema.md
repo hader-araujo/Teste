@@ -411,6 +411,8 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | id | UUID | PK |
 | restaurantId | UUID | FK → Restaurant. Multi-tenancy |
 | name | String | Ex: "Cozinha Principal", "Pizzaria", "Bar" |
+| kdsWarningMinutes | Int | Default `10`. Minutos — threshold para cor amarela (atenção) no KDS |
+| kdsCriticalMinutes | Int | Default `15`. Minutos — threshold para cor vermelha (atrasado) no KDS |
 | active | Boolean | Default `true` |
 | deletedAt | DateTime? | Soft delete. Só se não tem produtos vinculados |
 | createdAt | DateTime | |
@@ -490,7 +492,7 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | restaurantId | UUID | FK → Restaurant. Multi-tenancy |
 | categoryId | UUID | FK → Category |
 | name | String | Sanitizar HTML |
-| description | String? | Sanitizar HTML |
+| description | String? | Sanitizar HTML. Max 500 chars |
 | price | Decimal | Preço em BRL. Constraint: >= 0 |
 | destination | ProductDestination | `PICKUP_POINT` ou `WAITER` — mutuamente exclusivos |
 | pickupPointId | UUID? | FK → PickupPoint. Obrigatório se destination = PICKUP_POINT |
@@ -580,14 +582,14 @@ STAFF         -- Ação feita pelo staff (garçom, gerente, dono)
 | quantity | Int | Default `1` |
 | unitPrice | Decimal | Preço no momento do pedido (snapshot). Constraint: >= 0 |
 | status | OrderItemStatus | Default `QUEUED` |
-| notes | String? | Observações do cliente (ex: "bem passado", "sem cebola"). Exibido em destaque amarelo no KDS |
+| notes | String? | Observações do cliente (ex: "bem passado", "sem cebola"). Max 200 chars. Exibido em destaque amarelo no KDS |
 | deliveryGroup | DeliveryGroupType | Calculado: NORMAL, IMMEDIATE, ou WAITER_DIRECT |
 | pickupPointId | UUID? | FK → PickupPoint. Snapshot do destino no momento do pedido |
 | preparationLocationId | UUID? | FK → PreparationLocation. Determinado pelo PickupPoint |
 | claimedByStaffId | UUID? | FK → User. Garçom que assumiu a retirada (claim por grupo) |
 | claimedAt | DateTime? | Quando o claim foi feito |
 | cancelledByStaffId | UUID? | FK → User. Staff que cancelou (se aplicável). Nome via JOIN — sem dados pessoais hardcoded |
-| cancelReason | String? | Motivo do cancelamento. Obrigatório para OWNER/MANAGER cancelando Pronto/Entregue |
+| cancelReason | String? | Motivo do cancelamento. Max 300 chars. Obrigatório para OWNER/MANAGER cancelando Pronto/Entregue |
 | readyAt | DateTime? | Quando marcado como Pronto |
 | startedAt | DateTime? | Preenchido na transição para PREPARING. Usado para recalcular timers do KDS após restart |
 | deliveredAt | DateTime? | Quando marcado como Entregue |
@@ -650,11 +652,11 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | confirmedByStaffId | UUID? | FK → User. Quem confirmou manualmente — CASH/CARD sempre, PIX quando webhook falha. Null se PIX confirmado via webhook (audit trail) |
 | cancelledAt | DateTime? | |
 | cancelledByStaffId | UUID? | FK → User. Quem cancelou (null se foi o próprio cliente) |
-| cancelReason | String? | Motivo do cancelamento (opcional, preenchido pelo staff) |
+| cancelReason | String? | Motivo do cancelamento. Max 300 chars (opcional, preenchido pelo staff) |
 | refundedByStaffId | UUID? | FK → User. Quem confirmou a devolução (audit trail) |
 | refundedAt | DateTime? | Quando a devolução foi confirmada |
 | refundMethod | PaymentMethod? | Método usado na devolução (pode diferir do original, ex: pagou PIX, devolveu CASH) |
-| refundAmount | Decimal? | Valor calculado da devolução. Preenchido automaticamente ao criar PENDING_REFUND (proporcional ao item cancelado). Staff confirma com este valor |
+| refundAmount | Decimal? | Valor calculado da devolução. Fórmula: `itemPrice / numberOfPersons` (proporcional à divisão do item). Preenchido automaticamente ao criar PENDING_REFUND. Staff confirma com este valor |
 | createdAt | DateTime | |
 | updatedAt | DateTime | |
 
@@ -762,7 +764,7 @@ Destino "Garçom": QUEUED → DELIVERED (pula PREPARING e READY)
 | sessionId | UUID | FK → TableSession |
 | tableId | UUID | FK → Table |
 | reason | CallReason | WAITER, BILL, OTHER |
-| message | String? | Mensagem opcional do cliente |
+| message | String? | Mensagem opcional do cliente. Max 300 chars |
 | status | CallStatus | Default `OPEN` |
 | resolvedByStaffId | UUID? | FK → User. Garçom que resolveu |
 | resolvedAt | DateTime? | |

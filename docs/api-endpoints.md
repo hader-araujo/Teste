@@ -11,7 +11,7 @@ Base URL: `/api/v1`
 ## Auth
 | Metodo | Rota | Descricao |
 |---|---|---|
-| POST | `/auth/register` | Registro de restaurante + owner |
+| POST | `/auth/register` | Registro de restaurante + owner. Criação atômica (transação): Restaurant + RestaurantSettings (defaults) + Sector default ("Salão") + User (OWNER). Body: `{ name, email, password, restaurantName, slug }` |
 | POST | `/auth/login` | Login com email+senha → retorna JWT. Usado por Admin e Super Admin |
 | POST | `/auth/pin` | Login com PIN → retorna JWT. Body: `{ restaurantId, staffId, pin }`. Usado por Garçom (WAITER) e KDS (KITCHEN). Rate limiting: 5 tentativas/15min + lockout 15min |
 | POST | `/auth/refresh` | Refresh token |

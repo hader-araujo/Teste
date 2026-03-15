@@ -7,7 +7,7 @@ Frontend do KDS. Zero endpoints REST novos.
 - [ ] KDS faz fetch inicial de pedidos pendentes ao conectar (GET). WebSocket apenas para atualizações em tempo real.
 - [ ] Frontend KDS genérico — uma tela por Local de Preparo (dark mode, temporizadores, cores de status).
 - [ ] Header exibe nome do Local de Preparo. Seleção de Local de Preparo ao abrir o KDS.
-- [ ] Cores: Verde (no prazo), Amarelo (atenção), Vermelho (atrasado).
+- [ ] Cores de status por tempo de preparo: Verde (no prazo), Amarelo (atenção — `>= kdsWarningMinutes`), Vermelho (atrasado — `>= kdsCriticalMinutes`). Thresholds configuráveis **por Local de Preparo** nos campos `kdsWarningMinutes` (default 10) e `kdsCriticalMinutes` (default 15) da entidade PreparationLocation. Timer conta a partir de `OrderItem.startedAt` (transição para PREPARING).
 - [ ] Alertas visuais e sonoros para pedido novo/urgente.
 - [ ] Clique no prato para foto ampliada.
 - [ ] Botão "Pronto" com lógica:
