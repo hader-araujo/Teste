@@ -30,4 +30,4 @@
 - [ ] Upload com preview, reordenação e remoção.
 - [ ] Frontend admin: tela cardápio CRUD.
 - [ ] Sanitização de inputs de texto livre (nome de categoria, nome/descrição de produto, nome de tag) contra XSS via `class-transformer`.
-- [ ] Error codes padronizados para módulo Menu (MENU_001 a MENU_004). Ver `docs/observabilidade.md`.
+- [ ] Error codes padronizados para módulo Menu (MENU_001 a MENU_005). Ver `docs/observabilidade.md`.

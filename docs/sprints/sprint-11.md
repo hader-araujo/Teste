@@ -26,6 +26,6 @@
 - [ ] **Expiração de Pix pendente:** job Bull que verifica pagamentos Pix com status `PENDING` há mais de 30 minutos e marca como `EXPIRED`. Emite `client:payment-cancelled` com `reason: 'expired'`. Frontend exibe "Pagamento expirado — tente novamente" com botão para gerar novo QR Code.
 - [ ] **Cancelamento:** staff cancela via `PATCH /payments/:id/cancel`, cliente cancela via `PATCH /session/:token/payments/:id/cancel`. Só status `PENDING`. Emite `client:payment-cancelled` com `reason: 'staff_cancelled'`.
 - [ ] **Devolução:** `PATCH /payments/:id/refund` (WAITER+). Transição `PENDING_REFUND → REFUNDED`. Método de devolução pode diferir do original.
-- [ ] Error codes padronizados para módulo Payments (PAY_001 a PAY_006). Ver `docs/observabilidade.md`.
+- [ ] Error codes padronizados para módulo Payments (PAY_001 a PAY_007). Ver `docs/observabilidade.md`.
 
 **Referências:** `docs/api-endpoints.md` (Payments), `docs/seguranca.md` (Pix/webhook), `docs/modulos.md` (Conta e Pagamento), `docs/schema.md` (Payment, PaymentStatus).

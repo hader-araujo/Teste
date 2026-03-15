@@ -24,6 +24,6 @@
 - [ ] CRUD de restaurante. Sanitização de `Restaurant.name` contra XSS via `class-transformer`.
 - [ ] Winston logger + Correlation ID middleware.
 - [ ] ValidationPipe global + Swagger.
-- [ ] **Campos de configuração em `RestaurantSettings`** com valores default: `serviceChargePercent` (10), `pickupReminderInterval` (3min), `pickupEscalationTimeout` (10min), `orderDelayThreshold` (15min), `idleTableThreshold` (30min). Tela de edição na Sprint 21 — até lá, usar defaults.
+- [ ] **Campos de configuração em `RestaurantSettings`** com valores default: `serviceChargePercent` (10), `pickupReminderInterval` (3min), `pickupEscalationTimeout` (10min), `orderDelayThreshold` (15min), `idleTableThreshold` (30min), `maxPeoplePerSession` (100), `claimTimeout` (5min), `waiterOfflineAlertTimeout` (5min). Tela de edição na Sprint 21 — até lá, usar defaults.
 - [ ] Seed com dados de teste (dono@ze-bar.com / senha123, slug ze-bar).
 - [ ] Error codes padronizados para módulo Auth (AUTH_001, AUTH_002, AUTH_003). Ver `docs/observabilidade.md` seção Error Codes.

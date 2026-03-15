@@ -82,4 +82,4 @@ Quais docs ler **antes** de implementar cada sprint. Docs marcados com * são op
 | 23 | api-endpoints.md (Super Admin Modules/Monitoring), modulos.md (Sistema de Módulos) | — |
 | 24 | todos os design-*.md, fluxos.md | — |
 | 25 | deploy.md, observabilidade.md | — |
-| 26 | seguranca.md (tudo), privacidade.md | — |
+| 26 | seguranca.md (tudo), privacidade.md, api-endpoints.md (LGPD) | — |

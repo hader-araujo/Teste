@@ -28,4 +28,4 @@ Backend da sessão do cliente. Aprovação de entrantes na Sprint 7. Frontend na
 - [ ] **Limite de pessoas por sessão (SESSION_018):** validar `maxPeoplePerSession` (default 100, configurável em RestaurantSettings) em todos os endpoints que adicionam pessoas: `POST /tables/:id/open`, `POST /tables/:id/open-staff`, `POST /session/:token/people`, `POST /session/:token/join`.
 - [ ] **Unicidade de telefone por sessão (SESSION_008):** mesmo número não pode estar em duas sessões ativas simultaneamente no mesmo restaurante.
 - [ ] Sanitização de nomes de pessoas na mesa contra XSS via `class-transformer`.
-- [ ] Error codes padronizados para módulo Session (SESSION_001 a SESSION_006, SESSION_008, SESSION_011, SESSION_012). Ver `docs/observabilidade.md`.
+- [ ] Error codes padronizados para módulo Session (SESSION_001 a SESSION_008, SESSION_010 a SESSION_012, SESSION_015 a SESSION_019). Ver `docs/observabilidade.md`.

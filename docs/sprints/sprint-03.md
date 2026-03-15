@@ -35,3 +35,4 @@ Backend puro dos módulos de estrutura operacional. Frontend na Sprint 4.
 - [ ] CRUD de Setores (nome). Setor default criado automaticamente com o restaurante.
 - [ ] Mapeamento obrigatório Setor ↔ Local de Preparo: para cada setor, qual Ponto de Entrega usar por Local de Preparo.
 - [ ] Seed com dados de teste: 2 Locais de Preparo ("Cozinha Principal", "Bar"), 1 Setor default ("Salão"), mesas vinculadas.
+- [ ] Error codes padronizados para módulo Setores (SECTOR_001 a SECTOR_003). Ver `docs/observabilidade.md`.

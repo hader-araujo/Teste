@@ -22,5 +22,5 @@ Backend de pedidos. Frontend do carrinho e conta na Sprint 10.
 - [ ] **Cancelamento de item Pronto/Entregue (OWNER/MANAGER):** mesmo endpoint, mas com role check. Requer motivo obrigatório. Registra em AuditLog. Se o item já foi pago (Payment CONFIRMED), cria automaticamente PENDING_REFUND no Payment correspondente com valor proporcional ao item cancelado.
 - [ ] **Log de atividade de pedidos:** registrar todas as ações (criação de pedido, reatribuição de pessoas, cancelamentos) em formato estruturado. Renderizar como texto legível no frontend (ex: "Picanha - José realizou o pedido / Para: José e Antônio").
 - [ ] QueueService abstraction (interface única para Bull + Redis; preparada para futura migração para SQS na Fase 2).
-- [ ] Error codes padronizados para módulo Orders (ORDER_001 a ORDER_005). Ver `docs/observabilidade.md`.
+- [ ] Error codes padronizados para módulo Orders (ORDER_001 a ORDER_006). Ver `docs/observabilidade.md`.
 - [ ] Endpoint GET /session/:token/bill — dados da conta com divisão por pessoa, taxa de serviço e totais.
