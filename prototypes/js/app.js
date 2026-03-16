@@ -66,9 +66,9 @@ const MOCK = {
   ],
 
   people: [
-    { id: 1, name: 'João' },
-    { id: 2, name: 'Maria' },
-    { id: 3, name: 'Pedro' }
+    { id: 1, name: 'João', paymentPending: false },
+    { id: 2, name: 'Maria', paymentPending: true }, // Simula Maria com pagamento pendente
+    { id: 3, name: 'Pedro', paymentPending: false }
   ],
 
   tables: [
@@ -421,9 +421,14 @@ function updateCartUI() {
 function addPerson(name) {
   if (!name || !name.trim()) return;
   const sanitized = sanitizeText(name.trim());
-  MOCK.people.push({ id: nextPersonId++, name: sanitized });
+  MOCK.people.push({ id: nextPersonId++, name: sanitized, paymentPending: false });
   if (typeof renderPeople === 'function') renderPeople();
   showToast(sanitized + ' adicionado(a) à mesa', 'success');
+}
+
+function isPersonBlocked(personId) {
+  const person = MOCK.people.find(p => p.id === personId);
+  return person ? person.paymentPending : false;
 }
 
 function removePerson(personId) {

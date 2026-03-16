@@ -1,0 +1,33 @@
+hoje temos bar e cozinha - isso vai ser preciso ser cadastro. 
+o cliente pode ser mais de 1 cozinha por exemplo. Ou uma pode ser chamada de pizzaria. entao esses locais tem que ser cadastrados - nome: Local de preparo
+
+cada local de preparo pode ser mais de 1 ponto de entrega (cadastrado tb mas vem com 1 de default) 
+esse ponto de entrega vai ser onde o garcon vai buscar o item (prato de comida por exemplo, ou drink)
+
+entao no cadastro de produto, antes indicava qual local de preparo, agora tem que indicar o ponto de entrega, que por sua vez tem um local de preparo vinculado.
+
+vai precisar de cadastro de setor
+
+cada pesa deve ser adicionada em um setor, entao vamos ter que mudar, o garcon nao é mais vincualdo à mesa e sim ao setor da mesa 
+
+para cada setor, tem que ter vinculo obrigatorio para cada local de preparo (1 dos ponto de entrega desse local de preparo)
+
+
+a tela do garcon tem local para ele abrir e tomar conta da conta de uma mesa? Se nao tiver, precisa ter. 
+da forma que ta agora, se o garçon vai fazer um pedido, 
+ele tem um campo de pesquisa? pois pode ser mais rapido do que rolar a tela. tipo, digitou c, ja vai aparecendo tudo que começa com c
+
+
+
+
+ate aqui ta ta ok
+
+
+
+opção de pedido em grupo, onde o sistema já vai saber o tempo pre cadastrado, 
+enviar o pedido para os devidos locais e autorizar a produção do mais lento após um tempo ou após a finalização da cozinha. 
+
+(pizza são 5 minutos, mas podemos ter outros clientes com tempos variados, por isso sugerir colocar no cadastro do produto.
+
+
+[16:55, 10/03/2026] Paulo Jr Milhas VIP: nao sei se o sistema esta assim ja... mas como tem mais de um garçon por setor, pedido chega na tela de todos, quando um pegar a execução, some da tela dos outros

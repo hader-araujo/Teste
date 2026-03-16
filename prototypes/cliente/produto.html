@@ -280,12 +280,19 @@
       while (container.firstChild) container.removeChild(container.firstChild);
 
       MOCK.people.forEach(function(person) {
+        var isBlocked = isPersonBlocked(person.id);
         var label = document.createElement('label');
         label.style.cssText = 'display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:10px; border:1.5px solid var(--color-gray-200, #e5e7eb); cursor:pointer; transition:all 0.15s;';
+        if (isBlocked) {
+          label.style.opacity = '0.6';
+          label.style.cursor = 'not-allowed';
+          label.style.background = 'var(--color-gray-50, #f9fafb)';
+        }
 
         var checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.checked = true;
+        checkbox.checked = !isBlocked;
+        checkbox.disabled = isBlocked;
         checkbox.value = person.id;
         checkbox.name = 'person';
         checkbox.style.cssText = 'width:20px; height:20px; accent-color:var(--color-primary);';
@@ -294,8 +301,23 @@
         });
 
         var nameSpan = document.createElement('span');
-        nameSpan.style.cssText = 'font-weight:500; color:var(--color-gray-900);';
+        nameSpan.style.cssText = 'font-weight:500; color:var(--color-gray-900); display:flex; align-items:center; gap:4px;';
         nameSpan.textContent = person.name;
+
+        if (isBlocked) {
+          var lockIcon = document.createElement('span');
+          lockIcon.innerHTML = '&#128274;'; // Cadeado
+          lockIcon.style.fontSize = '0.8rem';
+          lockIcon.title = 'Pagamento pendente';
+          nameSpan.appendChild(lockIcon);
+
+          var statusLabel = document.createElement('span');
+          statusLabel.textContent = '(Pagamento pendente)';
+          statusLabel.style.fontSize = '0.65rem';
+          statusLabel.style.color = 'var(--color-danger, #dc2626)';
+          statusLabel.style.marginLeft = 'auto';
+          nameSpan.appendChild(statusLabel);
+        }
 
         label.appendChild(checkbox);
         label.appendChild(nameSpan);
