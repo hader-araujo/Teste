@@ -188,6 +188,18 @@ MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MA
 - Campos: `id`, `userId`, `action`, `targetType`, `targetId`, `metadata` (JSON), `ipAddress`, `createdAt`.
 - Audit logs são imutáveis — nunca deletar ou alterar.
 
+### Integridade de Auditoria vs. LGPD (Anonimização)
+
+Para cumprir a LGPD (Art. 16) sem comprometer a auditoria financeira e operacional (essencial para o dono do restaurante), o sistema adota a estratégia de **Anonimização por Referência**:
+
+1.  **Prazo de Retenção:** Dados identificáveis de clientes (`Person.name`, `Person.phone`) são apagados/anonimizados após **90 dias** do fechamento da sessão.
+2.  **Imutabilidade de Logs:** Registros em `AuditLog`, `ActivityLog` e `OrderItem` (histórico de cancelamento) **nunca são deletados**.
+3.  **Mecanismo Técnico:**
+    *   Logs **nunca** devem armazenar nomes ou telefones em campos de texto (ex: `description: "João cancelou..."` é PROIBIDO).
+    *   Logs devem armazenar apenas IDs (`personId`, `userId`, `sessionId`).
+    *   A visualização no dashboard deve ser feita via `LEFT JOIN` com a tabela `people`.
+    *   Após 90 dias, quando o `name` na tabela `people` for alterado para "Pessoa Anonimizada", todos os logs históricos refletirão automaticamente essa mudança, preservando o valor da transação, o horário e o rastro técnico, mas protegendo a identidade do indivíduo.
+
 ## LGPD — Compliance
 - **Endpoint obrigatório (exclusão):** `DELETE /session/:token/data` — exclui todos os dados pessoais da sessão (telefone, nome das pessoas). Pedidos/pagamentos são anonimizados (mantidos para faturamento, mas sem dados pessoais). Controle de acesso:
   - Requer telefone verificado (mesmo telefone da sessão).
@@ -206,4 +218,5 @@ MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MA
 - `JoinRequest.phoneLast4` → null
 - `Person.consentGivenAt` → **preservado** (prova legal de que consentimento foi dado — necessário para compliance LGPD).
 - OrderItemPerson e Payment mantidos (sem dados pessoais, Person já anonimizada).
+- **AuditLog e ActivityLog NÃO são afetados pela anonimização.** AuditLog é imutável (obrigação legal LGPD Art. 16). ActivityLog usa IDs (`actorPersonId`, `actorStaffId`), nunca nomes em texto livre. Após anonimização, JOINs com Person retornam "Pessoa Anonimizada" automaticamente — o rastro de auditoria (quem fez o quê, quanto, quando) persiste indefinidamente, só o dado pessoal (nome/telefone) some. O dono do restaurante continua vendo: "Pessoa Anonimizada cancelou Picanha (R$60,00) às 14:32 — motivo: queimou".
 - Pessoa que voltar após anonimização é tratada como nova — sem vínculo com dados anteriores.
