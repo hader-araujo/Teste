@@ -10,6 +10,6 @@ Frontend do cliente. Zero endpoints REST novos.
 - [ ] Frontend cliente: tela pessoas (+ botão no header de TODAS as telas do cliente).
 - [ ] **Tela de pessoas com aprovação:** exibir entrantes pendentes com botões aprovar/rejeitar.
 - [ ] **Tela de espera para entrantes:** mensagem de aguardo + botão "Lembrar mesa" (cooldown 60s) + botão "Ver cardápio" (read-only) + botão "Cancelar".
-- [ ] **Notificação de novo entrante:** alerta in-app para membros aprovados (push notification na Sprint 19).
+- [ ] **Notificação de novo entrante:** alerta in-app para membros aprovados (push notification na Sprint 20).
 - [ ] Frontend cliente: cardápio com galeria, categorias, filtros.
 - [ ] Frontend cliente: detalhe do produto.

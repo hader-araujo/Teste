@@ -70,8 +70,8 @@
 ## Configuração Winston
 
 ```typescript
-// Producao (Fase 1): JSON para stdout (docker compose logs captura)
-// Producao (Fase 2): JSON para stdout (CloudWatch captura via ECS)
+// Produção (Fase 1): JSON para stdout (docker compose logs captura)
+// Produção (Fase 2): JSON para stdout (CloudWatch captura via ECS)
 const prodTransport = new winston.transports.Console({
   format: winston.format.json(),
 });

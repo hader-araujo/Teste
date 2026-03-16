@@ -33,7 +33,7 @@ Exibido diretamente na tela de verificação WhatsApp, abaixo do campo de telefo
 
 - **Sprint P (protótipo):** link aponta para `privacidade.html` na pasta `prototypes/cliente/`.
 - **Sprint 9 (frontend cliente):** página real renderizada server-side com dados do restaurante via slug. Conteúdo estático com nome do restaurante dinâmico.
-- **Sprint 27 (LGPD):** adicionar botão "Excluir meus dados" na própria página de privacidade (requer sessão fechada + telefone verificado).
+- **Sprint 28 (LGPD):** adicionar botão "Excluir meus dados" na própria página de privacidade (requer sessão fechada + telefone verificado).
 
 ## Responsabilidade
 

@@ -179,7 +179,7 @@ A API e o schema usam enums em UPPER_CASE (inglês). A interface do cliente exib
 
 ## Siglas
 
-**ADR** — Architecture Decision Record. Registro formal de decisões arquiteturais do projeto, criado na Sprint 0.
+**ADR** — Architecture Decision Record. Registro formal de decisões arquiteturais do projeto, criado na Sprint 1.
 
 **ALB** — Application Load Balancer. Balanceador de carga da AWS usado na Fase 2 para distribuir tráfego entre instâncias.
 

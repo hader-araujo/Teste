@@ -18,7 +18,7 @@ Backend da sessão do cliente. Aprovação de entrantes na Sprint 8. Frontend na
 - [ ] `POST /tables/:id/open` com body opcional `{ personCount?, names? }` para pré-cadastro de pessoas ao abrir mesa.
 - [ ] Geração de token seguro na criação da sessão.
 - [ ] `POST /tables/:id/verify-phone` — OTP pré-sessão para o 1º cliente. Mesma infra do OTP de sessão (fila, rate limit por telefone global 15min, 6 dígitos).
-- [ ] Verificação WhatsApp via OTP de 6 dígitos. Rate limit: 3 envios por telefone em janela de 15min (global), cooldown 60s. OTP expira em 5min, max 5 tentativas.
+- [ ] Verificação WhatsApp via OTP de 6 dígitos. Rate limit: `otpMaxSendsPerPhone` envios (default 5) por telefone em janela de 15min (global), cooldown 60s. OTP expira em 5min, max 5 tentativas.
 - [ ] **Detalhes do fluxo OTP:**
   - `POST /session/:token/phone` é público — qualquer pessoa com token válido pode solicitar OTP, mesmo antes de entrar na sessão (necessário para o fluxo de verificação pré-entrada).
   - Envio via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
