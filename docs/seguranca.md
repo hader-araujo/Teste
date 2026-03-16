@@ -27,9 +27,9 @@
 - Ao abrir sessão, cliente informa número -> sistema envia OTP via WhatsApp -> confirma -> salva `phone` + `phoneVerified = true`.
 - Nenhuma ação automática usa o número além do armazenamento.
 - **Rate limit específico para OTP:** máximo `otpMaxSendsPerPhone` envios por telefone em janela de 15 minutos (default 5, configurável em RestaurantSettings). Global — vale para todos os endpoints que enviam OTP (`/tables/:id/verify-phone`, `/session/:token/phone`, `/lgpd/verify`). Cooldown de 60 segundos entre envios. Previne abuso de custo de mensagens WhatsApp (API cobra por envio).
-- **OTP expira em 5 minutos.** Máximo 5 tentativas de verificação por OTP. **Após expirar ou esgotar tentativas:** o cliente pode solicitar novo OTP (conta como novo envio dentro do limite de 3 por telefone). Cada novo OTP gera novo counter de 5 tentativas. O OTP anterior é invalidado automaticamente ao gerar novo.
-- **Falha no envio:** se o envio via fila falhar (WhatsApp API indisponível, Redis fora), a tentativa **não é contabilizada** no rate limit. O sistema exibe mensagem "Não foi possível enviar. Tente novamente em 60s" sem consumir uma das 3 tentativas.
-- **Fallback após esgotar OTP:** após 3 tentativas sem sucesso, o sistema cria JoinRequest com `otpFailed: true`. Cliente vê mensagem "Não foi possível verificar. Peça ao garçom para aprovar sua entrada." A solicitação aparece na tela de detalhe da mesa do garçom com indicação diferenciada ("Verificação WhatsApp falhou — aprovar manualmente?"). Garçom aprova no mesmo fluxo de aprovação normal.
+- **OTP expira em 5 minutos.** Máximo 5 tentativas de verificação por OTP. **Após expirar ou esgotar tentativas:** o cliente pode solicitar novo OTP (conta como novo envio dentro do limite de `otpMaxSendsPerPhone` por telefone). Cada novo OTP gera novo counter de 5 tentativas. O OTP anterior é invalidado automaticamente ao gerar novo.
+- **Falha no envio:** se o envio via fila falhar (WhatsApp API indisponível, Redis fora), a tentativa **não é contabilizada** no rate limit. O sistema exibe mensagem "Não foi possível enviar. Tente novamente em 60s" sem consumir uma das tentativas do rate limit.
+- **Fallback após esgotar OTP:** após 3 CICLOS de OTP onde a verificação falhou em todos (código errado ou expirou), o sistema cria JoinRequest com `otpFailed: true`. Cliente vê mensagem "Não foi possível verificar. Peça ao garçom para aprovar sua entrada." A solicitação aparece na tela de detalhe da mesa do garçom com indicação diferenciada ("Verificação WhatsApp falhou — aprovar manualmente?"). Garçom aprova no mesmo fluxo de aprovação normal.
 
 ## Autenticação Staff
 - JWT com access token (15min) + refresh token (7 dias).
@@ -86,6 +86,7 @@ MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MA
 ## Rate Limits — Endpoints do Cliente
 - Rate limits são por **cliente** (telefone verificado), não por sessão/mesa. Justificativa: mesas grandes (30+ pessoas) precisam de rate limit individual para não bloquear pedidos simultâneos legítimos.
 - `POST /orders`: máximo 3 requests por minuto por cliente.
+- `POST /session/:token/payments`: máximo 3 requests por minuto por cliente.
 - `POST /calls`: máximo 2 requests por minuto por cliente.
 - `POST /session/:token/people`: máximo 5 requests por minuto por cliente.
 
@@ -194,12 +195,13 @@ MANAGER pode criar WAITER e KITCHEN, mas **não** pode criar ou remover OWNER/MA
   - Admin/Super Admin pode forçar exclusão via painel (para atender solicitação formal LGPD).
 - **Endpoint obrigatório (acesso):** `GET /session/:token/data` — retorna todos os dados pessoais da sessão (telefone, nomes). Requer telefone verificado. Direito de acesso (LGPD Art. 18).
 - **Consentimento:** ao informar telefone, exibir texto de consentimento claro sobre uso dos dados + link para Política de Privacidade (`/{slug}/privacidade`). Ver `docs/privacidade.md` para texto completo e regras.
-- **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 26 (Segurança Avançada + LGPD).
+- **Retenção:** dados pessoais de sessões fechadas devem ser anonimizados após 90 dias automaticamente. Job agendado via Bull queue para anonimização automática. Será implementado na Sprint 28 (Segurança Avançada + LGPD).
 
 ### Anonimização Automática (90 dias)
 - Cron job diário (madrugada). Após 90 dias do fechamento da sessão:
 - `Person.name` → 'Pessoa Anonimizada'
 - `Person.phone` → null
+- `JoinRequest.name` → 'Anonimizado'
 - `JoinRequest.phone` → null
 - `JoinRequest.phoneLast4` → null
 - `Person.consentGivenAt` → **preservado** (prova legal de que consentimento foi dado — necessário para compliance LGPD).

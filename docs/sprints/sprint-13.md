@@ -1,18 +1,15 @@
-# Sprint 13 — KDS Backend + WebSocket Avançado
+# Sprint 13 — WebSocket Gateway + Infraestrutura Real-Time
 
-Backend do KDS e funcionalidades avançadas de WebSocket.
-
-**Endpoints (~1):**
-- GET `/preparation-locations/:id/orders?status=pending,preparing` — Fila de pedidos do Local de Preparo. Carga inicial do KDS antes do WebSocket assumir.
+Infraestrutura base de tempo real. Zero endpoints REST novos. Sprint 14 implementa os eventos.
 
 **Checklist:**
-- [ ] Roteamento de pedidos por Ponto de Entrega → Local de Preparo do produto. Produtos com destino "Garçom" vão direto para o garçom do setor.
-- [ ] `GET /preparation-locations/:id/orders` — endpoint REST para carga inicial da fila do KDS. Filtro por status (pending, preparing). Usado no fetch inicial ao conectar e na reconciliação após reconexão.
-- [ ] KDS backend: fila de produção e transições de status.
-- [ ] **Deduplicação de eventos:** garçom em múltiplos setores (múltiplas rooms) não deve receber evento duplicado. Usar `Set` de socketIds notificados antes de emitir para múltiplas rooms. Ver `docs/websocket-events.md` seção Deduplicação.
-- [ ] **Backpressure:** usar `socket.volatile.emit()` para eventos não-críticos (metrics-update). Eventos críticos (order-update, payment-update) usam `emit()` normal.
-- [ ] Testar Socket.IO com Redis Adapter (validar que eventos passam pelo Redis corretamente).
-- [ ] Cleanup de rooms órfãs (sessões fechadas, clientes desconectados) para prevenir memory leak.
-- [ ] Monitorar contagem de listeners por room para detectar leaks.
-- [ ] Lógica de reconexão: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
-- [ ] Error codes padronizados para módulo KDS (KDS_001, KDS_002). Ver `docs/observabilidade.md`.
+- [ ] WebSocket gateway (Socket.IO). Autenticação via `auth.token` (JWT para staff) ou `auth.sessionToken` (token de sessão para cliente) no handshake. Middleware valida e insere socket nas rooms apropriadas. Ver `docs/websocket-events.md` seção Autenticação.
+- [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparação para scaling horizontal na Fase 2).
+- [ ] Rooms: `restaurant:{id}`, `restaurant:{id}:kds`, `restaurant:{id}:kds:{prepLocationId}`, `restaurant:{id}:waiter`, `restaurant:{id}:waiter:sector:{sectorId}`, `restaurant:{id}:admin`, `session:{token}`.
+- [ ] **Rate limit de eventos** client→server: máximo 10 eventos/s por socket. Desconectar sockets que excedem.
+- [ ] **Propagação de `correlationId`** nos eventos WebSocket para tracing end-to-end.
+- [ ] Atualizar **CSP** no Helmet para incluir `connect-src 'self' wss://*.ochefia.com.br` (WebSocket).
+- [ ] **Componente reutilizável de indicador de conexão** WebSocket + **polling HTTP como fallback** quando desconectado (banner "Reconectando..." + fetch REST a cada 10s). Ver `docs/websocket-events.md` seção Reconexão.
+- [ ] **Job Bull `ochefia-session-cleanup`:** fecha sessões vazias (sem pedidos) abertas há mais de `idleTableThreshold` minutos. Job periódico. Sessões com pedidos nunca são fechadas automaticamente.
+- [ ] **Deduplicação de eventos** para garçons em múltiplos setores: usar `Set` de socketIds antes de emitir para múltiplas rooms.
+- [ ] **Backpressure:** eventos não-críticos (metrics-update) usam `socket.volatile.emit()`. Eventos críticos (order-update, payment-update) usam emit normal.

@@ -1,21 +1,31 @@
-# Sprint 12 — WebSocket Gateway + Infraestrutura Real-Time
+# Sprint 12 — Pagamento (Pix + Dinheiro + Cartão)
 
-Infraestrutura de tempo real. Zero endpoints REST novos.
+**Endpoints (~9):**
+- POST `/session/:token/payments` — Cliente inicia pagamento. Body: `{ personId, method }`. Registra `initiatedBy: CLIENT`.
+- POST `/payments` — Staff inicia pagamento. Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Registra `initiatedBy: STAFF` + `initiatedByStaffId`.
+- GET `/payments/:id/status` — Verificar status (inclui quem iniciou, quem confirmou).
+- GET `/payments/session/:token` — Listar pagamentos da sessão (quem pagou, quem falta, método, quem iniciou, quem confirmou, devoluções).
+- PATCH `/payments/:id/confirm` — Staff confirma pagamento. Qualquer método. Obrigatório para CASH/CARD, fallback manual para PIX.
+- POST `/payments/pix/webhook` — Webhook de confirmação Pix (automático).
+- PATCH `/payments/:id/cancel` — Staff cancela pagamento pendente. Body: `{ reason? }`.
+- PATCH `/session/:token/payments/:id/cancel` — Cliente cancela o próprio pagamento pendente.
+- PATCH `/payments/:id/refund` — Staff confirma devolução. Body: `{ method }`. Valor já calculado pelo sistema.
 
 **Checklist:**
-- [ ] WebSocket gateway (Socket.IO). Autenticação via `auth.token` (JWT para staff) ou `auth.sessionToken` (token de sessão para cliente) no handshake. Middleware valida e insere socket nas rooms apropriadas. Ver `docs/websocket-events.md` seção Autenticação.
-- [ ] **Redis Adapter (`@socket.io/redis-adapter`)** configurado desde a Fase 1 (preparação para scaling horizontal na Fase 2).
-- [ ] Rooms: restaurant, kds (geral), kds:{prepLocationId} (por Local de Preparo), waiter (geral), waiter:sector:{sectorId} (por setor), admin, session.
-- [ ] Eventos client->server: order:created, call:request, payment:initiated.
-- [ ] Eventos server->KDS: kds:new-order.
-- [ ] Eventos KDS->server: kds:status-update.
-- [ ] Eventos server->cliente: client:order-update, client:session-update, client:payment-confirmed, client:payment-cancelled, client:session-closed.
-- [ ] Eventos de aprovação: session:join-request, session:join-approved, session:join-rejected, session:join-remind.
-- [ ] **Migrar notificações de aprovação de polling HTTP para WebSocket:** substituir o polling de `GET /session/:token/join/pending` (Sprint 7) por eventos `session:join-request` e `session:join-remind` em tempo real.
-- [ ] Eventos server->garçom: waiter:order-ready, waiter:pickup-claimed, waiter:pickup-reminder, waiter:pickup-escalation, waiter:call, waiter:new-order, waiter:order-cancelled, waiter:mapping-incomplete, waiter:session-opened.
-- [ ] Eventos server->admin: admin:table-update, admin:metrics-update, admin:pickup-escalation, admin:mapping-incomplete.
-- [ ] **Rate limit de eventos** client→server: máximo 10 eventos/s por socket. Desconectar sockets que excedem.
-- [ ] **Propagação de `correlationId`** nos eventos WebSocket para tracing end-to-end.
-- [ ] Atualizar **CSP** no Helmet para incluir `connect-src 'self' wss://*.ochefia.com.br` (WebSocket).
-- [ ] **Componente reutilizável de indicador de conexão** WebSocket + **polling HTTP como fallback** quando desconectado (banner "Reconectando..." + fetch REST a cada 10s). Ver `docs/websocket-events.md` seção Reconexão.
-- [ ] **Job Bull `ochefia-session-cleanup`:** fecha sessões vazias (sem pedidos) abertas há mais de `idleTableThreshold` minutos. Job periódico. Sessões com pedidos nunca são fechadas automaticamente.
+- [ ] **Fluxo unificado de pagamento (todos os métodos):**
+  - Cliente ou garçom inicia pagamento (PIX, CASH ou CARD) → status `PAYMENT_PENDING`.
+  - **PIX:** webhook confirma automaticamente → `PAYMENT_CONFIRMED`. Se webhook falha, garçom confirma manualmente via `PATCH /payments/:id/confirm`.
+  - **CASH/CARD:** garçom confirma via `PATCH /payments/:id/confirm` → `PAYMENT_CONFIRMED`.
+  - Campos de audit trail: `initiatedBy` (CLIENT/STAFF), `initiatedByStaffId`, `confirmedByStaffId`, `confirmedAt`.
+- [ ] Pagamento individual Pix com QR Code por pessoa.
+- [ ] Webhook Pix com validação de assinatura **síncrona** (retorna 400 se inválida, só enfileira após validação). **Idempotência:** `externalId` do provedor como constraint unique na tabela `Payment`. Se webhook chega 2x com mesmo `externalId`, segunda chamada retorna 200 sem reprocessar. Processamento via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
+- [ ] Whitelist de IPs do provedor Pix como camada extra de segurança.
+- [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
+- [ ] Abstração de provedor de pagamento (PaymentProviderService) para evitar lock-in.
+- [ ] Frontend cliente: pagamento com seleção de método (PIX, Dinheiro, Débito, Crédito).
+- [ ] **Expiração de Pix pendente:** job Bull que verifica pagamentos Pix com status `PAYMENT_PENDING` há mais de 30 minutos e marca como `PAYMENT_EXPIRED`. Emite `client:payment-cancelled` com `reason: 'expired'`. Frontend exibe "Pagamento expirado — tente novamente" com botão para gerar novo QR Code.
+- [ ] **Cancelamento:** staff cancela via `PATCH /payments/:id/cancel`, cliente cancela via `PATCH /session/:token/payments/:id/cancel`. Só status `PAYMENT_PENDING`. Emite `client:payment-cancelled` com `reason: 'staff_cancelled'`.
+- [ ] **Devolução:** `PATCH /payments/:id/refund` (WAITER+). Transição `PAYMENT_PENDING_REFUND → PAYMENT_REFUNDED`. Método de devolução pode diferir do original.
+- [ ] Error codes padronizados para módulo Payments (PAY_001 a PAY_007). Ver `docs/observabilidade.md`.
+
+**Referências:** `docs/api-endpoints.md` (Payments), `docs/seguranca.md` (Pix/webhook), `docs/modulos.md` (Conta e Pagamento), `docs/schema.md` (Payment, PaymentStatus).

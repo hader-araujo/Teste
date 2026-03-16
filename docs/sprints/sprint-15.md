@@ -1,25 +1,18 @@
-# Sprint 15 — Staff + Escala + Equipe do Dia
+# Sprint 15 — KDS Backend + WebSocket Avançado
 
-**Endpoints (~13):**
-- GET `/staff` — Listar funcionários. **Paginação:** query `page` e `limit` (default 50, max 100).
-- POST `/staff` — Criar funcionário (temporary, fixedWeekdays, pin).
-- POST `/staff/invite` — Enviar convite.
-- POST `/staff/accept` — Aceitar convite.
-- PUT `/staff/:id` — Atualizar funcionário.
-- DELETE `/staff/:id` — Desativar funcionário.
-- POST `/staff/:id/reset-pin` — Resetar PIN do funcionário (OWNER/MANAGER).
-- GET `/schedule` — Listar escala por período.
-- GET `/schedule/:date` — Programação do dia (quem deveria trabalhar).
-- PUT `/schedule/:date` — Definir/atualizar escala do dia.
-- GET `/day-team/:date` — Equipe real do dia (quem está trabalhando).
-- PUT `/day-team/:date` — Definir equipe do dia.
-- PATCH `/day-team/:date/sectors` — Atribuir setores aos garçons do dia.
+Backend do KDS e funcionalidades avançadas de WebSocket.
+
+**Endpoints (~1):**
+- GET `/preparation-locations/:id/orders?status=pending,preparing` — Fila de pedidos do Local de Preparo. Carga inicial do KDS antes do WebSocket assumir.
 
 **Checklist:**
-- [ ] CRUD de funcionários com flag temporário, dias fixos, PIN garçom.
-- [ ] Sistema de convites (log no console em dev).
-- [ ] Frontend admin: tela de funcionários com CRUD (cadastro, edição, desativação, flag temporário, dias fixos, PIN garçom).
-- [ ] Frontend admin: tela de escala — calendário por dia, auto-preenchimento com permanentes + temporários com dia pré-definido, ajustes manuais.
-- [ ] Frontend admin: tela equipe do dia — equipe ativa + atribuição de setores por garçom (um garçom pode ter mais de 1 setor). Toggle para desmarcar/marcar. Adicionar temporários avulsos.
-- [ ] **Cron job "Preenchimento DayTeam":** diário às 04:00, auto-preenche equipe do dia a partir do Schedule semanal (permanentes + temporários com dia fixo). Não sobrescreve se admin já editou manualmente.
-- [ ] Error codes padronizados para módulo Staff (STAFF_001 a STAFF_003). Ver `docs/observabilidade.md`.
+- [ ] Roteamento de pedidos por Ponto de Entrega → Local de Preparo do produto. Produtos com destino "Garçom" vão direto para o garçom do setor.
+- [ ] `GET /preparation-locations/:id/orders` — endpoint REST para carga inicial da fila do KDS. Filtro por status (pending, preparing). Usado no fetch inicial ao conectar e na reconciliação após reconexão.
+- [ ] KDS backend: fila de produção e transições de status.
+- [ ] **Deduplicação de eventos:** garçom em múltiplos setores (múltiplas rooms) não deve receber evento duplicado. Usar `Set` de socketIds notificados antes de emitir para múltiplas rooms. Ver `docs/websocket-events.md` seção Deduplicação.
+- [ ] **Backpressure:** usar `socket.volatile.emit()` para eventos não-críticos (metrics-update). Eventos críticos (order-update, payment-update) usam `emit()` normal.
+- [ ] Testar Socket.IO com Redis Adapter (validar que eventos passam pelo Redis corretamente).
+- [ ] Cleanup de rooms órfãs (sessões fechadas, clientes desconectados) para prevenir memory leak.
+- [ ] Monitorar contagem de listeners por room para detectar leaks.
+- [ ] Lógica de reconexão: ao reconectar, cliente faz fetch REST para sincronizar estado perdido.
+- [ ] Error codes padronizados para módulo KDS (KDS_001, KDS_002). Ver `docs/observabilidade.md`.

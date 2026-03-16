@@ -53,7 +53,7 @@ Internet -> nginx (HTTPS/TLS) -> ochefia-web (3000)
 
 | Cron | Horário | Descrição |
 |---|---|---|
-| Anonimização LGPD | Diário, madrugada (ex: 03:00) | Anonimiza dados pessoais de sessões fechadas há mais de 90 dias (`Person.name`, `Person.phone`, `JoinRequest.phoneLast4`) |
+| Anonimização LGPD | Diário, madrugada (ex: 03:00) | Anonimiza dados pessoais de sessões fechadas há mais de 90 dias (`Person.name`, `Person.phone`, `JoinRequest.name`, `JoinRequest.phone`, `JoinRequest.phoneLast4`) |
 | Preenchimento DayTeam | Diário, 04:00 | Auto-preenche equipe do dia a partir do Schedule semanal. Não sobrescreve se admin já editou manualmente |
 
 ### Logs e Observabilidade

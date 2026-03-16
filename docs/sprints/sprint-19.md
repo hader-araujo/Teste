@@ -1,15 +1,15 @@
-# Sprint 19 — Faturamento
+# Sprint 19 — Garçom: Claim + Taxa de Serviço + Comanda
 
-**Endpoints (~4):**
-- GET `/billing/daily` — Faturamento do dia.
-- GET `/billing/monthly` — Faturamento mensal.
-- GET `/billing/cashier` — Fechamento de caixa.
-- GET `/billing/waiter-fees` — Taxas de garçom por período.
+**Endpoints (~3):**
+- PATCH `/orders/:id/delivery-groups/:group/claim` — Garçom assume retirada do grupo de entrega inteiro.
+- PATCH `/session/:token/service-charge` — Toggle taxa de serviço (garçom only). Body: `{ enabled, personId? }`. Sem `personId` = aplica para todos; com `personId` = toggle individual.
+- PATCH `/tables/:id/transfer` — Transferência de mesa (cross-sector). Permite mover sessão ativa para outra mesa.
 
 **Checklist:**
-- [ ] **Lógica de criação de WaiterFee:** ao confirmar pagamento (`PATCH /payments/:id/confirm` ou webhook PIX), se pessoa tem `serviceChargeEnabled = true`: buscar garçons ativos no setor da mesa (via DayTeamSectorAssignment + shift ativo), dividir taxa igualmente, criar 1 WaiterFee por garçom. Itens com `kitchenDelivery = true` também geram taxa (garçom atendeu a mesa como um todo).
-- [ ] Faturamento diário: receita, pedidos, ticket médio, comparativo. Campo 'devoluções do dia' no faturamento diário (soma de PAYMENT_REFUNDED no período).
-- [ ] Faturamento mensal: receita acumulada, gráfico por dia, comparativo.
-- [ ] Fechamento de caixa: valores por forma de pagamento.
-- [ ] Taxas de garçom: valor devido a cada garçom no período.
-- [ ] Frontend admin: tela de faturamento.
+- [ ] **Claim de retirada por grupo:** `PATCH /orders/:id/delivery-groups/:group/claim` — garçom assume retirada do grupo de entrega inteiro (`group` = `normal` ou `immediate`). Body: `{ staffId }`. Registra `claimedByStaffId` em todos os itens do grupo. Some da tela dos outros garçons via WebSocket (`waiter:pickup-claimed`).
+- [ ] Frontend garçom: detalhe da mesa (pedidos por pessoa). Itens com status "Pronto" exibem botão "Retirar" (claim).
+- [ ] **Toggle taxa de serviço** por pessoa ou por mesa toda (garçom). Toggle geral como atalho + toggle individual por pessoa na tela de detalhe da mesa. Se desliga o geral, todos desligam. Se religa, todos religam. Individual altera o geral para estado parcial (checkbox indeterminado). Usa endpoint `PATCH /session/:token/service-charge`.
+- [ ] **Transferência de mesa:** `PATCH /tables/:id/transfer` — permite mover sessão ativa para outra mesa, incluindo cross-sector. Atualiza o setor da sessão e notifica garçons envolvidos via WebSocket.
+- [ ] Frontend garçom: comanda rápida.
+- [ ] Eventos WebSocket de transferência: `kds:table-transferred`, `client:table-transferred`, `waiter:table-transferred` (origin + dest sector).
+- [ ] **Job Bull `ochefia-claim-timeout`:** delayed job agendado ao fazer claim, delay de `claimTimeout` minutos. Cancelado se garçom marca "Entregue". Dispara eventos `waiter:claim-expiring` (1min antes) e `waiter:claim-expired` (re-emite `waiter:order-ready` para o setor).

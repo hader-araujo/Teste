@@ -19,7 +19,7 @@ O texto deve conter, no mínimo:
 5. **Retenção:** dados pessoais são anonimizados automaticamente 90 dias após o fechamento da sessão. Durante a sessão, o cliente pode solicitar exclusão a qualquer momento.
 6. **Direitos do titular (LGPD Art. 18):**
    - Acesso aos dados: disponível na própria tela durante a sessão.
-   - Exclusão: `DELETE /session/:token/data` (após sessão fechada) ou via solicitação ao estabelecimento.
+   - Exclusão: `DELETE /session/:token/data` (após sessão fechada) ou via solicitação ao estabelecimento. Após o fechamento da sessão, a exclusão também pode ser solicitada via `DELETE /lgpd/data` (requer verificação do telefone via OTP).
    - Revogação de consentimento: sair da mesa encerra o vínculo.
 7. **Contato:** email de contato do restaurante (campo `Restaurant.email`) para exercício de direitos.
 
@@ -32,8 +32,8 @@ Exibido diretamente na tela de verificação WhatsApp, abaixo do campo de telefo
 ## Implementação
 
 - **Sprint P (protótipo):** link aponta para `privacidade.html` na pasta `prototypes/cliente/`.
-- **Sprint 8 (frontend cliente):** página real renderizada server-side com dados do restaurante via slug. Conteúdo estático com nome do restaurante dinâmico.
-- **Sprint 26 (LGPD):** adicionar botão "Excluir meus dados" na própria página de privacidade (requer sessão fechada + telefone verificado).
+- **Sprint 9 (frontend cliente):** página real renderizada server-side com dados do restaurante via slug. Conteúdo estático com nome do restaurante dinâmico.
+- **Sprint 27 (LGPD):** adicionar botão "Excluir meus dados" na própria página de privacidade (requer sessão fechada + telefone verificado).
 
 ## Responsabilidade
 

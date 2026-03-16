@@ -113,6 +113,15 @@ A API e o schema usam enums em UPPER_CASE (inglês). A interface do cliente exib
 | `PAYMENT_EXPIRED` | Expirado | Status de pagamento |
 | `PAYMENT_PENDING_REFUND` | Devolução pendente | Status de pagamento |
 | `PAYMENT_REFUNDED` | Devolvido | Status de pagamento |
+| `CLIENT` | Cliente | Tipo de ator |
+| `STAFF` | Funcionário | Tipo de ator |
+| `LEVEL_1` | Nível 1 (re-notificação) | Nível de escalação |
+| `LEVEL_2` | Nível 2 (admin + todos) | Nível de escalação |
+| `PICKUP_POINT` | Ponto de Entrega | Destino do produto |
+| `JOIN_PENDING` | Pendente | Status de solicitação de entrada |
+| `JOIN_APPROVED` | Aprovado | Status de solicitação de entrada |
+| `JOIN_REJECTED` | Rejeitado | Status de solicitação de entrada |
+| `JOIN_EXPIRED` | Expirado | Status de solicitação de entrada |
 
 ---
 

@@ -1,16 +1,24 @@
-# Sprint 18 — Push Notifications + Escalação de Retirada
+# Sprint 18 — Garçom: Clock-in + Chamados + Mesas
 
-Infraestrutura de notificações. Zero endpoints REST novos.
+**Endpoints (~8):**
+- POST `/shifts/clock-in` — Garçom inicia turno (staffId + pin).
+- POST `/shifts/clock-out` — Garçom encerra turno.
+- GET `/shifts` — Listar turnos por período.
+- GET `/shifts/active` — Garçons com turno ativo.
+- POST `/tables/:id/open-staff` — Garçom abre mesa sem OTP. Body: `{ peopleCount, names? }`.
+- POST `/calls` — Criar chamado (cliente).
+- GET `/calls` — Listar chamados abertos (garçom).
+- PATCH `/calls/:id/resolve` — Garçom resolveu.
 
 **Checklist:**
-- [ ] Push notifications via Service Worker + Web Push API.
-- [ ] **Service Worker com cache do cardápio para suporte offline** (leitura do cardápio funciona sem internet). Estratégia stale-while-revalidate.
-- [ ] Notificação: item pronto para retirada (com indicação do Ponto de Entrega).
-- [ ] Notificação: chamado de mesa.
-- [ ] **Escalação de retirada nível 1:** job que verifica itens com status "Pronto" sem "Entregue" há mais de `pickupReminderInterval` minutos. Reenvia push + alerta in-app ao(s) garçom(ns) do setor. Repete a cada intervalo até entrega ou escalação nível 2.
-- [ ] **Escalação de retirada nível 2:** item "Pronto" sem "Entregue" há mais de `pickupEscalationTimeout` minutos. Notifica admin (push + alerta dashboard via `admin:pickup-escalation`) + todos os garçons ativos (via `waiter:pickup-escalation`). Registra ocorrência para relatório.
-- [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin (Sprint 20).
-- [ ] Pontos de Entrega com `kitchenDelivery = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
-- [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
-- [ ] Indicador de conexão WebSocket no cliente (pedidos/conta — componente da Sprint 12).
-- [ ] Polling HTTP fallback no cliente quando desconectado (componente da Sprint 12).
+- [ ] Clock-in/out com senha do garçom. Registro de tempo de serviço. Rate limit: 5 tentativas por staffId em 15min, lockout de 15min.
+- [ ] Sistema de chamados com tipo (chamar garçom, pedir conta, outro).
+- [ ] Frontend garçom: clock-in com senha.
+- [ ] `POST /tables/:id/open-staff` — garçom abre mesa sem WhatsApp/OTP. Cria sessão + pessoas genéricas. `consentGivenAt` null.
+- [ ] Frontend garçom: lista de mesas dos setores atribuídos (agrupadas por setor).
+- [ ] Frontend garçom: chamados abertos.
+- [ ] Botão "O Chefia" no cliente: modal com motivo + mensagem + enviar (usa `POST /calls`).
+- [ ] Evento `admin:no-waiter-alert` — alerta severo ao admin quando cliente tenta abrir mesa em setor sem garçom com turno ativo (SESSION_019).
+- [ ] **Detecção de garçom offline:** monitorar desconexão WebSocket de garçons com turno ativo. Após `waiterOfflineAlertTimeout` minutos (default 5), emitir `admin:waiter-offline`. Indicador online/offline na lista de garçons do dashboard admin.
+- [ ] Indicador de conexão WebSocket no garçom (componente da Sprint 13).
+- [ ] Polling HTTP fallback no garçom quando desconectado (componente da Sprint 13).

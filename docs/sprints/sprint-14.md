@@ -1,17 +1,13 @@
-# Sprint 14 — KDS Frontend
+# Sprint 14 — WebSocket Eventos + Push Notifications Base
 
-Frontend do KDS. Zero endpoints REST novos.
+Implementação de todos os eventos WebSocket sobre a infraestrutura da Sprint 13. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Tela de login do KDS usando endpoint de auth existente. Após login, redireciona para seleção de Local de Preparo.
-- [ ] KDS faz fetch inicial de pedidos pendentes ao conectar (GET). WebSocket apenas para atualizações em tempo real.
-- [ ] Frontend KDS genérico — uma tela por Local de Preparo (dark mode, temporizadores, cores de status).
-- [ ] Header exibe nome do Local de Preparo. Seleção de Local de Preparo ao abrir o KDS.
-- [ ] Cores de status por tempo de preparo: Verde (no prazo), Amarelo (atenção — `>= kdsWarningMinutes`), Vermelho (atrasado — `>= kdsCriticalMinutes`). Thresholds configuráveis **por Local de Preparo** nos campos `kdsWarningMinutes` (default 10) e `kdsCriticalMinutes` (default 15) da entidade PreparationLocation. Timer conta a partir de `OrderItem.startedAt` (transição para PREPARING).
-- [ ] Alertas visuais e sonoros para pedido novo/urgente.
-- [ ] Clique no prato para foto ampliada.
-- [ ] Botão "Pronto" com lógica:
-  - Ponto de Entrega com `kitchenDelivery = false`: notifica garçom(ns) do setor para retirada.
-  - Ponto de Entrega com `kitchenDelivery = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
-- [ ] Indicador de conexão WebSocket (componente da Sprint 12).
-- [ ] Polling HTTP fallback para atualizações KDS quando desconectado (componente da Sprint 12).
+- [ ] Eventos client→server: `order:created`, `call:request`, `payment:initiated`.
+- [ ] Eventos server→KDS: `kds:new-order`, `kds:item-cancelled`, `kds:table-transferred`.
+- [ ] Eventos KDS→server: `kds:status-update`.
+- [ ] Eventos server→cliente: `client:order-update`, `client:session-update`, `client:payment-confirmed`, `client:payment-cancelled`, `client:payment-refunded`, `client:session-closed`, `client:table-transferred`.
+- [ ] Eventos de aprovação: `session:join-request`, `session:join-approved`, `session:join-rejected`, `session:join-remind`.
+- [ ] **Migrar notificações de aprovação de polling HTTP para WebSocket:** substituir o polling de `GET /session/:token/join/pending` (Sprint 9) por eventos `session:join-request` e `session:join-remind` em tempo real.
+- [ ] Eventos server→garçom: `waiter:order-ready`, `waiter:pickup-claimed`, `waiter:pickup-reminder`, `waiter:pickup-escalation`, `waiter:claim-expiring`, `waiter:claim-expired`, `waiter:call`, `waiter:new-order`, `waiter:order-cancelled`, `waiter:mapping-incomplete`, `waiter:session-opened`, `waiter:table-transferred`, `waiter:payment-requested`.
+- [ ] Eventos server→admin: `admin:table-update`, `admin:metrics-update`, `admin:pickup-escalation`, `admin:mapping-incomplete`, `admin:no-waiter-alert`, `admin:waiter-offline`, `admin:pin-lockout`.

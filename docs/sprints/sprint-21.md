@@ -1,14 +1,15 @@
-# Sprint 21 — Settings + Theming + Dashboard Avançado
+# Sprint 21 — Faturamento
 
-Frontend puro. Zero endpoints REST novos.
+**Endpoints (~4):**
+- GET `/billing/daily` — Faturamento do dia.
+- GET `/billing/monthly` — Faturamento mensal.
+- GET `/billing/cashier` — Fechamento de caixa.
+- GET `/billing/waiter-fees` — Taxas de garçom por período.
 
 **Checklist:**
-- [ ] Frontend admin: settings com nome/logo do estabelecimento, parâmetros de escalação de retirada (`pickupReminderInterval` default 3min, `pickupEscalationTimeout` default 10min).
-- [ ] Theming: seleção de tema pronto + color picker personalizado.
-- [ ] Temas prontos: Clássico, Escuro, Rústico, Moderno, Tropical, Personalizado.
-- [ ] Preview em tempo real na tela de Settings.
-- [ ] CSS custom properties no cardápio do cliente.
-- [ ] Validação de contraste WCAG AA.
-- [ ] 2 temas demonstrados (Clássico + Escuro) no cardápio.
-- [ ] **Mapa de mesas visual** no dashboard (drag & drop ou grid) — visualização avançada das mesas com status por cor, complementando os KPIs numéricos da Sprint 20.
-- [ ] **Gráficos no dashboard** (receita por dia, pedidos por hora, tempo médio de preparo) — visualizações gráficas dos dados que Sprint 20 entrega como números/tabelas.
+- [ ] **Lógica de criação de WaiterFee:** ao confirmar pagamento (`PATCH /payments/:id/confirm` ou webhook PIX), se pessoa tem `serviceChargeEnabled = true`: buscar garçons ativos no setor da mesa (via DayTeamSectorAssignment + shift ativo), dividir taxa igualmente, criar 1 WaiterFee por garçom. Itens com `kitchenDelivery = true` também geram taxa (garçom atendeu a mesa como um todo).
+- [ ] Faturamento diário: receita, pedidos, ticket médio, comparativo. Campo 'devoluções do dia' no faturamento diário (soma de PAYMENT_REFUNDED no período).
+- [ ] Faturamento mensal: receita acumulada, gráfico por dia, comparativo.
+- [ ] Fechamento de caixa: valores por forma de pagamento.
+- [ ] Taxas de garçom: valor devido a cada garçom no período.
+- [ ] Frontend admin: tela de faturamento.

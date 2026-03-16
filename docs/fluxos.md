@@ -44,7 +44,7 @@ Documento de referência com o fluxo de navegação de cada perfil. Complementa 
 3. **Carrinho** → revisa itens com pessoas atribuídas → "Enviar Pedido"
 4. **Pedidos** → acompanha status em tempo real (Na fila → Preparando → Pronto → Entregue) → pode reatribuir pessoas
 5. **Conta** → 3 abas: Visão Geral (divisão por pessoa + taxa) | Por Pessoa | Histórico (log de atividade) → toca numa pessoa para pagar
-6. **Pagamento** → QR Code Pix individual por pessoa
+6. **Pagamento** → seleciona método (Pix, Dinheiro, Cartão) → pagamento individual por pessoa. Pix gera QR Code; Dinheiro/Cartão aguardam confirmação do garçom
    - Se a pessoa possui itens com status diferente de `ORDER_DELIVERED` ou `ORDER_CANCELLED`, exibe aviso: **"Você tem itens que ainda não foram entregues. Deseja pagar mesmo assim?"** — confirmação obrigatória antes de prosseguir
 7. **Sair da mesa** → pessoa pode encerrar sua participação pagando sua parte (ou R$ 0,00). Após sair, desaparece das atribuições de novos itens e da divisão de conta. Se a mesma pessoa retornar via QR Code, cria nova participação; exibição usa sufixo ordinal: "Maria ①", "Maria ②"
 8. **"O Chefia"** (bottom nav, qualquer tela) → modal com motivo (chamar garçom, pedir conta, outro) + mensagem → envia chamado

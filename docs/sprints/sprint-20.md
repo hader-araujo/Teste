@@ -1,19 +1,16 @@
-# Sprint 20 — Dashboard + Desempenho da Equipe
+# Sprint 20 — Push Notifications + Escalação de Retirada
 
-**Endpoints (~7):**
-- GET `/dashboard/overview` — Métricas gerais em tempo real (dinâmico por Local de Preparo).
-- GET `/dashboard/popular-items` — Itens mais vendidos.
-- GET `/dashboard/alerts` — Alertas: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído.
-- GET `/staff/:id/performance` — Métricas individuais do funcionário por período.
-- GET `/staff/performance/summary` — Resumo de desempenho de todos os funcionários.
-- GET `/preparation-locations/:id/performance` — Métricas do Local de Preparo por período.
-- GET `/staff/pickup-escalations` — Relatório de escalações de retirada por garçom.
+Infraestrutura de notificações. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Dashboard: tempo médio de preparo por Local de Preparo (**dinâmico**, baseado nos cadastrados — não fixo), tempo médio de entrega por garçom, mesas ativas. **Métricas pré-calculadas em Redis** (atualizadas por evento, não calculadas a cada request).
-- [ ] **Dashboard alertas:** seção de alertas em tempo real — pedidos atrasados (tempo > threshold configurável, default 15min), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), setores sem garçom atribuído.
-- [ ] Itens populares.
-- [ ] **Tela "Desempenho da Equipe":** métricas por garçom (tempo médio de entrega Pronto→Entregue, pedidos atendidos, escalações nível 1 e 2, taxa de serviço acumulada) e por Local de Preparo (tempo médio de preparo Na fila→Pronto, pedidos produzidos, itens mais demorados). Filtro por período (dia/semana/mês). Inclui **relatório de escalações de retirada** por garçom e por período.
-- [ ] **Frontend admin:** tela de dashboard com KPIs numéricos, tabelas de alertas e listagens. Tela de desempenho da equipe com métricas por garçom e por Local de Preparo. **Nota:** visualizações avançadas (mapa de mesas visual, gráficos de receita/pedidos) ficam para Sprint 21.
-
-**Nota:** métrica de abandono de carrinho movida para Fase 2 (carrinho é localStorage na Fase 1).
+- [ ] Push notifications via Service Worker + Web Push API.
+- [ ] **Service Worker com cache do cardápio para suporte offline** (leitura do cardápio funciona sem internet). Estratégia stale-while-revalidate.
+- [ ] Notificação: item pronto para retirada (com indicação do Ponto de Entrega).
+- [ ] Notificação: chamado de mesa.
+- [ ] **Escalação de retirada nível 1:** job que verifica itens com status "Pronto" sem "Entregue" há mais de `pickupReminderInterval` minutos. Reenvia push + alerta in-app ao(s) garçom(ns) do setor. Repete a cada intervalo até entrega ou escalação nível 2.
+- [ ] **Escalação de retirada nível 2:** item "Pronto" sem "Entregue" há mais de `pickupEscalationTimeout` minutos. Notifica admin (push + alerta dashboard via `admin:pickup-escalation`) + todos os garçons ativos (via `waiter:pickup-escalation`). Registra ocorrência para relatório.
+- [ ] **Registro de escalações:** salvar cada ocorrência (garçom responsável, item, mesa, tempo de espera, nível) para consulta em relatório do admin (Sprint 22).
+- [ ] Pontos de Entrega com `kitchenDelivery = true`: operador recebe notificação própria (sem notificar garçom). Não passa por escalação.
+- [ ] Real-time admin: table update, metrics update via WebSocket, alerta de escalação de retirada (nível 2).
+- [ ] Indicador de conexão WebSocket no cliente (pedidos/conta — componente da Sprint 13).
+- [ ] Polling HTTP fallback no cliente quando desconectado (componente da Sprint 13).

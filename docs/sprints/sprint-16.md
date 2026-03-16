@@ -1,24 +1,17 @@
-# Sprint 16 — Garçom: Clock-in + Chamados + Mesas
+# Sprint 16 — KDS Frontend
 
-**Endpoints (~8):**
-- POST `/shifts/clock-in` — Garçom inicia turno (staffId + pin).
-- POST `/shifts/clock-out` — Garçom encerra turno.
-- GET `/shifts` — Listar turnos por período.
-- GET `/shifts/active` — Garçons com turno ativo.
-- POST `/tables/:id/open-staff` — Garçom abre mesa sem OTP. Body: `{ peopleCount, names? }`.
-- POST `/calls` — Criar chamado (cliente).
-- GET `/calls` — Listar chamados abertos (garçom).
-- PATCH `/calls/:id/resolve` — Garçom resolveu.
+Frontend do KDS. Zero endpoints REST novos.
 
 **Checklist:**
-- [ ] Clock-in/out com senha do garçom. Registro de tempo de serviço. Rate limit: 5 tentativas por staffId em 15min, lockout de 15min.
-- [ ] Sistema de chamados com tipo (chamar garçom, pedir conta, outro).
-- [ ] Frontend garçom: clock-in com senha.
-- [ ] `POST /tables/:id/open-staff` — garçom abre mesa sem WhatsApp/OTP. Cria sessão + pessoas genéricas. `consentGivenAt` null.
-- [ ] Frontend garçom: lista de mesas dos setores atribuídos (agrupadas por setor).
-- [ ] Frontend garçom: chamados abertos.
-- [ ] Botão "O Chefia" no cliente: modal com motivo + mensagem + enviar (usa `POST /calls`).
-- [ ] Evento `admin:no-waiter-alert` — alerta severo ao admin quando cliente tenta abrir mesa em setor sem garçom com turno ativo (SESSION_019).
-- [ ] **Detecção de garçom offline:** monitorar desconexão WebSocket de garçons com turno ativo. Após `waiterOfflineAlertTimeout` minutos (default 5), emitir `admin:waiter-offline`. Indicador online/offline na lista de garçons do dashboard admin.
-- [ ] Indicador de conexão WebSocket no garçom (componente da Sprint 12).
-- [ ] Polling HTTP fallback no garçom quando desconectado (componente da Sprint 12).
+- [ ] Tela de login do KDS usando endpoint de auth existente. Após login, redireciona para seleção de Local de Preparo.
+- [ ] KDS faz fetch inicial de pedidos pendentes ao conectar (GET). WebSocket apenas para atualizações em tempo real.
+- [ ] Frontend KDS genérico — uma tela por Local de Preparo (dark mode, temporizadores, cores de status).
+- [ ] Header exibe nome do Local de Preparo. Seleção de Local de Preparo ao abrir o KDS.
+- [ ] Cores de status por tempo de preparo: Verde (no prazo), Amarelo (atenção — `>= kdsWarningMinutes`), Vermelho (atrasado — `>= kdsCriticalMinutes`). Thresholds configuráveis **por Local de Preparo** nos campos `kdsWarningMinutes` (default 10) e `kdsCriticalMinutes` (default 15) da entidade PreparationLocation. Timer conta a partir de `OrderItem.startedAt` (transição para PREPARING).
+- [ ] Alertas visuais e sonoros para pedido novo/urgente.
+- [ ] Clique no prato para foto ampliada.
+- [ ] Botão "Pronto" com lógica:
+  - Ponto de Entrega com `kitchenDelivery = false`: notifica garçom(ns) do setor para retirada.
+  - Ponto de Entrega com `kitchenDelivery = true`: operador entrega direto. KDS exibe "Pronto" e "Entregue".
+- [ ] Indicador de conexão WebSocket (componente da Sprint 13).
+- [ ] Polling HTTP fallback para atualizações KDS quando desconectado (componente da Sprint 13).

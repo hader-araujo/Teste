@@ -1,31 +1,20 @@
-# Sprint 11 — Pagamento (Pix + Dinheiro + Cartão)
+# Sprint 11 — Frontend Carrinho + Pedidos + Conta
 
-**Endpoints (~9):**
-- POST `/session/:token/payments` — Cliente inicia pagamento. Body: `{ personId, method }`. Registra `initiatedBy: CLIENT`.
-- POST `/payments` — Staff inicia pagamento. Roles: WAITER, MANAGER, OWNER. Body: `{ sessionId, personId, method }`. Registra `initiatedBy: STAFF` + `initiatedByStaffId`.
-- GET `/payments/:id/status` — Verificar status (inclui quem iniciou, quem confirmou).
-- GET `/payments/session/:token` — Listar pagamentos da sessão (quem pagou, quem falta, método, quem iniciou, quem confirmou, devoluções).
-- PATCH `/payments/:id/confirm` — Staff confirma pagamento. Qualquer método. Obrigatório para CASH/CARD, fallback manual para PIX.
-- POST `/payments/pix/webhook` — Webhook de confirmação Pix (automático).
-- PATCH `/payments/:id/cancel` — Staff cancela pagamento pendente. Body: `{ reason? }`.
-- PATCH `/session/:token/payments/:id/cancel` — Cliente cancela o próprio pagamento pendente.
-- PATCH `/payments/:id/refund` — Staff confirma devolução. Body: `{ method }`. Valor já calculado pelo sistema.
+Frontend do fluxo de pedidos do cliente. Zero endpoints REST novos (backend na Sprint 10).
+
+**Endpoints usados (criados na Sprint 10):**
+- POST `/orders` — Criar pedido.
+- GET `/orders/:id` — Detalhes do pedido.
+- PATCH `/orders/items/:id/people` — Reatribuir pessoas a um item.
+- GET `/session/:token/bill` — Conta detalhada com divisão por pessoa + taxa de serviço.
+- GET `/session/:token/activity-log` — Log de atividade de pedidos e reatribuições.
 
 **Checklist:**
-- [ ] **Fluxo unificado de pagamento (todos os métodos):**
-  - Cliente ou garçom inicia pagamento (PIX, CASH ou CARD) → status `PAYMENT_PENDING`.
-  - **PIX:** webhook confirma automaticamente → `PAYMENT_CONFIRMED`. Se webhook falha, garçom confirma manualmente via `PATCH /payments/:id/confirm`.
-  - **CASH/CARD:** garçom confirma via `PATCH /payments/:id/confirm` → `PAYMENT_CONFIRMED`.
-  - Campos de audit trail: `initiatedBy` (CLIENT/STAFF), `initiatedByStaffId`, `confirmedByStaffId`, `confirmedAt`.
-- [ ] Pagamento individual Pix com QR Code por pessoa.
-- [ ] Webhook Pix com validação de assinatura **síncrona** (retorna 400 se inválida, só enfileira após validação). **Idempotência:** `externalId` do provedor como constraint unique na tabela `Payment`. Se webhook chega 2x com mesmo `externalId`, segunda chamada retorna 200 sem reprocessar. Processamento via fila assíncrona (Bull + Redis). **Propagar `correlationId`** nos dados do job Bull.
-- [ ] Whitelist de IPs do provedor Pix como camada extra de segurança.
-- [ ] Circuit breaker (`opossum`) no provedor Pix com thresholds definidos (timeout 15s, 3 falhas em 60s, reset 120s).
-- [ ] Abstração de provedor de pagamento (PaymentProviderService) para evitar lock-in.
-- [ ] Frontend cliente: pagamento com seleção de método (PIX, Dinheiro, Débito, Crédito).
-- [ ] **Expiração de Pix pendente:** job Bull que verifica pagamentos Pix com status `PAYMENT_PENDING` há mais de 30 minutos e marca como `PAYMENT_EXPIRED`. Emite `client:payment-cancelled` com `reason: 'expired'`. Frontend exibe "Pagamento expirado — tente novamente" com botão para gerar novo QR Code.
-- [ ] **Cancelamento:** staff cancela via `PATCH /payments/:id/cancel`, cliente cancela via `PATCH /session/:token/payments/:id/cancel`. Só status `PAYMENT_PENDING`. Emite `client:payment-cancelled` com `reason: 'staff_cancelled'`.
-- [ ] **Devolução:** `PATCH /payments/:id/refund` (WAITER+). Transição `PAYMENT_PENDING_REFUND → PAYMENT_REFUNDED`. Método de devolução pode diferir do original.
-- [ ] Error codes padronizados para módulo Payments (PAY_001 a PAY_007). Ver `docs/observabilidade.md`.
-
-**Referências:** `docs/api-endpoints.md` (Payments), `docs/seguranca.md` (Pix/webhook), `docs/modulos.md` (Conta e Pagamento), `docs/schema.md` (Payment, PaymentStatus).
+- [ ] Frontend cliente: carrinho com seleção de pessoas por item e campo de observação (notes) por item.
+- [ ] Frontend cliente: tela "Meus Pedidos" com status em tempo real e reatribuição de pessoas.
+- [ ] Frontend cliente: conta com divisão por pessoa + taxa de serviço, organizada em 3 abas:
+  - **Visão geral:** total da mesa, total por pessoa, taxa de serviço.
+  - **Por pessoa:** itens consumidos por cada pessoa com valores individuais.
+  - **Histórico:** log de atividade completo (criação de pedidos, reatribuições, cancelamentos), visível para todos os membros da mesa.
+- [ ] Frontend cliente: reatribuição de itens entre pessoas (arrastar ou selecionar).
+- [ ] Carrinho persiste em localStorage (sem backend de carrinho na Fase 1).

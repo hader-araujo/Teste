@@ -1,21 +1,19 @@
-# Sprint 22 — Super Admin: Estabelecimentos + Cobrança
+# Sprint 22 — Dashboard + Desempenho da Equipe
 
-**Endpoints (~9):**
-- GET `/superadmin/establishments` — Listar todos (com filtros). **Paginação:** query `page` e `limit` (default 20, max 100).
-- POST `/superadmin/establishments` — Cadastrar novo.
-- GET `/superadmin/establishments/:id` — Detalhes.
-- PUT `/superadmin/establishments/:id` — Atualizar.
-- PATCH `/superadmin/establishments/:id/status` — Alterar status.
-- GET `/superadmin/establishments/:id/billing` — Histórico de cobranças.
-- PUT `/superadmin/establishments/:id/billing/plan` — Definir valor do plano.
-- POST `/superadmin/establishments/:id/billing/payments` — Registrar pagamento.
-- PATCH `/superadmin/establishments/:id/billing/payments/:paymentId` — Atualizar status.
+**Endpoints (~7):**
+- GET `/dashboard/overview` — Métricas gerais em tempo real (dinâmico por Local de Preparo).
+- GET `/dashboard/popular-items` — Itens mais vendidos.
+- GET `/dashboard/alerts` — Alertas: pedidos atrasados, chamados sem resposta, escalações ativas, mesas ociosas, setores sem garçom atribuído.
+- GET `/staff/:id/performance` — Métricas individuais do funcionário por período.
+- GET `/staff/performance/summary` — Resumo de desempenho de todos os funcionários.
+- GET `/preparation-locations/:id/performance` — Métricas do Local de Preparo por período.
+- GET `/staff/pickup-escalations` — Relatório de escalações de retirada por garçom.
 
 **Checklist:**
-- [ ] Role SUPER_ADMIN no sistema de auth.
-- [ ] CRUD de estabelecimentos (nome, slug, CNPJ, responsável, email, telefone).
-- [ ] Suspensão de estabelecimentos.
-- [ ] Sistema de cobrança: valor do plano, registro de pagamentos, status.
-- [ ] Painel `/superadmin` com listagem, filtros, indicadores de inadimplência.
-- [ ] **Layout/sidebar do Super Admin** (branding OChefia, cor indigo — diferente do admin).
-- [ ] Seed com usuário SUPER_ADMIN.
+- [ ] Dashboard: tempo médio de preparo por Local de Preparo (**dinâmico**, baseado nos cadastrados — não fixo), tempo médio de entrega por garçom, mesas ativas. **Métricas pré-calculadas em Redis** (atualizadas por evento, não calculadas a cada request).
+- [ ] **Dashboard alertas:** seção de alertas em tempo real — pedidos atrasados (tempo > threshold configurável, default 15min), chamados sem resposta, escalações ativas, mesas ociosas (sem novo pedido há mais de X minutos), setores sem garçom atribuído.
+- [ ] Itens populares.
+- [ ] **Tela "Desempenho da Equipe":** métricas por garçom (tempo médio de entrega Pronto→Entregue, pedidos atendidos, escalações nível 1 e 2, taxa de serviço acumulada) e por Local de Preparo (tempo médio de preparo Na fila→Pronto, pedidos produzidos, itens mais demorados). Filtro por período (dia/semana/mês). Inclui **relatório de escalações de retirada** por garçom e por período.
+- [ ] **Frontend admin:** tela de dashboard com KPIs numéricos, tabelas de alertas e listagens. Tela de desempenho da equipe com métricas por garçom e por Local de Preparo. **Nota:** visualizações avançadas (mapa de mesas visual, gráficos de receita/pedidos) ficam para Sprint 23.
+
+**Nota:** métrica de abandono de carrinho movida para Fase 2 (carrinho é localStorage na Fase 1).

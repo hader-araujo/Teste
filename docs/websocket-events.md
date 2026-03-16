@@ -15,6 +15,7 @@ export const SOCKET_EVENTS = {
   // KDS -> Servidor (operador do KDS emite, servidor processa e dispara eventos derivados)
   KDS_STATUS_UPDATE: 'kds:status-update',   // Operador mudou status do item (preparing/ready/delivered)
   KDS_TABLE_TRANSFERRED: 'kds:table-transferred', // Mesa transferida — atualiza número da mesa nos cards do KDS. Room: restaurant:{id}:kds:{prepLocationId}
+  KDS_ITEM_CANCELLED: 'kds:item-cancelled',       // Item cancelado enquanto em preparo (só OWNER/MANAGER pode). Card muda pra fundo vermelho + "CANCELADO" + motivo. Operador deve confirmar ("Entendido") pra remover o card da tela. Room: restaurant:{id}:kds:{prepLocationId}
 
   // Servidor -> Garcom
   WAITER_ORDER_READY: 'waiter:order-ready', // Grupo de entrega pronto pra retirar (inclui Pontos de Entrega). Emitido **por grupo de entrega**, não por pedido. Se um pedido tem grupo Normal e Antecipado que ficam prontos em momentos diferentes, são 2 eventos separados. Payload inclui `deliveryGroup: 'normal' | 'early_delivery'` e lista de `pickupPoints[]` — enviado a todos do setor
@@ -26,6 +27,7 @@ export const SOCKET_EVENTS = {
   WAITER_CALL: 'waiter:call',               // Cliente chamou
   WAITER_SESSION_OPENED: 'waiter:session-opened', // Mesa aberta pelo cliente — garçom do setor recebe para dar boas-vindas e verificar presença física. Também protege contra sessão fantasma (QR Code fotografado remotamente)
   WAITER_NEW_ORDER: 'waiter:new-order',     // Emitido na criação do pedido (POST /orders) para garçons do setor da mesa. Inclui: orderId, tableId, tableName, items[]. Para itens destino "Garçom" (entrega direta), o garçom recebe este evento E já pode entregar imediatamente
+  WAITER_PAYMENT_REQUESTED: 'waiter:payment-requested', // Cliente iniciou pagamento CASH ou CARD que requer confirmação do garçom. Room: restaurant:{id}:waiter:sector:{sectorId}
 
   // Servidor -> Cliente
   CLIENT_ORDER_UPDATE: 'client:order-update',     // Status do pedido mudou
@@ -78,7 +80,8 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 
 | Evento | Room | Payload |
 |---|---|---|
-| `kds:new-order` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, tableNumber, sectorName, items: [{ itemId, productName, qty, notes?, pickupPointName, kitchenDelivery }], createdAt }` |
+| `kds:new-order` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, tableName, sectorName, items: [{ itemId, productName, qty, notes?, pickupPointName, kitchenDelivery }], createdAt }` |
+| `kds:item-cancelled` | `restaurant:{id}:kds:{prepLocationId}` | `{ orderId, orderNumber, itemId, productName, tableName, reason, cancelledByName }` — card muda pra fundo vermelho + "CANCELADO" + motivo. Operador confirma "Entendido" pra remover |
 
 ### KDS → Servidor
 
@@ -92,13 +95,14 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 |---|---|---|
 | `waiter:session-opened` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ tableId, tableName, personCount, openedAt }`. Garçom vai até a mesa para dar boas-vindas. Se mesa estiver vazia → sessão fantasma, garçom fecha manualmente |
 | `waiter:new-order` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableId, tableName, items: [{ itemId, productName, qty, destination }] }` |
-| `waiter:order-ready` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup: 'normal' \| 'early_delivery', pickupPoints: [{ pointId, pointName, locationName, kitchenDelivery, items: [{ itemId, productName, qty }] }] }` |
+| `waiter:order-ready` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, deliveryGroup: 'normal' \| 'early_delivery', pickupPoints: [{ pointId, pointName, locationName, kitchenDelivery, items: [{ itemId, productName, qty }] }] }` |
 | `waiter:pickup-claimed` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, deliveryGroup, claimedByStaffId, claimedByName }` |
-| `waiter:pickup-reminder` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[] }` |
-| `waiter:pickup-escalation` | `restaurant:{id}:waiter` | `{ orderId, orderNumber, tableNumber, deliveryGroup, minutesWaiting, pickupPoints[], previousClaimStaffId? }` |
+| `waiter:pickup-reminder` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, deliveryGroup, minutesWaiting, pickupPoints[] }` |
+| `waiter:pickup-escalation` | `restaurant:{id}:waiter` | `{ orderId, orderNumber, tableName, deliveryGroup, minutesWaiting, pickupPoints[], previousClaimStaffId? }` |
 | `waiter:claim-expiring` | direto ao socket do garçom | `{ orderId, orderNumber, deliveryGroup, expiresInSeconds: 60 }` |
 | `waiter:claim-expired` | direto ao socket do garçom | `{ orderId, orderNumber, deliveryGroup, expiredAt }` |
-| `waiter:call` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ callId, tableNumber, reason, message?, createdAt }` |
+| `waiter:call` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ callId, tableName, reason, message?, createdAt }` |
+| `waiter:payment-requested` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ tableId, tableName, personName, method: 'CASH' \| 'CARD_DEBIT' \| 'CARD_CREDIT', amount, paymentId }` — cliente iniciou pagamento que requer confirmação do garçom. Não emitido para PIX (confirmação via webhook) |
 | `waiter:order-cancelled` | `restaurant:{id}:waiter:sector:{sectorId}` | `{ orderId, orderNumber, tableName, cancelledByStaffId, cancelledItemIds[], reason? }` |
 | `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{originSectorId}` | `{ tableId, tableName, type: 'removed' }` — mesa saiu do setor |
 | `waiter:table-transferred` | `restaurant:{id}:waiter:sector:{destSectorId}` | `{ tableId, tableName, sessionId, sectorId, personCount, pendingOrders: [{ orderId, orderNumber, status, deliveryGroup, itemCount }] }` — mesa chegou no setor com contexto de pedidos pendentes/prontos |
@@ -143,7 +147,7 @@ Estrutura dos dados enviados em cada evento. Todos incluem `correlationId: strin
 |---|---|---|
 | `admin:table-update` | `restaurant:{id}:admin` | `{ tableId, status: 'free' \| 'occupied', sessionId?, occupiedSince? }` |
 | `admin:metrics-update` | `restaurant:{id}:admin` | `{ activeTables, activeOrders, avgPrepTimeByLocation: { [prepLocationId]: minutes }, revenue }` |
-| `admin:pickup-escalation` | `restaurant:{id}:admin` | `{ orderId, orderNumber, tableNumber, minutesWaiting, sectorName }` |
+| `admin:pickup-escalation` | `restaurant:{id}:admin` | `{ orderId, orderNumber, tableName, minutesWaiting, sectorName }` |
 | `admin:mapping-incomplete` | `restaurant:{id}:admin` | `{ sectorId, sectorName, missingLocations: [{ preparationLocationId, preparationLocationName }] }` — alerta urgente de mapeamento incompleto |
 | `admin:no-waiter-alert` | `restaurant:{id}:admin` | `{ tableId, tableName, sectorId, sectorName, attemptedAt }` — alerta severo: cliente tentou abrir mesa em setor sem garçom com turno ativo |
 | `admin:waiter-offline` | `restaurant:{id}:admin` | `{ staffId, staffName, sectorIds, sectorNames, offlineSince, minutesOffline }` — garçom com turno ativo desconectado há mais de `waiterOfflineAlertTimeout` minutos |

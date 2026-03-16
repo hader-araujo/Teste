@@ -7,7 +7,7 @@ Referência para implementação do schema Prisma. **Não é o schema literal** 
 - Campos: **camelCase**
 - Enums: **UPPER_CASE**
 - PK: UUID em todos os modelos
-- Multi-tenancy: `restaurantId` em todas as entidades vinculadas a restaurante
+- Multi-tenancy: `restaurantId` em todas as entidades **raiz** vinculadas a restaurante. Entidades filhas acessadas exclusivamente via parent (ex: PickupPoint via PreparationLocation, ActivityLog via TableSession, ProductImage via Product) não precisam de `restaurantId` direto — isolamento garantido pelo parent
 - Soft delete: `deletedAt` onde indicado
 - Timestamps: `createdAt` + `updatedAt` em todos os modelos
 
@@ -75,6 +75,13 @@ JOIN_REJECTED
 JOIN_EXPIRED
 ```
 
+**Máquina de estados:**
+```
+JOIN_PENDING → JOIN_APPROVED   (membro ou garçom aprova)
+JOIN_PENDING → JOIN_REJECTED   (membro ou garçom rejeita)
+JOIN_PENDING → JOIN_EXPIRED    (5 minutos sem resposta, Bull job)
+```
+
 ### TableStatus
 ```
 FREE
@@ -102,10 +109,20 @@ OPEN
 RESOLVED
 ```
 
+**Máquina de estados:**
+```
+OPEN → RESOLVED   (PATCH /calls/:id/resolve)
+```
+
 ### EstablishmentStatus
 ```
 ACTIVE
 SUSPENDED
+```
+
+**Máquina de estados:**
+```
+ACTIVE ↔ SUSPENDED   (PATCH /superadmin/establishments/:id/status)
 ```
 
 ### BillingPaymentStatus
@@ -915,7 +932,7 @@ Destino "Garçom": ORDER_QUEUED → ORDER_DELIVERED (pula ORDER_PREPARING e ORDE
 |---|---|---|
 | id | UUID | PK |
 | userId | UUID | FK → User. Quem executou a ação |
-| action | String | Convenção: `{módulo}_{ação}` em snake_case. Valores conhecidos: `establishment_suspended`, `establishment_activated`, `role_changed`, `data_deleted`, `force_close_session`, `item_cancelled_by_owner`, `module_enabled`, `module_disabled`, `plan_changed`, `billing_payment_registered`, `staff_pin_reset` |
+| action | String | Convenção: `{módulo}_{ação}` em snake_case. Valores conhecidos: `establishment_suspended`, `establishment_activated`, `role_changed`, `data_accessed`, `data_deleted`, `force_close_session`, `item_cancelled_by_owner`, `module_enabled`, `module_disabled`, `plan_changed`, `billing_payment_registered`, `staff_pin_reset` |
 | targetType | String | Ex: "Restaurant", "User", "OrderItem", "TableSession" |
 | targetId | UUID | ID da entidade alvo |
 | metadata | Json? | Dados adicionais (antes/depois, motivo, etc.) |
